@@ -113,7 +113,7 @@ hit "starting point:   Alice $(sh_ "$A3")     contracts $(p_count "$F3")     PID
 say "Same edit you already made. The SAME package Canton just rejected in Act 1."
 say "Difference: upload it UNVETTED, then swap the vetted set in one topology transaction."
 printf '\n'
-bash scripts/30-reload.sh "$TARGET" 2>&1 | grep -E "RELOAD swapped|RELOAD orphaned|PASS|FAIL" | sed 's/^/   /'
+bash scripts/30-reload.sh "$TARGET" 2>&1 | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|PASS|FAIL" | sed 's/^/   /'
 F4=$(facts); A4=$(p_alice "$F4")
 printf '\n'
 [ "$A4" = "$A3" ] && hit "Alice        $(sh_ "$A4")   <- IDENTICAL" || bad "Alice CHANGED (unexpected)"
@@ -151,7 +151,7 @@ printf '\n'
 say "Step 2 -- now the identical reload, plus dropping the old package."
 printf '\n'
 POC_REMOVE_OLD=true bash scripts/30-reload.sh "$TARGET" 2>&1 \
-  | grep -E "RELOAD swapped|RELOAD orphaned|RELOAD removeOld|PASS|FAIL" | sed 's/^/   /'
+  | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|RELOAD removeOld|PASS|FAIL" | sed 's/^/   /'
 F7=$(facts); A7=$(p_alice "$F7")
 printf '\n'
 [ "$A7" = "$A5" ] && hit "Alice        $(sh_ "$A7")   <- IDENTICAL" || bad "Alice CHANGED (unexpected)"
