@@ -110,16 +110,36 @@ multi-package.yaml   so Daml Studio can resolve every package in the repo
 
 Each of these was run to establish a specific claim in `RESULTS.md`:
 
+Each run starts from a clean sandbox, asserts its own expectations, and exits non-zero if any
+of them fail. Committed output is in `evidence/`, indexed by `evidence/INDEX.md`.
+
+```bash
+bash scripts/70-matrix.sh C1   # unforced add-second is REJECTED (KNOWN_PACKAGE_VERSION)
+bash scripts/70-matrix.sh C2   # forced add-second is accepted  -- C1+C2 are the control pair
+bash scripts/70-matrix.sh E1   # the swap, unforced, contracts archived first  <- the headline
+bash scripts/70-matrix.sh E2   # the swap, unforced, contracts still live
+bash scripts/70-matrix.sh E4   # unvetting with live contracts, unforced
+bash scripts/70-matrix.sh E6   # three independent repeats of E1
+
+bash scripts/71-closure.sh M1  # dependent not rebuilt -> PACKAGE_SELECTION_FAILED
+bash scripts/71-closure.sh M2  # the closure loop end to end, one topology transaction
+
+bash scripts/60-story.sh --no-pause   # the four acts, reload defaulting to no force flag
+```
+
+Still runnable directly:
+
 ```bash
 . scripts/lib.sh
-POC_V1=$(cat logs/pkgid-v1.txt) POC_V2=$(cat logs/pkgid-v2.txt) console console/ladder-a.canton
-console console/one-op.canton        # the swap needs no force flag
-console console/forcebump.canton     # forcing an incompatible bump is a trap
-console console/upgrade-test.canton  # compatible bump accepted live, incompatible rejected
-console console/swap-both.canton     # two packages swapped in one transaction
 console console/pv2.canton           # the sandbox runs stable protocol version 35
 console console/purge-pg.canton      # repair.purge — needs canton/sandbox-pg.conf
 ```
+
+**Not currently reproducible.** `console/upgrade-test.canton`, `console/forcebump.canton` and
+`console/upg2.canton` load DARs from `/private/tmp` that no longer exist and have no build recipe
+in this repo, so the "Approach 1" section of `RESULTS.md` cannot be re-run until those fixtures
+are restored. `console/one-op.canton` is no longer runnable bare: it now requires an explicit
+operation, force setting and full set of expectations, which `scripts/70-matrix.sh` supplies.
 
 ## Caveats
 
