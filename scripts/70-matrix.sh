@@ -109,20 +109,19 @@ if [ "$expect" = "fail" ] && [ -n "$err" ]; then
 fi
 
 # The oracle: presence of this line in the participant log proves the flag reached Canton.
-# It is emitted on the newly-added-package validation path, so it is SILENT BY CONSTRUCTION for
-# `unvet` rows (adds = []) -- absence there proves nothing, and flag identity rests on the
-# resolved value echoed by one-op.canton.
+# We expected it to be silent on `unvet` rows (adds = []). It is not -- E5 showed it firing with
+# "newly-added packages Set()", i.e. the flag is applied and simply has nothing to validate. So
+# the oracle is usable on EVERY row, which is what makes E4's zero lines independent evidence
+# that the unvet row genuinely ran unforced.
 banner "force-flag oracle (participant log)"
 oracle_post=$(grep -c "AllowVetIncompatibleUpgrades is set" log/canton.log 2>/dev/null || true)
 oracle_post=${oracle_post:-0}
 oracle_delta=$(( oracle_post - oracle_pre ))
 echo "oracle_lines_this_row   $oracle_delta   (before=$oracle_pre after=$oracle_post)"
-if [ "$op" = "unvet" ]; then
-  echo "oracle_interpretation   N/A - adds=[] so the newly-added-package validation path is"
-  echo "                        never reached; the oracle is silent by construction here and"
-  echo "                        flag identity rests on the resolved value echoed above."
-elif [ "$force" = "allow-vet-incompatible" ]; then
-  echo "oracle_interpretation   expect >0 (flag was passed and adds is non-empty)"
+if [ "$force" = "allow-vet-incompatible" ]; then
+  echo "oracle_interpretation   expect >0 (flag was passed). On an unvet row the line"
+  echo "                        still fires, logging 'newly-added packages Set()' -- the flag"
+  echo "                        is applied but has nothing to validate, which is why E4==E5."
   [ "$oracle_delta" -gt 0 ] && echo "oracle_verdict          CONSISTENT" || echo "oracle_verdict          INCONSISTENT - flag requested but Canton did not log it"
 else
   echo "oracle_interpretation   expect 0 (no flag passed)"

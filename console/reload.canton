@@ -2,17 +2,17 @@
 // Params: POC_DAR (new dar), POC_OLD (old main pkg id). Prints the new id for the caller.
 //
 // POC_FORCE selects the force argument: none | allow-vet-incompatible.
-// Under harness-v1 the default stays `allow-vet-incompatible`, which is what this file has
-// always passed, so the matrix measures the SHIPPED behaviour rather than an aspirational one.
-// It flips to `none` in harness-v2, once E1/E2 have established that the unforced swap works.
-// Until then, note the discrepancy this parameter exists to resolve: the RFC's documented
-// sequence omits the flag, while every run this script has ever produced set it.
+// The default is `none` as of harness-v2. This file previously hardcoded
+// AllowVetIncompatibleUpgrades, so every run it had ever produced set the flag while the RFC's
+// documented sequence omitted it -- the shipped loop and its documentation disagreed. E1 (swap,
+// unforced, contracts archived) and E2 (swap, unforced, contracts live) both passed under
+// harness-v1, so the documented sequence is now the executed one.
 import com.digitalasset.canton.topology.transaction.VettedPackage
 import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
 import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
 
 val dar  = sys.env("POC_DAR")
-val forceName = sys.env.getOrElse("POC_FORCE", "allow-vet-incompatible")
+val forceName = sys.env.getOrElse("POC_FORCE", "none")
 val ff: ForceFlags = forceName match {
   case "none"                   => ForceFlags.none
   case "allow-vet-incompatible" => ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades)

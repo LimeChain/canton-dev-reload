@@ -1,0 +1,71 @@
+// Swap a dependency closure in ONE topology transaction, with guards.
+//
+// Params:
+//   POC_A_DAR   new items DAR (required)
+//   POC_B_DAR   new holders DAR (empty string = swap A only, which is the M1 control)
+// No force flag: E1/E3 established that the atomic swap does not need one, and swap-both.canton
+// has always omitted it.
+//
+// Guard rationale: this uploads DARs the builder just wrote. If a build silently no-opped, new
+// and old ids would be equal and a vacuous swap would still report success -- which is exactly
+// the class of false positive that made the earlier evidence unusable.
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.daml.lf.data.Ref
+
+val aDar = sys.env.getOrElse("POC_A_DAR", throw new RuntimeException("POC_A_DAR not set"))
+val bDar = sys.env.getOrElse("POC_B_DAR", "")
+
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+val store: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
+
+def mappings() = sandbox.topology.vetted_packages.list(store = Some(store))
+def vetted(): Set[String] = mappings().flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(): Long = mappings().map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+
+def liveId(name: String): String = {
+  val v = vetted()
+  sandbox.dars.list().filter(_.name == name).map(_.mainPackageId).find(v.contains)
+    .getOrElse(sys.error(s"no vetted $name package found"))
+}
+
+val oldA = liveId("items")
+val oldB = if (bDar.nonEmpty) Some(liveId("holders")) else None
+println(s"CLOSURE oldA=$oldA oldB=${oldB.getOrElse("<not swapped>")}")
+
+val newA = sandbox.dars.upload(aDar, vetAllPackages = false)
+val newB = if (bDar.nonEmpty) Some(sandbox.dars.upload(bDar, vetAllPackages = false)) else None
+println(s"CLOSURE newA=$newA newB=${newB.getOrElse("<not swapped>")}")
+
+if (newA == oldA) sys.error(s"vacuous swap: newA == oldA ($oldA) - the build did not change items")
+(oldB, newB) match {
+  case (Some(o), Some(n)) if o == n =>
+    sys.error(s"vacuous swap: newB == oldB ($o) - the build did not change holders")
+  case _ => ()
+}
+
+val preS = serial()
+val adds    = Seq(VettedPackage(newA, None, None)) ++ newB.map(VettedPackage(_, None, None))
+val removes = (Seq(oldA) ++ oldB.toSeq).map(Ref.PackageId.assertFromString)
+println(s"CLOSURE adds=[${adds.map(_.packageId.toString.take(12)).mkString(",")}] " +
+        s"removes=[${(Seq(oldA) ++ oldB.toSeq).map(_.take(12)).mkString(",")}] force=none")
+
+sandbox.topology.vetted_packages.propose_delta(
+  participant = sandbox.id, adds = adds, removes = removes, store = store)
+
+val eff   = vetted()
+val delta = serial() - preS
+println(s"CLOSURE_RESULT serialDelta=$delta oldAVetted=${eff.contains(oldA)} newAVetted=${eff.contains(newA)} " +
+        s"oldBVetted=${oldB.map(eff.contains).getOrElse("n/a")} newBVetted=${newB.map(eff.contains).getOrElse("n/a")}")
+
+val problems = scala.collection.mutable.ListBuffer[String]()
+if (delta < 1)              problems += s"serialDelta=$delta (swap did not take effect)"
+if (eff.contains(oldA))     problems += "oldA still vetted"
+if (!eff.contains(newA))    problems += "newA not vetted"
+oldB.foreach(o => if (eff.contains(o))  problems += "oldB still vetted")
+newB.foreach(n => if (!eff.contains(n)) problems += "newB not vetted")
+
+if (problems.nonEmpty) {
+  println(s"CLOSURE VERDICT FAIL: ${problems.mkString("; ")}")
+  throw new RuntimeException(s"closure swap failed: ${problems.mkString("; ")}")
+} else println("CLOSURE VERDICT PASS")
