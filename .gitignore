@@ -4,3 +4,12 @@ log/
 logs/
 .daml/
 *.dar
+
+# throwaway projects materialised by the variant builders; never tracked sources
+.gen-*/
+
+# loop-review sandbox (single-cycle, wiped on finalize)
+.skills-workspace/
+
+# evidence logs ARE tracked: they are the proposal's citations
+!evidence/
