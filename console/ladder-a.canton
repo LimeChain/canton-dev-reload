@@ -1,0 +1,71 @@
+// PHASE A -- non-destructive vetting experiments (no contracts involved).
+// Params: POC_V1, POC_V2 (main package ids).
+// NOTE: no `import scala.util.{...}` -- that makes the console's Scala 2.13 compiler load
+// scala/util/*.tasty from the Canton fat jar and fail. Fully-qualified refs are fine.
+import java.nio.file.{Files, Paths, StandardOpenOption}
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+
+val V1 = sys.env("POC_V1")
+val V2 = sys.env("POC_V2")
+val logPath = Paths.get("logs/ladder.log")
+
+def rec(rung: String, status: String, detail: String): Unit = {
+  val d = detail.replace("\n", " ").replaceAll("\\s+", " ").take(300)
+  Files.write(logPath, s"$rung|$status|$d\n".getBytes, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+  println(s"RUNG $rung -> $status :: $d")
+}
+def rung[T](name: String)(body: => T): Option[T] = scala.util.Try(body) match {
+  case scala.util.Success(v) => rec(name, "PASS", String.valueOf(v).take(160)); Some(v)
+  case scala.util.Failure(e) => rec(name, "FAIL", Option(e.getMessage).getOrElse(e.toString)); None
+}
+
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+// The EFFECTIVE vetted set lives in the synchronizer store. dars.upload/vetting write
+// there. propose_delta defaults to the Authorized store, which on a fresh sandbox holds
+// no VettedPackages mapping at all -- so a defaulted propose_delta computes its delta
+// against an EMPTY mapping and emits serial=1, which can never supersede the
+// synchronizer's serial. Targeting the synchronizer store explicitly is required.
+val syncStore: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
+
+def eff(): Set[String] =
+  sandbox.topology.vetted_packages.list(store = Some(syncStore))
+    .flatMap(_.item.packages.map(_.packageId)).toSet
+def serials(): String =
+  sandbox.topology.vetted_packages.list(store = Some(syncStore)).map(_.context.serial).mkString(",")
+def state(tag: String): Unit = {
+  val e = eff()
+  println(s"STATE[$tag] v1=${e.contains(V1)} v2=${e.contains(V2)} n=${e.size} serial=${serials()}")
+}
+
+state("start")
+
+rung("A1-upload-v2-unvetted") { sandbox.dars.upload("artifacts/mirrors-v2.dar", vetAllPackages = false) }
+state("after-A1")
+
+rung("A2-vet-v2-while-v1-vetted") { sandbox.dars.vetting.enable(V2) }
+state("after-A2")
+
+rung("A3-force-add-v2-keep-v1") {
+  sandbox.topology.vetted_packages.propose_delta(
+    participant = sandbox.id,
+    adds        = Seq(VettedPackage(V2, None, None)),
+    removes     = Seq.empty,
+    store       = syncStore,
+    force       = ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades),
+  )
+}
+state("after-A3")
+
+rung("A3b-atomic-swap-v1-out-v2-in") {
+  sandbox.topology.vetted_packages.propose_delta(
+    participant = sandbox.id,
+    adds        = Seq(VettedPackage(V2, None, None)),
+    removes     = Seq(V1),
+    store       = syncStore,
+    force       = ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades),
+  )
+}
+state("after-A3b")
+println("PHASE_A_DONE")

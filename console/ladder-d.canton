@@ -1,0 +1,46 @@
+// PHASE D -- the orphans. The vetting swap left V1 contracts ACTIVE but unvettable.
+// Tests: (1) does repair.purge require a synchronizer disconnect? (2) what does a
+// connected consumer observe when contracts are purged?
+import java.nio.file.{Files, Paths, StandardOpenOption}
+import com.digitalasset.daml.lf.value.Value
+val V1 = sys.env("POC_V1")
+val logPath = Paths.get("logs/ladder.log")
+def rec(r: String, s: String, d: String): Unit = {
+  val dd = d.replace("\n"," ").replaceAll("\\s+"," ").take(300)
+  Files.write(logPath, s"$r|$s|$dd\n".getBytes, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+  println(s"RUNG $r -> $s :: $dd")
+}
+def rung[T](n: String)(b: => T): Option[T] = scala.util.Try(b) match {
+  case scala.util.Success(v) => rec(n,"PASS",String.valueOf(v).take(160)); Some(v)
+  case scala.util.Failure(e) => rec(n,"FAIL",Option(e.getMessage).getOrElse(e.toString)); None
+}
+val alias = sandbox.synchronizers.list_connected().head.synchronizerAlias
+def parties() = sandbox.parties.list().map(_.party).filter(p => {
+  val i = p.uid.identifier.unwrap; i.startsWith("Alice") || i.startsWith("Bob") })
+def orphans(): Seq[String] = parties().flatMap(p =>
+  sandbox.ledger_api.state.acs.of_party(p).filter(_.templateId.packageId == V1).map(_.contractId)).distinct
+
+val before = orphans()
+println(s"STATE[D-start] orphans=${before.size} ledgerEnd=${sandbox.ledger_api.state.end()}")
+
+// D1: purge WITHOUT disconnecting -- does the synchronizerNotConnected guard fire?
+val direct = rung("D1-purge-while-connected") {
+  sandbox.repair.purge(alias, before.map(Value.ContractId.assertFromString), true)
+}
+println(s"STATE[after-D1] orphans=${orphans().size} ledgerEnd=${sandbox.ledger_api.state.end()}")
+
+if (direct.isEmpty) {
+  val d = rung("D2-disconnect-all") { sandbox.synchronizers.disconnect_all() }
+  if (d.isDefined) {
+    rung("D3-purge-while-disconnected") {
+      sandbox.repair.purge(alias, before.map(Value.ContractId.assertFromString), true)
+    }
+    rung("D4-reconnect-all") { sandbox.synchronizers.reconnect_all() }
+  }
+} else {
+  rec("D2-disconnect-all","SKIP(not-needed)","D1 succeeded while connected")
+  rec("D3-purge-while-disconnected","SKIP(not-needed)","D1 succeeded while connected")
+  rec("D4-reconnect-all","SKIP(not-needed)","D1 succeeded while connected")
+}
+println(s"STATE[D-end] orphans=${orphans().size} ledgerEnd=${sandbox.ledger_api.state.end()}")
+println("PHASE_D_DONE")

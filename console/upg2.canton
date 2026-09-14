@@ -1,0 +1,11 @@
+scala.util.Try(sandbox.dars.upload("/private/tmp/mirrors-102-incompatible.dar", vetAllPackages = true)) match {
+  case scala.util.Success(id) => println(s"1.0.2 INCOMPATIBLE => ACCEPTED ${id.take(12)}")
+  case scala.util.Failure(e)  => println("1.0.2 INCOMPATIBLE => REJECTED")
+}
+println("vetted mirrors versions:")
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+val eff: Set[String] = sandbox.topology.vetted_packages.list(store=Some(TopologyStoreId.Synchronizer(psid)))
+  .flatMap(_.item.packages.map(_.packageId.toString)).toSet
+sandbox.dars.list().filter(_.name=="mirrors").foreach(d =>
+  println(s"   ${d.version}  ${d.mainPackageId.take(12)}  ${if (eff.contains(d.mainPackageId)) "VETTED" else "not vetted"}"))

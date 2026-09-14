@@ -1,0 +1,42 @@
+module SeedAB where
+import Daml.Script
+import DA.Text qualified as T
+import DA.Foldable (forA_)
+import Items
+import Holders
+
+getParty : Text -> Script Party
+getParty hint = do
+  ps <- listKnownParties
+  let m = [ pd.party | pd <- ps, T.isPrefixOf (hint <> "::") (partyToText pd.party) ]
+  case m of (p :: _) -> pure p; [] -> allocatePartyByHint (PartyIdHint hint)
+
+seed : Script ()
+seed = do
+  alice <- getParty "Alice"
+  item  <- submit alice do createCmd Item { owner = alice, label = "first" }
+  _     <- submit alice do createCmd Holder { owner = alice, item = item }
+  debug "SEEDAB created Item + Holder"
+
+-- Exercise B's choice, which FETCHES a contract from package A.
+peek : Script ()
+peek = do
+  alice <- getParty "Alice"
+  hs <- query @Holder alice
+  debug ("PEEK holders=" <> show (length hs))
+  forA_ hs \(cid, _) -> do
+    l <- submit alice do exerciseCmd cid PeekItem
+    debug ("PEEK label=" <> l)
+
+-- Archive everything, DEPENDENTS FIRST: B's Holders before A's Items, because a
+-- Holder holds a ContractId into A.
+wipe : Script ()
+wipe = do
+  alice <- getParty "Alice"
+  hs <- query @Holder alice
+  debug ("WIPE holders=" <> show (length hs))
+  forA_ hs \(cid, _) -> submit alice do archiveCmd cid
+  is <- query @Item alice
+  debug ("WIPE items=" <> show (length is))
+  forA_ is \(cid, _) -> submit alice do archiveCmd cid
+  debug "WIPE complete"

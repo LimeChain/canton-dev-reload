@@ -1,0 +1,17 @@
+// PHASE C -- can the old DAR be removed once it is unvetted (and has no contracts)?
+import java.nio.file.{Files, Paths, StandardOpenOption}
+val V1 = sys.env("POC_V1")
+val logPath = Paths.get("logs/ladder.log")
+def rec(r: String, s: String, d: String): Unit = {
+  val dd = d.replace("\n"," ").replaceAll("\\s+"," ").take(300)
+  Files.write(logPath, s"$r|$s|$dd\n".getBytes, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+  println(s"RUNG $r -> $s :: $dd")
+}
+def rung[T](n: String)(b: => T): Option[T] = scala.util.Try(b) match {
+  case scala.util.Success(v) => rec(n,"PASS",String.valueOf(v).take(160)); Some(v)
+  case scala.util.Failure(e) => rec(n,"FAIL",Option(e.getMessage).getOrElse(e.toString)); None
+}
+println("DARS before: " + sandbox.dars.list().filter(_.name=="mirrors").map(_.mainPackageId).mkString(","))
+rung("C1-remove-old-dar-unvetted-no-contracts") { sandbox.dars.remove(V1) }
+println("DARS after:  " + sandbox.dars.list().filter(_.name=="mirrors").map(_.mainPackageId).mkString(","))
+println("PHASE_C_DONE")

@@ -1,0 +1,6 @@
+sdk-version: 3.5.5
+name: holders
+source: daml
+version: 1.0.0
+dependencies: [daml-prim, daml-stdlib]
+data-dependencies: [../../artifacts/items.dar]

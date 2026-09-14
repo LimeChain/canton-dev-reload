@@ -1,0 +1,10 @@
+// Upload a DAR. Params via env: POC_DAR (path), POC_VET (true|false).
+val dar = sys.env.getOrElse("POC_DAR", throw new RuntimeException("POC_DAR not set"))
+val vet = sys.env.getOrElse("POC_VET", "true").toBoolean
+val mainPkgId = sandbox.dars.upload(dar, vetAllPackages = vet)
+println(s"UPLOADED dar=$dar vetAllPackages=$vet mainPackageId=$mainPkgId")
+sandbox.dars.list().filter(_.name == "mirrors").foreach { d =>
+  println(s"DAR mirrors/${d.version} main=${d.mainPackageId}")
+}
+val vetted = sandbox.topology.vetted_packages.list().flatMap(_.item.packages.map(_.packageId)).toSet
+println(s"VETTED_CONTAINS_MAIN ${vetted.contains(mainPkgId)}")

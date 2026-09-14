@@ -1,0 +1,6 @@
+// Emit shell-sourceable party ids for the observer.
+sandbox.parties.list().map(_.party).foreach { p =>
+  val id = p.uid.identifier.unwrap
+  if (id.startsWith("Alice") || id.startsWith("Bob"))
+    println(s"PARTYVAR ${id.toUpperCase.replaceAll("[^A-Z0-9]","_")}=${p.toProtoPrimitive}")
+}

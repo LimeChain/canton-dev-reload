@@ -1,0 +1,6 @@
+interface:
+  display_name: "Loop Review"
+  short_description: "Plan/review loop under .skills-workspace/loop"
+  default_prompt: "Use $loop-review as plan or review."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+# build output and generated state
+artifacts/
+log/
+logs/
+.daml/
+*.dar

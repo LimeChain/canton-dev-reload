@@ -1,0 +1,19 @@
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+val V1 = sys.env("POC_V1"); val V2 = sys.env("POC_V2"); val op = sys.env("POC_OP")
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+val store: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
+def vetted() = sandbox.topology.vetted_packages.list(store=Some(store)).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def acs() = sandbox.parties.list().map(_.party)
+  .filter(p => { val i=p.uid.identifier.unwrap; i.startsWith("Alice")||i.startsWith("Bob") })
+  .flatMap(p => sandbox.ledger_api.state.acs.of_party(p)).size
+println(s"PRE  v1Vetted=${vetted().contains(V1)} v2Vetted=${vetted().contains(V2)} contracts=${acs()}")
+val ff = if (op.endsWith("force")) ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades) else ForceFlags.none
+val adds = if (op.startsWith("swap")) Seq(VettedPackage(V2, None, None)) else Seq.empty
+scala.util.Try(sandbox.topology.vetted_packages.propose_delta(
+  participant = sandbox.id, adds = adds, removes = Seq(V1), store = store, force = ff)) match {
+  case scala.util.Success(_) => println(s"RESULT $op => SUCCEEDED")
+  case scala.util.Failure(e) => println(s"RESULT $op => FAILED: ${Option(e.getMessage).getOrElse(e.toString)}")
+}
+println(s"POST v1Vetted=${vetted().contains(V1)} v2Vetted=${vetted().contains(V2)} contracts=${acs()}")

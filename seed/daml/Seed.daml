@@ -1,0 +1,52 @@
+-- Re-seeds the development model after a reload.
+-- Party allocation is IDEMPOTENT: an existing party with the hint is reused, so the
+-- Alice/Bob party IDs survive a reload. That is a headline POC invariant.
+module Seed where
+
+import Daml.Script
+import DA.Foldable (forA_)
+import DA.Text qualified as T
+import Mirrors
+
+findParty : Text -> Script (Optional Party)
+findParty hint = do
+  known <- listKnownParties
+  let matches = [ pd.party | pd <- known, T.isPrefixOf (hint <> "::") (partyToText pd.party) ]
+  pure $ case matches of
+    (p :: _) -> Some p
+    []       -> None
+
+getOrAllocate : Text -> Script Party
+getOrAllocate hint = do
+  existing <- findParty hint
+  case existing of
+    Some p -> do
+      debug ("PARTY reused    " <> hint <> " = " <> partyToText p)
+      pure p
+    None -> do
+      p <- allocatePartyByHint (PartyIdHint hint)
+      debug ("PARTY allocated " <> hint <> " = " <> partyToText p)
+      pure p
+
+seed : Script ()
+seed = do
+  debug ("MODEL " <> variantTag)
+  alice <- getOrAllocate "Alice"
+  bob   <- getOrAllocate "Bob"
+  forA_ [alice, bob] \p ->
+    submit p do createCmd Mirror { owner = p, value = defaultValue }
+  debug "SEED complete"
+
+-- Archives every Mirror visible to Alice/Bob using ORDINARY Daml authority (the implicit
+-- Archive choice, controlled by the signatory). Used to test whether orphaned contracts
+-- from a superseded package can be cleaned up WITHOUT repair tooling, by temporarily
+-- re-vetting the old package alongside the new one.
+cleanup : Script ()
+cleanup = do
+  alice <- getOrAllocate "Alice"
+  bob   <- getOrAllocate "Bob"
+  forA_ [alice, bob] \p -> do
+    cs <- query @Mirror p
+    debug ("CLEANUP " <> partyToText p <> " found " <> show (length cs))
+    forA_ cs \(cid, _) -> submit p do archiveCmd cid
+  debug "CLEANUP complete"

@@ -1,0 +1,64 @@
+// THE RELOAD: upload the rebuilt package unvetted, then swap the vetted set atomically.
+// Params: POC_DAR (new dar), POC_OLD (old main pkg id). Prints the new id for the caller.
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+
+val dar  = sys.env("POC_DAR")
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+// MUST target the synchronizer store: propose_delta defaults to the Authorized store,
+// which holds no VettedPackages mapping, so a defaulted call emits serial=1 and silently
+// does nothing.
+val store: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
+
+// Work out the live model ourselves rather than making the caller do a second console
+// round-trip just to ask. POC_OLD still overrides, for the ladder scripts.
+def vettedNow(): Set[String] =
+  sandbox.topology.vetted_packages.list(store = Some(store))
+    .flatMap(_.item.packages.map(_.packageId.toString)).toSet
+val oldId = sys.env.get("POC_OLD").filter(_.nonEmpty).getOrElse {
+  val v = vettedNow()
+  sandbox.dars.list().filter(_.name == "mirrors").map(_.mainPackageId)
+    .find(id => v.contains(id))
+    .getOrElse(sys.error("no vetted mirrors package found"))
+}
+println(s"RELOAD old=$oldId")
+
+val newId = sandbox.dars.upload(dar, vetAllPackages = false)
+println(s"RELOAD uploaded=$newId (unvetted)")
+
+if (newId == oldId) {
+  println("RELOAD unchanged: rebuilt package is identical to the running one, nothing to do")
+} else {
+  sandbox.topology.vetted_packages.propose_delta(
+    participant = sandbox.id,
+    adds        = Seq(VettedPackage(newId, None, None)),
+    removes     = Seq(oldId),
+    store       = store,
+    force       = ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades),
+  )
+  val eff = sandbox.topology.vetted_packages.list(store = Some(store))
+              .flatMap(_.item.packages.map(_.packageId)).toSet
+  println(s"RELOAD swapped oldVetted=${eff.contains(oldId)} newVetted=${eff.contains(newId)}")
+}
+// Orphan accounting: the swap does NOT touch existing contracts. They stay active but
+// their package is no longer vetted, so they can no longer be exercised.
+val orphans = sandbox.parties.list().map(_.party).filter(p => {
+  val i = p.uid.identifier.unwrap; i.startsWith("Alice") || i.startsWith("Bob") })
+  .flatMap(p => sandbox.ledger_api.state.acs.of_party(p).filter(_.templateId.packageId == oldId))
+println(s"RELOAD orphanedContracts=${orphans.size} (left active unless archived first)")
+// OPTIONAL cleanup: drop the old DAR entirely.
+// Placement matters: this must come AFTER the swap above, because a package can only be
+// removed once it is unvetted. It also requires ZERO active contracts referencing it --
+// which is why it only succeeds if you archived before reloading. Best-effort, so a
+// failure here never fails the reload.
+// Needs the console flag: -C canton.features.enable-preview-commands=yes  (lib.sh passes it)
+if (sys.env.get("POC_REMOVE_OLD").contains("true") && newId != oldId) {
+  if (orphans.nonEmpty)
+    println(s"RELOAD removeOld=SKIPPED ${orphans.size} active contracts still reference it")
+  else scala.util.Try(sandbox.dars.remove(oldId)) match {
+    case scala.util.Success(_) => println(s"RELOAD removeOld=DONE ${oldId.take(12)}")
+    case scala.util.Failure(e) => println(s"RELOAD removeOld=FAILED ${Option(e.getMessage).getOrElse("?").take(110)}")
+  }
+}
+println(s"RELOAD_NEW_PKG=$newId")

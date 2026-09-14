@@ -1,0 +1,6 @@
+// What a developer actually does: rebuild and upload it, expecting it to just work.
+val dar = sys.env("POC_DAR")
+scala.util.Try(sandbox.dars.upload(dar, vetAllPackages = true)) match {
+  case scala.util.Success(id) => println(s"NAIVE_RESULT=OK id=$id")
+  case scala.util.Failure(e)  => println(s"NAIVE_RESULT=REJECTED ${Option(e.getMessage).getOrElse(e.toString)}")
+}

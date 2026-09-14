@@ -1,0 +1,9 @@
+def try_(label: String, dar: String): Unit =
+  scala.util.Try(sandbox.dars.upload(dar, vetAllPackages = true)) match {
+    case scala.util.Success(id) => println(s"$label => ACCEPTED ${id.take(12)}")
+    case scala.util.Failure(e)  => println(s"$label => REJECTED")
+  }
+try_("1.0.1 COMPATIBLE  (add Optional field)", "/private/tmp/mirrors-101-compatible.dar")
+try_("1.0.1 INCOMPATIBLE (Text -> Int)      ", "/private/tmp/mirrors-101-incompatible.dar")
+println("mirrors packages now known:")
+sandbox.dars.list().filter(_.name=="mirrors").foreach(d => println(s"   ${d.version}  ${d.mainPackageId.take(12)}"))

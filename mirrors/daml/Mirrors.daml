@@ -1,0 +1,39 @@
+module Mirrors where
+
+-- ===========================================================================
+--   THE ONE LINE YOU EDIT IN THE DEMO:
+--
+--       type Val = Text      ->      type Val = Int
+--
+--   That changes the Mirror template's field type, which can never be a
+--   valid smart-contract upgrade. Everything below adapts automatically.
+-- ===========================================================================
+
+type Val = Text
+
+template Mirror
+  with
+    owner : Party
+    value : Val
+  where
+    signatory owner
+
+-- Demo scaffolding only: lets the seed script compile against either field
+-- type, so the edit above stays a genuine one-liner.
+class DemoVal a where
+  demoDefault : a
+  nameOf      : a -> Text
+
+instance DemoVal Text where
+  demoDefault = "hello-from-the-old-model"
+  nameOf _    = "Text"
+
+instance DemoVal Int where
+  demoDefault = 42
+  nameOf _    = "Int"
+
+defaultValue : Val
+defaultValue = demoDefault
+
+variantTag : Text
+variantTag = "value : " <> nameOf defaultValue

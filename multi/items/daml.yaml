@@ -1,0 +1,5 @@
+sdk-version: 3.5.5
+name: items
+source: daml
+version: 1.0.0
+dependencies: [daml-prim, daml-stdlib]

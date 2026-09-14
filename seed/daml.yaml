@@ -1,0 +1,13 @@
+sdk-version: 3.5.5
+name: mirrors-seed
+source: daml
+version: 1.0.0
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+# Built against whatever artifacts/mirrors.dar currently is. This DAR is NEVER uploaded
+# to the participant (dpm script --upload-dar defaults to false), so it stays out of the
+# vetting set entirely.
+data-dependencies:
+  - ../artifacts/mirrors.dar

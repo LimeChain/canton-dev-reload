@@ -1,0 +1,6 @@
+sdk-version: 3.5.5
+name: seedab
+source: daml
+version: 1.0.0
+dependencies: [daml-prim, daml-stdlib, daml-script]
+data-dependencies: [../../artifacts/items.dar, ../../artifacts/holders.dar]

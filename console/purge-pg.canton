@@ -1,0 +1,18 @@
+import com.digitalasset.canton.SynchronizerAlias
+import com.digitalasset.daml.lf.value.Value
+def parties() = sandbox.parties.list().map(_.party)
+  .filter(p => { val i=p.uid.identifier.unwrap; i.startsWith("Alice")||i.startsWith("Bob") })
+def cids() = parties().flatMap(p => sandbox.ledger_api.state.acs.of_party(p).map(_.contractId)).distinct
+val alias = sandbox.synchronizers.list_connected().head.synchronizerAlias
+val before = cids()
+println(s"BEFORE activeContracts=${before.size}")
+sandbox.synchronizers.disconnect_all()
+println("disconnected")
+scala.util.Try(sandbox.repair.purge(alias, before.map(Value.ContractId.assertFromString), true)) match {
+  case scala.util.Success(_) => println("REPAIR_PURGE => SUCCEEDED")
+  case scala.util.Failure(e) => println("REPAIR_PURGE => FAILED: " + Option(e.getMessage).getOrElse("?").take(150))
+}
+sandbox.synchronizers.reconnect_all()
+println("reconnected")
+Thread.sleep(3000)
+println(s"AFTER  activeContracts=${cids().size}")

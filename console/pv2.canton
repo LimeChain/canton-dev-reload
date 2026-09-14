@@ -1,0 +1,6 @@
+import com.digitalasset.canton.version.ProtocolVersion
+println("stable    = " + scala.util.Try(ProtocolVersion.stable.toString).getOrElse("?"))
+println("alpha     = " + scala.util.Try(ProtocolVersion.alpha.toString).getOrElse("?"))
+println("beta      = " + scala.util.Try(ProtocolVersion.beta.toString).getOrElse("?"))
+println("dev       = " + scala.util.Try(ProtocolVersion.dev.toString).getOrElse("?"))
+println("latest    = " + scala.util.Try(ProtocolVersion.latest.toString).getOrElse("?"))

@@ -1,0 +1,10 @@
+sdk-version: 3.5.5
+
+# Present so Daml Studio can resolve every package in this repo. Without it the IDE
+# reports "Failed to load information from multi-package.yaml" on every .daml file.
+packages:
+- ./mirrors
+- ./seed
+- ./multi/items
+- ./multi/holders
+- ./multi/seedab

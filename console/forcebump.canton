@@ -1,0 +1,17 @@
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
+val store: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
+// 1.0.1 with Text -> Int : an INCOMPATIBLE change on a BUMPED version
+val newId = sandbox.dars.upload("/private/tmp/mirrors-101-incompatible.dar", vetAllPackages = false)
+println(s"uploaded 1.0.1 incompatible = ${newId.take(12)} (unvetted)")
+scala.util.Try(sandbox.topology.vetted_packages.propose_delta(participant = sandbox.id,
+  adds = Seq(VettedPackage(newId, None, None)), removes = Seq.empty, store = store,
+  force = ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades))) match {
+  case scala.util.Success(_) => println("FORCE_VET_INCOMPATIBLE_BUMP => SUCCEEDED")
+  case scala.util.Failure(e) => println("FORCE_VET_INCOMPATIBLE_BUMP => FAILED: " + Option(e.getMessage).getOrElse("?").take(140))
+}
+val eff: Set[String] = sandbox.topology.vetted_packages.list(store=Some(store)).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+sandbox.dars.list().filter(_.name=="mirrors").foreach(d =>
+  println(s"   mirrors ${d.version} ${d.mainPackageId.take(12)} ${if (eff.contains(d.mainPackageId)) "VETTED" else "not vetted"}"))

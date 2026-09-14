@@ -1,0 +1,3 @@
+Seq("artifacts/items.dar","artifacts/holders.dar").foreach { d =>
+  val id = sandbox.dars.upload(d, vetAllPackages = true); println(s"UP $d -> ${id.take(12)}")
+}
