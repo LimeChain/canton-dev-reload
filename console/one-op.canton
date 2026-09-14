@@ -1,19 +1,146 @@
+// One topology operation against the synchronizer store, with a machine-checked assertion
+// contract. Every expectation is supplied by the caller, so a row's pass/fail is decided here
+// and carried by the exit status -- never by grepping stdout.
+//
+// WHY THIS FILE WAS REWRITTEN: it previously chose the force flag with
+//     val ff = if (op.endsWith("force")) ForceFlags(AllowVetIncompatibleUpgrades) else ForceFlags.none
+// and the ops passed were "swap-noforce" / "unvet-noforce". Both END with "force", so both ran
+// WITH the flag while being labelled as running without it. Behaviour was derived from a label;
+// here the label is derived from behaviour, and the resolved flag is echoed as reconstructed
+// rather than as requested.
+//
+// Inputs (all required, all exact-match, no defaulting):
+//   POC_V1, POC_V2      package ids
+//   POC_OP              swap | unvet | add-second
+//   POC_FORCE           none | allow-vet-incompatible
+// Expectations (all required):
+//   POC_EXPECT          succeed | fail
+//   POC_EXPECT_ERR      substring required in the error when POC_EXPECT=fail, else ""
+//   POC_EXPECT_V1       true | false   -- v1 vetted afterwards?
+//   POC_EXPECT_V2       true | false   -- v2 vetted afterwards?
+//   POC_EXPECT_DELTA    required VettedPackages serial delta (0 for an expected failure)
+//   POC_EXPECT_ACS      required active-contract count afterwards
+//   POC_EXPECT_ON_V1     required count of active contracts still on v1 afterwards
 import com.digitalasset.canton.topology.transaction.VettedPackage
 import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
 import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
-val V1 = sys.env("POC_V1"); val V2 = sys.env("POC_V2"); val op = sys.env("POC_OP")
+
+def req(k: String): String =
+  sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+
+val V1 = req("POC_V1")
+val V2 = req("POC_V2")
+
+// MUST target the synchronizer store. propose_delta defaults to the Authorized store, which on a
+// fresh participant holds no VettedPackages mapping -- a defaulted call computes its delta
+// against nothing, emits serial 1, can never supersede the synchronizer's serial, changes
+// nothing, and still returns success.
 val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
 val store: TopologyStoreId = TopologyStoreId.Synchronizer(psid)
-def vetted() = sandbox.topology.vetted_packages.list(store=Some(store)).flatMap(_.item.packages.map(_.packageId.toString)).toSet
-def acs() = sandbox.parties.list().map(_.party)
-  .filter(p => { val i=p.uid.identifier.unwrap; i.startsWith("Alice")||i.startsWith("Bob") })
-  .flatMap(p => sandbox.ledger_api.state.acs.of_party(p)).size
-println(s"PRE  v1Vetted=${vetted().contains(V1)} v2Vetted=${vetted().contains(V2)} contracts=${acs()}")
-val ff = if (op.endsWith("force")) ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades) else ForceFlags.none
-val adds = if (op.startsWith("swap")) Seq(VettedPackage(V2, None, None)) else Seq.empty
-scala.util.Try(sandbox.topology.vetted_packages.propose_delta(
-  participant = sandbox.id, adds = adds, removes = Seq(V1), store = store, force = ff)) match {
-  case scala.util.Success(_) => println(s"RESULT $op => SUCCEEDED")
-  case scala.util.Failure(e) => println(s"RESULT $op => FAILED: ${Option(e.getMessage).getOrElse(e.toString)}")
+
+def mappings() = sandbox.topology.vetted_packages.list(store = Some(store))
+def vetted(): Set[String] = mappings().flatMap(_.item.packages.map(_.packageId.toString)).toSet
+// The serial of THIS participant's VettedPackages mapping -- not any other topology mapping.
+def serial(): Long = mappings().map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+def parties() = sandbox.parties.list().map(_.party).filter { p =>
+  val i = p.uid.identifier.unwrap; i.startsWith("Alice") || i.startsWith("Bob")
 }
-println(s"POST v1Vetted=${vetted().contains(V1)} v2Vetted=${vetted().contains(V2)} contracts=${acs()}")
+def contracts() = parties().flatMap(p => sandbox.ledger_api.state.acs.of_party(p))
+def acs(): Int = contracts().size
+def onV1(): Int = contracts().count(_.templateId.packageId == V1)
+
+// Behaviour comes from these two variables and nothing else. Neither encodes the other, and no
+// value is a prefix or suffix of another.
+val op = req("POC_OP")
+val forceName = req("POC_FORCE")
+
+val ff: ForceFlags = forceName match {
+  case "none"                   => ForceFlags.none
+  case "allow-vet-incompatible" => ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades)
+  case other => throw new IllegalArgumentException(
+    s"POC_FORCE must be none|allow-vet-incompatible, got '$other'")
+}
+val adds: Seq[VettedPackage] = op match {
+  case "swap" | "add-second" => Seq(VettedPackage(V2, None, None))
+  case "unvet"               => Seq.empty
+  case other => throw new IllegalArgumentException(
+    s"POC_OP must be swap|unvet|add-second, got '$other'")
+}
+// propose_delta wants Seq[Ref.PackageId]. Annotating this as Seq[String] blocks the per-element
+// String -> PackageId implicit that would otherwise apply at the call site, so convert here
+// explicitly rather than relying on inference.
+val removesStr: Seq[String] = op match {
+  case "swap" | "unvet" => Seq(V1)
+  case "add-second"     => Seq.empty
+  case _                => Seq.empty
+}
+val removes = removesStr.map(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString)
+
+val preV  = vetted()
+val preS  = serial()
+val preA  = acs()
+println(s"PRE  op=$op force=$forceName v1Vetted=${preV.contains(V1)} v2Vetted=${preV.contains(V2)} serial=$preS acs=$preA")
+// Echo the RECONSTRUCTED flag and the actual delta, so a log can never again be ambiguous about
+// what it ran, and no bare result string can be quoted out of context.
+println(s"OP   forceFlagsActual=$ff forceIsNone=${ff == ForceFlags.none} " +
+        s"adds=[${adds.map(_.packageId.toString.take(12)).mkString(",")}] " +
+        s"removes=[${removesStr.map(_.take(12)).mkString(",")}]")
+
+val outcome: Either[String, Unit] =
+  scala.util.Try(sandbox.topology.vetted_packages.propose_delta(
+    participant = sandbox.id, adds = adds, removes = removes, store = store, force = ff
+  )) match {
+    case scala.util.Success(_) => Right(())
+    case scala.util.Failure(e) => Left(Option(e.getMessage).getOrElse(e.toString))
+  }
+
+val postV = vetted()
+val postS = serial()
+val delta = postS - preS
+val postA = acs()
+val postO = onV1()
+println(s"RESULT op=$op force=$forceName forceIsNone=${ff == ForceFlags.none} => " +
+        (outcome match { case Right(_) => "SUCCEEDED"; case Left(m) => s"FAILED: ${m.take(300)}" }))
+println(s"POST v1Vetted=${postV.contains(V1)} v2Vetted=${postV.contains(V2)} serial=$postS serialDelta=$delta acs=$postA onV1=$postO")
+
+// ---- assertion contract -------------------------------------------------------------------
+// Applied per row, because an expected FAILURE must assert the ABSENCE of change: a blanket
+// "serial advanced" rule would wrongly fail the C1 control.
+val failures = scala.collection.mutable.ListBuffer[String]()
+def check(name: String, ok: Boolean, got: String, want: String): Unit = {
+  println(f"ASSERT $name%-14s ${if (ok) "PASS" else "FAIL"}%-4s got=$got want=$want")
+  if (!ok) failures += s"$name got=$got want=$want"
+}
+
+val expect = req("POC_EXPECT")
+check("result", (expect == "succeed") == outcome.isRight,
+      outcome.fold(_ => "fail", _ => "succeed"), expect)
+
+// The error CODE is not assertable here: the Canton console throws with the generic message
+// "Command execution failed." and routes the decoded error (code, cause, context) to its logger
+// instead. So the code assertion is made one level up, by 70-matrix.sh, against the captured
+// console output -- which is also where the verbatim error string the proposal quotes comes
+// from. POC_EXPECT_ERR is still read here so a caller that omits it fails loudly.
+val expectErr = req("POC_EXPECT_ERR")
+println(s"NOTE errorCodeCheck delegated to driver (exception message was: " +
+        outcome.left.toOption.map(_.take(60)).getOrElse("<succeeded>") + s"); want='$expectErr'")
+
+check("v1Vetted", postV.contains(V1).toString == req("POC_EXPECT_V1"), postV.contains(V1).toString, req("POC_EXPECT_V1"))
+check("v2Vetted", postV.contains(V2).toString == req("POC_EXPECT_V2"), postV.contains(V2).toString, req("POC_EXPECT_V2"))
+check("serialDelta", delta == req("POC_EXPECT_DELTA").toLong, delta.toString, req("POC_EXPECT_DELTA"))
+check("acs", postA == req("POC_EXPECT_ACS").toInt, postA.toString, req("POC_EXPECT_ACS"))
+check("onV1", postO == req("POC_EXPECT_ON_V1").toInt, postO.toString, req("POC_EXPECT_ON_V1"))
+
+// An expected failure must leave the effective vetted set untouched, not merely unchanged in the
+// two package ids we happen to check.
+if (expect == "fail")
+  check("vettedSetSame", postV == preV, s"${postV.size} entries", s"${preV.size} entries (identical)")
+
+if (failures.nonEmpty) {
+  println(s"VERDICT FAIL (${failures.size}): ${failures.mkString("; ")}")
+  // Throwing is what makes the console exit non-zero. lib.sh's console() redirects stdin from
+  // /dev/null, which is what stops a throwing bootstrap script from hanging the console.
+  throw new RuntimeException(s"assertion contract failed: ${failures.mkString("; ")}")
+} else {
+  println("VERDICT PASS")
+}

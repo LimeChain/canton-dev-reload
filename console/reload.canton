@@ -1,10 +1,24 @@
 // THE RELOAD: upload the rebuilt package unvetted, then swap the vetted set atomically.
 // Params: POC_DAR (new dar), POC_OLD (old main pkg id). Prints the new id for the caller.
+//
+// POC_FORCE selects the force argument: none | allow-vet-incompatible.
+// Under harness-v1 the default stays `allow-vet-incompatible`, which is what this file has
+// always passed, so the matrix measures the SHIPPED behaviour rather than an aspirational one.
+// It flips to `none` in harness-v2, once E1/E2 have established that the unforced swap works.
+// Until then, note the discrepancy this parameter exists to resolve: the RFC's documented
+// sequence omits the flag, while every run this script has ever produced set it.
 import com.digitalasset.canton.topology.transaction.VettedPackage
 import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
 import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
 
 val dar  = sys.env("POC_DAR")
+val forceName = sys.env.getOrElse("POC_FORCE", "allow-vet-incompatible")
+val ff: ForceFlags = forceName match {
+  case "none"                   => ForceFlags.none
+  case "allow-vet-incompatible" => ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades)
+  case other => throw new IllegalArgumentException(
+    s"POC_FORCE must be none|allow-vet-incompatible, got '$other'")
+}
 val psid = sandbox.synchronizers.list_connected().head.physicalSynchronizerId
 // MUST target the synchronizer store: propose_delta defaults to the Authorized store,
 // which holds no VettedPackages mapping, so a defaulted call emits serial=1 and silently
@@ -27,19 +41,32 @@ println(s"RELOAD old=$oldId")
 val newId = sandbox.dars.upload(dar, vetAllPackages = false)
 println(s"RELOAD uploaded=$newId (unvetted)")
 
+def serialNow(): Long =
+  sandbox.topology.vetted_packages.list(store = Some(store))
+    .map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+
 if (newId == oldId) {
   println("RELOAD unchanged: rebuilt package is identical to the running one, nothing to do")
 } else {
+  val preS = serialNow()
+  println(s"RELOAD force=$forceName forceIsNone=${ff == ForceFlags.none}")
   sandbox.topology.vetted_packages.propose_delta(
     participant = sandbox.id,
     adds        = Seq(VettedPackage(newId, None, None)),
     removes     = Seq(oldId),
     store       = store,
-    force       = ForceFlags(ForceFlag.AllowVetIncompatibleUpgrades),
+    force       = ff,
   )
   val eff = sandbox.topology.vetted_packages.list(store = Some(store))
               .flatMap(_.item.packages.map(_.packageId)).toSet
-  println(s"RELOAD swapped oldVetted=${eff.contains(oldId)} newVetted=${eff.contains(newId)}")
+  val delta = serialNow() - preS
+  println(s"RELOAD swapped oldVetted=${eff.contains(oldId)} newVetted=${eff.contains(newId)} serialDelta=$delta")
+  // Guard against the Authorized-store trap: propose_delta can return success having changed
+  // nothing. A swap that did not advance the synchronizer-store serial, or that left the old
+  // package vetted, is a false positive and must fail the run rather than print a green line.
+  if (delta < 1 || eff.contains(oldId) || !eff.contains(newId))
+    throw new RuntimeException(
+      s"reload swap did not take effect: serialDelta=$delta oldVetted=${eff.contains(oldId)} newVetted=${eff.contains(newId)}")
 }
 // Orphan accounting: the swap does NOT touch existing contracts. They stay active but
 // their package is no longer vetted, so they can no longer be exercised.

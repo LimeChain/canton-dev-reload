@@ -1,0 +1,7 @@
+module Items where
+template Item
+  with
+    owner : Party
+    label : Int
+  where
+    signatory owner

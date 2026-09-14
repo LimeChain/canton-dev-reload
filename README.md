@@ -114,7 +114,6 @@ Each of these was run to establish a specific claim in `RESULTS.md`:
 . scripts/lib.sh
 POC_V1=$(cat logs/pkgid-v1.txt) POC_V2=$(cat logs/pkgid-v2.txt) console console/ladder-a.canton
 console console/one-op.canton        # the swap needs no force flag
-console console/unvet-test.canton    # unvetting with live contracts succeeds, unforced
 console console/forcebump.canton     # forcing an incompatible bump is a trap
 console console/upgrade-test.canton  # compatible bump accepted live, incompatible rejected
 console console/swap-both.canton     # two packages swapped in one transaction

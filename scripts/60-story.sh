@@ -39,7 +39,7 @@ SRC=mirrors/daml/Mirrors.daml
 
 # ---------------------------------------------------------------- setup
 act "SETUP  a running ledger with the current model and some data"
-cp variants/Mirrors.v1.daml "$SRC"
+# (variant selection belongs to 05-variant.sh, which builds from a generated project)
 bash scripts/00-sandbox.sh    || exit 1
 bash scripts/05-variant.sh v1 >/dev/null 2>&1
 cp artifacts/mirrors-seed.dar artifacts/mirrors-seed-v1.dar

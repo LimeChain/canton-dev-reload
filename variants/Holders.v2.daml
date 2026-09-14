@@ -1,0 +1,13 @@
+module Holders where
+import Items
+-- B holds a CROSS-PACKAGE contract id pointing into package A.
+template Holder
+  with
+    owner : Party
+    item  : ContractId Item
+  where
+    signatory owner
+    choice PeekItem : Int
+      controller owner
+      do i <- fetch item
+         pure i.label
