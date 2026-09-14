@@ -1,0 +1,14 @@
+// Non-destructive ACS summary for the closure rows.
+//
+// The obvious way to check "is the Holder there?" is to run SeedAB:peek -- but PeekItem is a
+// CONSUMING choice (no `nonconsuming` keyword), so exercising it archives the Holder. Using peek
+// as a baseline check destroys the contract the post-swap assertion needs, which is why M1
+// originally reported `PEEK holders=0` and never reached the exercise it was meant to test.
+def alice = sandbox.parties.list().map(_.party).filter(_.uid.identifier.unwrap.startsWith("Alice"))
+alice.foreach { p =>
+  val cs = sandbox.ledger_api.state.acs.of_party(p)
+  val items   = cs.count(_.templateId.entityName == "Item")
+  val holders = cs.count(_.templateId.entityName == "Holder")
+  println(s"ACS_PROBE total=${cs.size} items=$items holders=$holders " +
+          "templates=[" + cs.map(c => c.templateId.entityName + "@" + c.templateId.packageId.take(8)).mkString(",") + "]")
+}

@@ -35,11 +35,14 @@ POC_DAR=artifacts/items-v1.dar   POC_VET=true console console/upload.canton 180 
 POC_DAR=artifacts/holders-v1.dar POC_VET=true console console/upload.canton 180 | grep -E "UPLOADED" || exit 1
 script artifacts/seedab-v1.dar SeedAB:seed | grep -E "SEEDAB|FAILURE" || true
 
-banner "baseline: peek with the v1 script (cross-package fetch must work)"
-base_out="$(script artifacts/seedab-v1.dar SeedAB:peek)"
-printf '%s\n' "$base_out" | grep -oE "PEEK [^\\\\]*" || true
-if ! printf '%s' "$base_out" | grep -q "PEEK holders=1"; then
-  echo "FAIL baseline peek did not see the Holder"; exit 1
+banner "baseline: confirm the closure seeded (NON-DESTRUCTIVE)"
+# Deliberately NOT SeedAB:peek. PeekItem is a CONSUMING choice, so peeking here archives the
+# Holder and the post-swap assertion then has nothing to exercise -- which is exactly how this
+# row first reported "PEEK holders=0" and silently skipped the behaviour it exists to test.
+base_out="$(console console/acs-probe.canton 180 2>&1)"
+printf '%s\n' "$base_out" | grep -E "ACS_PROBE" || true
+if ! printf '%s' "$base_out" | grep -qE "ACS_PROBE total=2 items=1 holders=1"; then
+  echo "FAIL baseline: expected exactly one Item and one Holder before the swap"; exit 1
 fi
 
 rc=0
