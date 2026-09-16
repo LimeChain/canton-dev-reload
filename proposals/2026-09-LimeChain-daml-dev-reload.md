@@ -10,7 +10,7 @@
 | RFP / Roadmap Area | Developer Experience, Tooling & Education — RFP 19 (DPM Components and Extension Ecosystem); secondary RFP 18 (Integration into SDLCs) |
 | Champion | Curtis Hrischuk, Digital Asset — [`hrischuk-da`](https://github.com/hrischuk-da) |
 | Total Funding Request | *to be completed before submission* |
-| Project Duration | ~10 weeks: 6 weeks of development, then 4 weeks of adoption support. Excludes committee review between milestones; under 6 months |
+| Project Duration | ~10 weeks: 6 weeks building the capability (M1–M2), then a 4-week release and adoption window (M3). Excludes committee review between milestones; under 6 months |
 | Label | `daml-tooling` |
 
 ---
