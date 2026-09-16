@@ -5,12 +5,12 @@
 | Organization | LimeChain |
 | Author / Primary Contact | Georgi Radev — georgi.radev@limechain.tech |
 | Status | Draft |
-| Created | 2026-09-16 |
+| Created | 2026-09-14 |
 | Proposal Type | RFP-aligned |
 | RFP / Roadmap Area | Developer Experience, Tooling & Education — RFP 19 (DPM Components and Extension Ecosystem); secondary RFP 18 (Integration into SDLCs) |
 | Champion | Curtis Hrischuk, Digital Asset — [`hrischuk-da`](https://github.com/hrischuk-da) |
 | Total Funding Request | *to be completed before submission* |
-| Project Duration | ~10 weeks to Milestone 3 acceptance, excluding committee review between milestones; under 6 months |
+| Project Duration | ~10 weeks: 6 weeks of development, then 4 weeks of adoption support. Excludes committee review between milestones; under 6 months |
 | Label | `daml-tooling` |
 
 ---
@@ -434,14 +434,15 @@ and today the only signal is an error that names nothing.
 
 ### Milestone 3: Adoption, Documentation and Ecosystem Validation
 
-**Estimated Delivery:** delivery by week 6 + 4; acceptance at week 10, when the adoption window closes
+**Estimated Delivery:** weeks 7–10; acceptance at week 10, when the adoption window closes
 **Estimated Effort:** ~3 engineer-weeks (delivery plus support across the adoption window)
 **Focus:** Establish that the capability is *supported* — usable by developers with no contact with
 us. "Supported" is not a property of code; no artifact can demonstrate it.
 
-Milestone 3 is four weeks of release and documentation work followed by a **four-week adoption
-window** during which independent teams exercise the tool on their own projects. Acceptance falls at
-the end of that window, because the criteria below require those teams to have used it and reported.
+Development finishes with Milestone 2. Milestone 3 is a **four-week adoption window**: the release
+and documentation land at the start of it, and the remaining effort is support while independent
+teams exercise the tool on their own projects. Acceptance falls at the end of the window, because
+the criteria below require those teams to have used it and reported.
 
 Participating teams will be recruited through the Daml Language & Developer Tooling SIG channel, the
 Canton Network forum, and direct approach to teams already publishing multi-package Daml projects.
@@ -611,8 +612,11 @@ is not restart-safe. We are filing these with Digital Asset independently of thi
 ## References
 
 - This proof of concept — repository **TBD**, `evidence/INDEX.md` for the claim-to-log map
-- Canton 3.4 release notes (Splice 0.5.0) —
+- Canton 3.4 release notes (Splice 0.5.0) — cited for the **force-flag history**, not the tested
+  version: 3.4 is where `FORCE_FLAG_ALLOW_UNVET_PACKAGE_WITH_ACTIVE_CONTRACTS` was removed and
+  `AllowVetIncompatibleUpgrades` added, and where the unvetting guidance in §3.6 comes from. All
+  testing in this proposal was done against **Canton 3.5.12 / dpm-sdk 3.5.5**.
   https://blog.digitalasset.com/developers/release-notes/canton-3.4-release-notes-for-splice-0.5.0
 - Canton package management and vetting —
   https://docs.daml.com/canton/usermanual/packagemanagement.html#understanding-package-vetting
-- DPM documentation — https://docs.digitalasset.com/build/3.4/dpm/dpm.html
+- Digital Asset developer documentation — https://docs.digitalasset.com/
