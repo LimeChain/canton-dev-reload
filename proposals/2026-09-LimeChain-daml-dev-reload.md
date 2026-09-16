@@ -294,6 +294,10 @@ to run outside an isolated development participant.
 
 Public repository: **TBD — link pinned to a commit SHA before submission.** Apache-2.0.
 
+**That repository is the evidence base, not the product.** It holds the test harness and its
+committed run logs — the investigation we did at our own cost to establish that the sequence works.
+The product is what Milestone 1 funds.
+
 The proof of concept changed a Daml model incompatibly on a running Canton 3.5.12 participant: same
 package name, same version, no restart, party IDs preserved, zero orphaned contracts, old package
 removed. Every claim below has a committed log with a provenance header (tool versions, harness
