@@ -421,7 +421,7 @@ against the same participant, with the same party IDs, without restarting.
 ### Milestone 2: Dependency-Closure Reload
 
 **Estimated Delivery:** by week 6
-**Estimated Effort:** ~2 engineer-weeks
+**Estimated Effort:** ~3 engineer-weeks
 **Focus:** Real Daml projects are multi-package. Changing one package silently breaks its dependents,
 and today the only signal is an error that names nothing.
 
@@ -531,9 +531,11 @@ Listed for context; **not part of this funding request**.
 
 **Total Funding Request:** *to be completed before submission.*
 
-The work is scoped at **~8 engineer-weeks across the three milestones**, delivered by **one
-engineer**, plus **~2 engineer-weeks** for the six-month maintenance commitment — so the effort
-basis is stated even while the figure is pending.
+The work is scoped at **~9 engineer-weeks across the three milestones**, delivered by **one
+engineer** — 3 for Milestone 1, 3 for Milestone 2, and 3 for Milestone 3, the last spread across a
+four-week adoption window where the effort is support rather than continuous build. Add **~2
+engineer-weeks** for the six-month maintenance commitment. The effort basis is therefore stated
+even while the figure itself is pending.
 
 ### Payment Breakdown by Milestone
 
