@@ -531,11 +531,11 @@ Listed for context; **not part of this funding request**.
 
 **Total Funding Request:** *to be completed before submission.*
 
-The work is scoped at **~9 engineer-weeks across the three milestones**, delivered by **one
-engineer** — 3 for Milestone 1, 3 for Milestone 2, and 3 for Milestone 3, the last spread across a
-four-week adoption window where the effort is support rather than continuous build. Add **~2
-engineer-weeks** for the six-month maintenance commitment. The effort basis is therefore stated
-even while the figure itself is pending.
+The work is scoped at **~9 engineer-weeks**, delivered by **one engineer** over ~10 calendar weeks:
+3 for Milestone 1, 3 for Milestone 2, and 3 for Milestone 3 — the last covering the release and
+documentation, then support while independent teams adopt, which is why it spans four weeks rather
+than three. A further **~2 engineer-weeks** covers the six-month maintenance commitment. The effort
+basis is stated so the eventual figure can be checked against it.
 
 ### Payment Breakdown by Milestone
 
