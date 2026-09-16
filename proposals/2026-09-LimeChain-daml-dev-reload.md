@@ -126,9 +126,11 @@ development frameworks were rated Critical. That is evidence the inner loop is w
 it does not tell us is how often a given team makes a *breaking* model change specifically.
 
 So we deliberately do **not** put a percentage on adoption here. We can substantiate the cost of the
-event (measured: ~12 s per reload in our prototype, of which only ~1 s is Canton; against a restart
-that destroys all parties and contracts). We cannot substantiate how many teams hit it or how often,
-and we would rather measure that in Milestone 3 than guess at it now.
+event. Measured over 10 alternating trials per path, each from a fully reset ledger: the prototype
+reload reaches a verified seeded state in a **median 19.9 s**, against **33.4 s** to restart and
+reseed — a **40.5% reduction**, and a conservative one, since it excludes repairing everything that
+still holds the old party IDs after a restart. What we cannot substantiate is how many teams hit
+this or how often, and we would rather measure that in Milestone 3 than guess at it now.
 
 ### 3. Implementation Mechanics
 
@@ -308,6 +310,7 @@ revision, clean-tree assertions) and machine-checked assertions that exit non-ze
 | Dependent not rebuilt → `PACKAGE_SELECTION_FAILED` | `M1` |
 | Full closure swapped in **one** topology transaction, unforced | `M2` |
 | PID unchanged, party IDs identical, `orphanedContracts=0`, old package removed | `STORY` |
+| Reload reaches a verified seeded state in median 19.9 s vs 33.4 s to restart and reseed | `TIMING` |
 
 **C1 and C2 are the gate**, and they are why the rest can be believed. They are a positive control
 proving the harness can distinguish the two force settings at all: without them, a run that never
@@ -389,7 +392,8 @@ against the same participant, with the same party IDs, without restarting.
   machine, first trial of each path discarded, each trial from a reset ledger. The baseline reaches
   that state with **newly allocated party IDs**, and the comparison **excludes** the work of repairing
   scripts and config that still hold the old IDs, so the figure is a conservative floor. Target
-  **≥50% reduction**.
+  **≥40% reduction** — the shell prototype already achieves 40.5% under this protocol, and the
+  product should improve on it by holding one admin connection instead of launching five processes.
 - **Party IDs are preserved across the reload** — stated separately from the timing, since the
   baseline cannot satisfy it by construction. A different
   threshold may be agreed with the committee at grant time.
@@ -501,8 +505,9 @@ Listed for context; **not part of this funding request**.
 - **An enforced commit-window quiesce**, if a supported mechanism exists — which would let the tool
   close the concurrency window in §3.6 outright rather than detecting and refusing.
 - **Daml Studio integration** — reload on save. Different codebase, different direction.
-- **A resident daemon.** Our timing says one reload is ~12 s of which only ~1 s is Canton; the rest is
-  three JVM launches. A resident admin connection is where the remaining win is.
+- **A resident daemon.** The measured prototype reload is ~19.9 s, and it launches five separate JVM
+  processes to get there (build, archive script, console, reseed script, verify). A resident admin
+  connection is where the remaining win is — the Canton work itself is a small fraction of that.
 - **Multi-participant development topologies.**
 
 ---
