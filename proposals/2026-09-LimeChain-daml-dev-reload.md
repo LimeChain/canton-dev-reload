@@ -299,25 +299,27 @@ package name, same version, no restart, party IDs preserved, zero orphaned contr
 removed. Every claim below has a committed log with a provenance header (tool versions, harness
 revision, clean-tree assertions) and machine-checked assertions that exit non-zero on failure.
 
-Each code in the right-hand column names a run log committed under `evidence/` in the repository
-above, indexed by `evidence/INDEX.md`: **C** is a control, **E** a force-flag experiment, **M** a
-multi-package closure run, plus the four-act demo (`STORY`) and the timing measurement (`TIMING`).
-Every log carries a provenance header — tool versions, harness revision, clean-tree assertions — and
-machine-checked assertions that exit non-zero on failure, so a reviewer can open any row and see the
-raw console output rather than take the claim on trust.
+Each row below was a separate run from a clean sandbox. The middle column says what that run
+actually did, so the differences between them are visible rather than hidden behind a label; the
+right column is the log file name under `evidence/` in the repository above, indexed by
+`evidence/INDEX.md`. The file names encode the same thing — `E1__swap__force-none__archived` is the
+swap, with no force flag, with contracts archived first. Every log carries a provenance header
+(tool versions, harness revision, clean-tree assertions) and machine-checked assertions that exit
+non-zero on failure, so a reviewer can open any row and read raw console output rather than take
+the claim on trust.
 
-| Claim | Evidence log |
-| :---- | :---- |
-| Unforced `add-second` is **rejected** with `KNOWN_PACKAGE_VERSION`; forced is accepted | `C1`, `C2` |
-| The atomic swap succeeds with `ForceFlags.none`, contracts archived first | `E1` |
-| The same swap succeeds unforced with live contracts (stranding them) | `E2` |
-| The force flag changes nothing on this path | `E3` |
-| Unvetting with live contracts succeeds unforced | `E4`, `E5` |
-| Determinism — three independent clean-sandbox repeats | `E6r1`–`E6r3` |
-| Dependent not rebuilt → `PACKAGE_SELECTION_FAILED` | `M1` |
-| Full closure swapped in **one** topology transaction, unforced | `M2` |
-| PID unchanged, party IDs identical, `orphanedContracts=0`, old package removed | `STORY` |
-| Reload reaches a verified seeded state in median 19.9 s vs 33.4 s to restart and reseed | `TIMING` |
+| Claim | What the run did | Log |
+| :---- | :---- | :---- |
+| Unforced `add-second` is **rejected** with `KNOWN_PACKAGE_VERSION`; forced is accepted | add a second version *alongside* the first — once without the force flag, once with | `C1`, `C2` |
+| The atomic swap succeeds with `ForceFlags.none` | swap old out and new in, **no force flag**, contracts archived first | `E1` |
+| It also succeeds unforced with live contracts — and strands them | the same swap, **no force flag**, contracts left live | `E2` |
+| The force flag changes nothing on this path | the same swap **with** the force flag — outcome identical to `E1` | `E3` |
+| Unvetting with live contracts succeeds unforced | remove the old package while its contracts are live — without the flag, then with | `E4`, `E5` |
+| Determinism | `E1` repeated three times, each from a fresh sandbox — all identical | `E6r1`–`E6r3` |
+| Dependent not rebuilt → `PACKAGE_SELECTION_FAILED` | rebuild one package of a two-package project and swap only it | `M1` |
+| Full closure swapped in **one** topology transaction, unforced | rebuild all three packages, archive, swap both in a single transaction, reseed | `M2` |
+| PID unchanged, party IDs identical, `orphanedContracts=0`, old package removed | the four-act demo end to end, reload defaulting to no force flag | `STORY` |
+| Reload reaches a verified seeded state in median 19.9 s vs 33.4 s to restart and reseed | 10 alternating trials per path, each from a fully reset ledger | `TIMING` |
 
 **C1 and C2 are the gate**, and they are why the rest can be believed. They are a positive control
 proving the harness can distinguish the two force settings at all: without them, a run that never
