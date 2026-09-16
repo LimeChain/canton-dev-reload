@@ -102,7 +102,10 @@ canton/          sandbox.conf, and sandbox-pg.conf for the Postgres repair.purge
 console/         canton-console bootstrap scripts
 scripts/         the runnable harness; lib.sh holds the JDK pin and the console wrapper
 artifacts/       built DARs
-rfc/             RFC-revised.md — the proposal
+rfc/             RFC-revised.md — superseded design note (see proposals/)
+proposals/       the Canton Development Fund proposal
+evidence/        committed run logs; INDEX.md maps each to the claim it licenses
+console/historical/  scripts whose fixtures are gone — not reproducible
 multi-package.yaml   so Daml Studio can resolve every package in the repo
 ```
 
@@ -135,8 +138,9 @@ console console/pv2.canton           # the sandbox runs stable protocol version 
 console console/purge-pg.canton      # repair.purge — needs canton/sandbox-pg.conf
 ```
 
-**Not currently reproducible.** `console/upgrade-test.canton`, `console/forcebump.canton` and
-`console/upg2.canton` load DARs from `/private/tmp` that no longer exist and have no build recipe
+**Not currently reproducible.** `console/historical/upgrade-test.canton`,
+`console/historical/forcebump.canton` and `console/historical/upg2.canton` load DARs from
+`/private/tmp` that no longer exist and have no build recipe
 in this repo, so the "Approach 1" section of `RESULTS.md` cannot be re-run until those fixtures
 are restored. `console/one-op.canton` is no longer runnable bare: it now requires an explicit
 operation, force setting and full set of expectations, which `scripts/70-matrix.sh` supplies.

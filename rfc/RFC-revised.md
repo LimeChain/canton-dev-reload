@@ -2,6 +2,19 @@
 
 **Let developers change a Daml model on a running participant — no restart, no lost parties**
 
+> **SUPERSEDED — historical design note.** This document is the internal RFC that led to the
+> funding proposal in [`proposals/2026-09-LimeChain-daml-dev-reload.md`](../proposals/2026-09-LimeChain-daml-dev-reload.md).
+> Read the proposal for the current scope and asks. Two differences matter:
+>
+> - **Scope.** This RFC asks for three things, including storage reclamation. The proposal asks for
+>   capability work only and explicitly excludes storage reclamation, which is a different
+>   difficulty class and which we never successfully tested.
+> - **Evidence.** The force-flag claims here were originally supported by mislabelled runs (an
+>   `op.endsWith("force")` bug meant ops named `*-noforce` ran *with* the flag). The claims
+>   themselves survived re-verification, but cite `evidence/INDEX.md` rather than this document.
+>
+> Retained unedited as the record of how the argument developed.
+
 > Revised 2026-08-24. Supersedes the original draft, which was written against the Canton 3.4
 > release notes. Every claim here was tested against **Canton 3.5.12 / dpm-sdk 3.5.5**; the
 > harness, commands and verbatim error strings are in **RESULTS.md** and **README.md**.

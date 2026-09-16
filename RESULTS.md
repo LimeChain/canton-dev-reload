@@ -21,6 +21,14 @@ Both work today. The only unsolved problem is **reclaiming storage** afterwards.
 
 ## Approach 1 — bump the version (compatible changes)
 
+> **HISTORICAL — not currently reproducible.** The three console scripts behind this section
+> (`upgrade-test.canton`, `forcebump.canton`, `upg2.canton`, now under `console/historical/`) load
+> DARs from `/private/tmp` that no longer exist, and no build recipe in this repository produces
+> them. The results below are as recorded at the time and are believed correct, but they have not
+> been re-verified by the evidence rebuild and carry no committed log. Everything in
+> `evidence/INDEX.md` *is* reproducible; this section is not.
+
+
 Tested against a running, seeded `mirrors 1.0.0`:
 
 | Upload while 1.0.0 is live and holds contracts | Result |
@@ -32,6 +40,11 @@ After the compatible upload, **1.0.0 and 1.0.1 were both vetted simultaneously**
 archived. Nothing restarted.
 
 ### Dependents do NOT need rebuilding
+
+> Note: the *incompatible* counterpart of this result (dependents MUST be rebuilt) was re-verified
+> in the evidence rebuild as rows M1/M2 — see `evidence/INDEX.md`. The compatible-upgrade result
+> below is from the historical run described above.
+
 
 Verified with a real two-package project — `items` (A) and `holders` (B), where B's template
 holds a `ContractId Item`, i.e. a cross-package reference, and a choice that `fetch`es it:
