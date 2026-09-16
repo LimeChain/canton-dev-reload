@@ -448,7 +448,7 @@ and today the only signal is an error that names nothing.
 ### Milestone 3: Adoption, Documentation and Ecosystem Validation
 
 **Estimated Delivery:** weeks 7–10; acceptance at week 10, when the adoption window closes
-**Estimated Effort:** ~3 engineer-weeks (delivery plus support across the adoption window)
+**Estimated Effort:** ~4 engineer-weeks
 **Focus:** Establish that the capability is *supported* — usable by developers with no contact with
 us. "Supported" is not a property of code; no artifact can demonstrate it.
 
@@ -531,11 +531,10 @@ Listed for context; **not part of this funding request**.
 
 **Total Funding Request:** *to be completed before submission.*
 
-The work is scoped at **~9 engineer-weeks**, delivered by **one engineer** over ~10 calendar weeks:
-3 for Milestone 1, 3 for Milestone 2, and 3 for Milestone 3 — the last covering the release and
-documentation, then support while independent teams adopt, which is why it spans four weeks rather
-than three. A further **~2 engineer-weeks** covers the six-month maintenance commitment. The effort
-basis is stated so the eventual figure can be checked against it.
+**~10 engineer-weeks**, delivered by **one engineer** working continuously over ~10 calendar weeks:
+3 for Milestone 1, 3 for Milestone 2, 4 for Milestone 3. A further **~2 engineer-weeks** covers the
+six-month maintenance commitment after final delivery. The effort basis is stated so the eventual
+figure can be checked against it.
 
 ### Payment Breakdown by Milestone
 
