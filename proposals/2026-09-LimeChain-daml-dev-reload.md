@@ -9,7 +9,7 @@
 | Proposal Type | RFP-aligned |
 | RFP / Roadmap Area | Developer Experience, Tooling & Education — RFP 19 (DPM Components and Extension Ecosystem); secondary RFP 18 (Integration into SDLCs) |
 | Champion | Curtis Hrischuk, Digital Asset — [`hrischuk-da`](https://github.com/hrischuk-da) |
-| Total Funding Request | 365,000 CC |
+| Total Funding Request | *to be completed before submission* |
 | Project Duration | ~10 weeks to Milestone 3 acceptance, excluding committee review between milestones; under 6 months |
 | Label | `daml-tooling` |
 
@@ -508,17 +508,18 @@ Listed for context; **not part of this funding request**.
 
 ## Funding
 
-**Total Funding Request:** 365,000 Canton Coin
+**Total Funding Request:** *to be completed before submission.*
 
-Delivered by **one engineer** across ~8 engineer-weeks of milestone work, plus ~2 engineer-weeks for
-the six-month maintenance commitment.
+The work is scoped at **~8 engineer-weeks across the three milestones**, delivered by **one
+engineer**, plus **~2 engineer-weeks** for the six-month maintenance commitment — so the effort
+basis is stated even while the figure is pending.
 
 ### Payment Breakdown by Milestone
 
-- Milestone 1, Single-Package Development Reload: **110,000 CC** upon committee acceptance
-- Milestone 2, Dependency-Closure Reload: **110,000 CC** upon committee acceptance
-- Milestone 3, Adoption, Documentation and Ecosystem Validation: **145,000 CC** upon committee
-  acceptance and the adoption criteria
+- Milestone 1, Single-Package Development Reload: **30%** upon committee acceptance
+- Milestone 2, Dependency-Closure Reload: **30%** upon committee acceptance
+- Milestone 3, Adoption, Documentation and Ecosystem Validation: **40%** upon committee acceptance
+  and the adoption criteria
 
 The largest share sits on Milestone 3 because that is where ecosystem value is demonstrated rather
 than asserted, and because it carries both the adoption window and the maintenance commitment. The
