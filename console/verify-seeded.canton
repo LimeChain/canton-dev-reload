@@ -1,0 +1,12 @@
+// The common END condition for both timed paths: an equivalent logical seeded state.
+// Parties exist and the seed data is present. Deliberately does NOT check party IDENTITY --
+// the restart baseline reallocates party ids by construction, so requiring identity would make
+// the two paths incomparable. Party-id preservation is a separate, reload-only claim.
+val parties = sandbox.parties.list().map(_.party).filter { p =>
+  val i = p.uid.identifier.unwrap; i.startsWith("Alice") || i.startsWith("Bob")
+}
+val contracts = parties.flatMap(p => sandbox.ledger_api.state.acs.of_party(p))
+println(s"VERIFY parties=${parties.size} contracts=${contracts.size}")
+if (parties.size < 2 || contracts.size < 2)
+  throw new RuntimeException(s"not seeded: parties=${parties.size} contracts=${contracts.size}")
+println("VERIFY ok")

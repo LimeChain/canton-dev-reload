@@ -40,6 +40,9 @@ rm -rf "$gen_mirrors" "$gen_seed"
 mkdir -p "$gen_mirrors/daml" "$gen_seed/daml"
 
 cp mirrors/daml.yaml       "$gen_mirrors/daml.yaml"
+# The developer's "save", in harness form. scripts/80-timing.sh reads this as T0, so the
+# timed interval starts at a captured event rather than a timestamp reconstructed afterwards.
+date +%s.%N > logs/t0.source-write
 cp "$src"                  "$gen_mirrors/daml/Mirrors.daml"
 [ -f mirrors/.dlint.yaml ] && cp mirrors/.dlint.yaml "$gen_mirrors/.dlint.yaml"
 cp seed/daml.yaml          "$gen_seed/daml.yaml"
