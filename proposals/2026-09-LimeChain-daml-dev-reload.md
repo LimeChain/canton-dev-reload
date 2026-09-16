@@ -9,8 +9,8 @@
 | Proposal Type | RFP-aligned |
 | RFP / Roadmap Area | Developer Experience, Tooling & Education — RFP 19 (DPM Components and Extension Ecosystem); secondary RFP 18 (Integration into SDLCs) |
 | Champion | Curtis Hrischuk, Digital Asset — [`hrischuk-da`](https://github.com/hrischuk-da) |
-| Total Funding Request | **TBD — to be completed before submission** |
-| Project Duration | **TBD — under 6 months** |
+| Total Funding Request | 365,000 CC |
+| Project Duration | ~10 weeks to Milestone 3 acceptance, excluding committee review between milestones; under 6 months |
 | Label | `daml-tooling` |
 
 ---
@@ -31,7 +31,6 @@
 - [Funding](#funding)
 - [Co-Marketing](#co-marketing)
 - [Rationale](#rationale)
-- [Questions for the Champion](#questions-for-the-champion)
 - [About the Team](#about-the-team)
 - [References](#references)
 
@@ -56,8 +55,8 @@ funds the gap between a proven technique and a supported capability.
 
 Scope is deliberately narrow. We propose **nothing** for compatible changes — Smart Contract
 Upgrades already handles those, and the tool's first action is to tell you to bump the version when
-that is the right answer. We do not ask for storage reclamation, Daml Studio integration,
-multi-participant support, or any change to Smart Contract Upgrades or production vetting. Note also
+that is the right answer. We do not ask for any change to Smart Contract Upgrades or production
+vetting, and the exclusions are listed in §1. Note also
 that **contract identities are not preserved**: contracts are archived and recreated. What survives
 is the participant process and the party IDs.
 
@@ -121,7 +120,12 @@ early model design, when the shape of the model is exactly what is under discuss
 the population that benefits most is the one the Foundation is trying to grow, teams building their
 first Canton application.
 
-We deliberately do **not** put a percentage on adoption here. We can substantiate the cost of the
+The Foundation's own 2026 developer-experience survey points the same way: **41% of respondents
+named environment setup and node operations as the task that took them longest**, and local
+development frameworks were rated Critical. That is evidence the inner loop is where time goes; what
+it does not tell us is how often a given team makes a *breaking* model change specifically.
+
+So we deliberately do **not** put a percentage on adoption here. We can substantiate the cost of the
 event (measured: ~12 s per reload in our prototype, of which only ~1 s is Canton; against a restart
 that destroys all parties and contracts). We cannot substantiate how many teams hit it or how often,
 and we would rather measure that in Milestone 3 than guess at it now.
@@ -180,9 +184,9 @@ The component counts and refuses rather than leaving a developer to discover thi
 
 #### 3.4 The project-facing interface
 
-The reload primitive is generic. The contract lifecycle around it is **inherently project-specific**:
-a component cannot know which contracts matter, cannot infer a `Text` → `Int` migration, and cannot
-recreate application data. So the project declares hooks, as ordinary Daml Script:
+The reload primitive is generic; the contract lifecycle around it is **inherently
+project-specific**. A component cannot know which contracts matter or how to recreate application
+data, so the project declares hooks, as ordinary Daml Script:
 
 ```yaml
 # dev-reload.yaml
@@ -194,27 +198,29 @@ hooks:
   verify:   Seed:verify      # optional postcondition, from the NEW build
 ```
 
-Daml Script hooks rather than plugin code, because the project's script package already holds the
-signatory authority the technique depends on, and stays out of the vetting set
-(`dpm script --upload-dar` defaults to false).
+In use, that is three commands:
 
-**The component never infers a migration.** If the new schema needs data the old shape cannot supply,
-that is `reseed`'s job and the developer's decision.
+```bash
+dpm dev-reload init     # once, before the first edit: capture the baseline
+dpm dev-reload check    # optional: validate the hooks in a throwaway sandbox
+dpm dev-reload          # after each breaking change: archive, swap, reseed, verify
+```
 
-**The old/new boundary and the baseline.** The archive hook must be compiled against the *old*
-packages — it queries contracts of the old shape — while reseed must be compiled against the *new*
-ones. Once the source is edited, the old hook can no longer be built. So `dev-reload init` captures a
-baseline: every model DAR *and* the built script DAR. Each reload resolves `discover`/`archive` from
-the baseline build and `reseed`/`verify` from the new one. **The baseline advances only after
-post-reseed verification succeeds** — never after the swap alone. With no baseline the tool refuses
-and says to run `init`, because guessing is worse than stopping.
+Daml Script rather than plugin code, because the project's script package already holds the
+signatory authority the technique depends on and stays out of the vetting set. `discover` reports
+the contracts in scope together with the signatories needed to archive them; `verify` is an optional
+postcondition the project supplies, run after reseeding and before the baseline advances.
 
-**Authority is established per contract, not per party.** Checking that declared parties are locally
-allocated does not establish authority over every discovered contract — a contract may have an
-undeclared or jointly-controlled signatory, and the archive hook would then fail partway, after
-earlier contracts were already consumed. `discover` therefore returns contract ids *with* their
-required signatories, and the component verifies it holds `actAs` for every one of them **before**
-archiving anything.
+**The component never infers a migration.** If the new schema needs data the old shape cannot
+supply, that is `reseed`'s job and the developer's decision.
+
+Two constraints shape the rest. The archive hook must be built against the **old** packages and
+reseed against the **new**, and the old one cannot be rebuilt once the source is edited — hence a
+baseline, captured by `dpm dev-reload init` and advanced only after a reload verifies. And authority
+must be established **per contract, not per declared party**, since a contract may carry an
+undeclared or jointly-controlled signatory; the tool confirms it can act for every signatory it
+discovers before archiving anything. The full interface is specified in the design note in the
+proof-of-concept repository.
 
 #### 3.5 Failure safety
 
@@ -239,7 +245,7 @@ COMMIT  (destructive; from here, resume rather than restart)
 
 Idempotency is a **documented obligation on the hook author**, not something we can prove about
 arbitrary Daml Script: `archive` must converge to zero on re-run, and `reseed` must query before
-creating so it does not duplicate. `dev-reload check` validates both in a **throwaway sandbox** — it
+creating so it does not duplicate. `dpm dev-reload check` validates both in a **throwaway sandbox** — it
 cannot be checked against a live ledger, because running `reseed` twice *is* a mutation and proving
 `archive` converges would destroy the state being protected.
 
@@ -248,16 +254,12 @@ right step: during archive, re-run archive; during reseed, re-run reseed.
 
 #### 3.6 Concurrency: scoped, not claimed
 
-Between archive reaching zero and the swap landing there is a window — roughly the ~1 s the upload
-and topology transaction take — in which a running application could create a new contract on the old
-package, stranding it. We have not verified a supported mechanism to block submissions for that
-window, so **we do not claim one**.
-
-Instead, Milestone 1 is scoped to a participant the tool has **verified idle**: the component probes
-the ledger end over an interval and refuses if the offset is advancing. A user's assurance is not a
-precondition; a detected one is. Post-swap detection of a stranded contract is **damage reporting,
-explicitly not a safety guarantee**, and the documentation says so in those words. Running an
-application against the ledger during a reload is outside the supported envelope.
+Between archive and swap there is a window — roughly the ~1 s the upload and topology transaction
+take — in which a running application could create a contract on the old package and strand it. We
+have not verified a supported mechanism to block submissions for that window, so **we do not claim
+one**. Milestone 1 is instead scoped to a participant the tool has **detected idle**, and reports
+rather than prevents anything that slips through. Running an application against the ledger during a
+reload is outside the supported envelope.
 
 ### 4. Architectural Alignment
 
@@ -344,6 +346,11 @@ Stated flatly, because each is a question a reviewer should not have to discover
   "we did not test pruning", not "pruning does not work".
 - **PQS is untested.** We substituted a polling JSON-API consumer.
 - **In-flight submissions during the swap are untested**, which is why §3.6 scopes rather than claims.
+- **An unexpected observation we report but do not rely on.** Unvetting a package whose active
+  contracts nothing else can interpret **succeeded, unforced**, on stable protocol version 35 with no
+  alpha or dev flags set (rows `E4`/`E5`). Canton 3.4's notes suggest unvetting should be safe
+  *provided* a compatible package remains vetted. We archive first either way, so nothing here
+  depends on it — we raise it because it may be worth Digital Asset's attention.
 - **One machine.** Every result was produced on macOS with OpenJDK 21 against an in-memory sandbox.
   Linux and other projects are Milestone 3.
 
@@ -353,18 +360,19 @@ Stated flatly, because each is a question a reviewer should not have to discover
 
 ### Milestone 1: Single-Package Development Reload
 
-**Estimated Delivery:** ~3 weeks from start
+**Estimated Delivery:** by week 3
+**Estimated Effort:** ~3 engineer-weeks
 **Focus:** A developer makes a breaking change to a single-package model and continues working
 against the same participant, with the same party IDs, without restarting.
 
 **Deliverables:**
 - DPM component published to an OCI registry, installable via `dpm add component`, Apache-2.0.
-- The `dev-reload.yaml` hook interface with validation, plus `dev-reload init` and the baseline
+- The `dev-reload.yaml` hook interface with validation, plus `dpm dev-reload init` and the baseline
   lifecycle.
 - Change classification via `dpm upgrade-check`, directing compatible changes to a version bump.
 - The preflight/commit sequence with checkpointed resume, serial verification, per-contract authority
   verification, and idle-participant detection.
-- `dev-reload check` for hook conformance in a throwaway sandbox.
+- `dpm dev-reload check` for hook conformance in a throwaway sandbox.
 - Documentation, including the hook contract and the concurrency envelope.
 
 **Acceptance Criteria:**
@@ -373,12 +381,17 @@ against the same participant, with the same party IDs, without restarting.
   zero contracts left on the old package.
 - The old/new boundary is exercised: the archive hook consumes old-schema contracts while the reseed
   hook creates the new schema. Running with no baseline refuses and names `init`.
-- A developer outside LimeChain performs a reload following only the published documentation, with no
-  assistance from us — verified by a committee member or delegate on a project of their choosing.
-- **Measured iteration time**, protocol stated: median wall-clock from saving a breaking change to
-  application code running again against a ledger with the parties you already had, over ≥10
-  consecutive reloads on a reference project, against the restart-and-reseed baseline on the same
-  project and machine. Target **≥50% reduction**, with no loss of party IDs in any run. A different
+- A committee member or delegate performs the reload following only the published documentation, with
+  no assistance from us, on a project of their choosing.
+- **Measured iteration time**, protocol stated: median wall-clock from saving a breaking change to an
+  **equivalent logical seeded state** — the model's parties exist and the seed data is verified —
+  over ≥10 alternating trials per path against the restart-and-reseed baseline, same project and
+  machine, first trial of each path discarded, each trial from a reset ledger. The baseline reaches
+  that state with **newly allocated party IDs**, and the comparison **excludes** the work of repairing
+  scripts and config that still hold the old IDs, so the figure is a conservative floor. Target
+  **≥50% reduction**.
+- **Party IDs are preserved across the reload** — stated separately from the timing, since the
+  baseline cannot satisfy it by construction. A different
   threshold may be agreed with the committee at grant time.
 - **Injected failures** at five boundaries behave correctly: upload failure, hook-resolution failure
   and a concurrently-changed topology serial each abort in preflight with no archival and no topology
@@ -390,7 +403,8 @@ against the same participant, with the same party IDs, without restarting.
 
 ### Milestone 2: Dependency-Closure Reload
 
-**Estimated Delivery:** ~3 weeks after Milestone 1 acceptance
+**Estimated Delivery:** by week 6
+**Estimated Effort:** ~2 engineer-weeks
 **Focus:** Real Daml projects are multi-package. Changing one package silently breaks its dependents,
 and today the only signal is an error that names nothing.
 
@@ -404,9 +418,9 @@ and today the only signal is an error that names nothing.
 - Documentation with a worked multi-package example.
 
 **Acceptance Criteria:**
-- A multi-package project owned by a team **outside LimeChain** reloads a breaking change across its
-  full closure in one operation, with dependents working immediately afterwards, confirmed in writing
-  by that team.
+- A multi-package project reloads a breaking change across its full closure in one operation, with
+  dependents working immediately afterwards — demonstrated on a project that is not the proof of
+  concept, and reproducible by a committee member or delegate.
 - Given a closure with dependents omitted, the tool names **every** omitted dependent and the
   dependency that forced it, and exits non-zero **before** any topology or ACS change — verified
   against a fixture with at least two omitted dependents, so "every" is decidable.
@@ -416,13 +430,24 @@ and today the only signal is an error that names nothing.
 
 ### Milestone 3: Adoption, Documentation and Ecosystem Validation
 
-**Estimated Delivery:** ~2 weeks after Milestone 2 acceptance
+**Estimated Delivery:** delivery by week 6 + 4; acceptance at week 10, when the adoption window closes
+**Estimated Effort:** ~3 engineer-weeks (delivery plus support across the adoption window)
 **Focus:** Establish that the capability is *supported* — usable by developers with no contact with
 us. "Supported" is not a property of code; no artifact can demonstrate it.
 
+Milestone 3 is four weeks of release and documentation work followed by a **four-week adoption
+window** during which independent teams exercise the tool on their own projects. Acceptance falls at
+the end of that window, because the criteria below require those teams to have used it and reported.
+
+*Named prospects: **TBD** — teams approached before submission will be listed here. Absent confirmed
+prospects, candidates will be recruited through the Daml Language & Developer Tooling SIG channel,
+the Canton Network forum, and teams already publishing multi-package Daml projects.*
+
 **Deliverables:**
-- Public release, OCI component publication, and a documented **maintenance plan** tied to Daml SDK
-  versions.
+- Public release and OCI component publication.
+- **A maintenance commitment**, not merely a plan: LimeChain will maintain the component for **6
+  months following final delivery**, including restoring compatibility with new Daml SDK releases
+  within **60 days** of each release, and triaging issues reported against the documented workflow.
 - Quickstart — "keep your ledger alive through a breaking model change" — with an example repository,
   plus a recorded walkthrough.
 - Submission of the workflow for inclusion in Canton/Daml developer documentation, and a presentation
@@ -483,18 +508,23 @@ Listed for context; **not part of this funding request**.
 
 ## Funding
 
-**Total Funding Request:** TBD — to be completed before submission.
+**Total Funding Request:** 365,000 Canton Coin
+
+Delivered by **one engineer** across ~8 engineer-weeks of milestone work, plus ~2 engineer-weeks for
+the six-month maintenance commitment.
 
 ### Payment Breakdown by Milestone
 
-- Milestone 1, Single-Package Development Reload: **30%** of total (XX CC) upon committee acceptance
-- Milestone 2, Dependency-Closure Reload: **30%** of total (XX CC) upon committee acceptance
-- Milestone 3, Adoption, Documentation and Ecosystem Validation: **40%** of total (XX CC) upon
-  committee acceptance and adoption criteria
+- Milestone 1, Single-Package Development Reload: **110,000 CC** upon committee acceptance
+- Milestone 2, Dependency-Closure Reload: **110,000 CC** upon committee acceptance
+- Milestone 3, Adoption, Documentation and Ecosystem Validation: **145,000 CC** upon committee
+  acceptance and the adoption criteria
 
-The split places the largest share on demonstrated ecosystem adoption, consistent with funded
-proposals in this area, while weighting the capability milestones to reflect that the engineering —
-the hook interface, baseline lifecycle and failure-safety work — does not exist yet.
+The largest share sits on Milestone 3 because that is where ecosystem value is demonstrated rather
+than asserted, and because it carries both the adoption window and the maintenance commitment. The
+capability milestones are weighted to reflect that their engineering — the hook interface, baseline
+lifecycle and failure-safety work — does not exist yet, however well-proven the underlying sequence
+is.
 
 ### Volatility Stipulation
 
@@ -550,34 +580,23 @@ violate the template's own warning about deliverables of greatly differing diffi
 
 ---
 
-## Questions for the Champion
-
-Offered as discussion; **none is a dependency of this proposal.**
-
-1. **Unvetting with live contracts.** We observed that unvetting a package whose active contracts
-   nothing else can interpret **succeeds, unforced**, on stable protocol version 35 with no alpha or
-   dev flags set (row `E4`). Canton 3.4's notes suggest unvetting should be safe *provided* a
-   compatible package remains vetted. Is the absence of enforcement intended? Our loop archives
-   first either way, so nothing here depends on the answer.
-2. **In-flight submissions.** Is there a supported way to quiesce a development participant for the
-   duration of a commit window? With one, §3.6 could close the window outright instead of detecting
-   and refusing.
-3. **Home.** Should this live as a DPM component, or would Digital Asset prefer it upstreamed into
-   `dpm` itself? We are happy either way.
-
----
-
 ## About the Team
 
 LimeChain has built and shipped blockchain infrastructure and developer tooling since 2017.
 
-This proposal comes out of work we did on Canton in which we deliberately tried to disprove our own
-result: we found a mislabelling defect in our own harness, built a control that would fail if the
-harness could not tell two configurations apart, re-ran everything against it, and published the
-logs. The evidence base for this proposal is the product of that process, and the six shipped-toolchain
-defects we found along the way (an Oracle JDK / BouncyCastle failure that makes every transaction
-submit fail opaquely; `dpm new --template empty-skeleton` omitting `sdk-version`; a Postgres sandbox
-that is not restart-safe; and others) we are happy to file separately.
+*Track record: **TBD before submission** — named prior work, ecosystems, and engagement durations to
+be listed here.*
+
+How we work is visible in this proposal's evidence base. We set out to prove a result and then tried
+to disprove it: we found a mislabelling defect in our own test harness, built a control that would
+fail if the harness could not distinguish the two configurations it was comparing, re-ran the entire
+matrix against that control, and published every log — including the correction. We would rather
+hand a committee an audited result than a confident one.
+
+Building the proof of concept also surfaced six defects in the shipped toolchain — among them an
+Oracle JDK / BouncyCastle interaction that makes every Daml transaction fail with an opaque
+`INTERNAL`, `dpm new --template empty-skeleton` omitting `sdk-version`, and a Postgres sandbox that
+is not restart-safe. We are filing these with Digital Asset independently of this proposal.
 
 ---
 
