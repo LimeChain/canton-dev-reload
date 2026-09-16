@@ -439,9 +439,10 @@ Milestone 3 is four weeks of release and documentation work followed by a **four
 window** during which independent teams exercise the tool on their own projects. Acceptance falls at
 the end of that window, because the criteria below require those teams to have used it and reported.
 
-*Named prospects: **TBD** — teams approached before submission will be listed here. Absent confirmed
-prospects, candidates will be recruited through the Daml Language & Developer Tooling SIG channel,
-the Canton Network forum, and teams already publishing multi-package Daml projects.*
+Participating teams will be recruited through the Daml Language & Developer Tooling SIG channel, the
+Canton Network forum, and direct approach to teams already publishing multi-package Daml projects.
+We have not pre-committed any organisation, and would rather say so than imply arrangements that do
+not exist.
 
 **Deliverables:**
 - Public release and OCI component publication.
