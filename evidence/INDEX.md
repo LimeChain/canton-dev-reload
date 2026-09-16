@@ -48,6 +48,36 @@ produce identical output, and "no force flag is needed" is unfalsifiable by our 
 Package IDs are the historical ones: `items` v1 `f598c7e1de1b` → v2 `04d8ea17faef`,
 `holders` v1 `92c6c3f57ebf` → v2 `3069c0dc4233`.
 
+## Timing (harness-v4)
+
+`scripts/80-timing.sh`, 11 trials per path, alternating, first of each discarded as warm-up, every
+trial from a fresh sandbox + rebuilt v1 + fresh seed performed outside the timed interval.
+
+| Path | n | median | min | max |
+|---|---|---|---|---|
+| reload | 10 | **19.86 s** | 19.19 s | 21.20 s |
+| restart and reseed | 10 | **33.36 s** | 32.38 s | 34.91 s |
+
+**Reduction: 40.5%** (median to median).
+
+Protocol, in full, in the log header. The parts that matter for reading the number:
+
+- **Start** is the source write, captured by `05-variant.sh` into `logs/t0.source-write` immediately
+  before it copies the variant in — an observed event, not a reconstructed timestamp.
+- **End** is an *equivalent logical seeded state* (`console/verify-seeded.canton`): parties exist and
+  seed data is present. The restart path reaches it with **newly allocated party IDs**, which is
+  permitted — the condition is logical equivalence, not identity.
+- **Excluded**: repairing scripts, config and fixtures that still hold the old party IDs after a
+  restart. Real, but unbounded and project-specific, so the measured advantage is a **conservative
+  floor** rather than the full cost difference.
+- **Prototype, not product.** `dpm dev-reload` does not exist; these trials time the existing
+  shell/console orchestration. Both paths pay repeated JVM startup — the reload path launches five
+  processes (build, archive script, console, reseed script, verify console). The per-component split
+  was not separately instrumented in this run.
+
+Party-ID preservation is **not** part of this measurement — see the `STORY` row, where it is
+evidenced separately as a reload-only property.
+
 ## Story (harness-v3)
 
 `60-story.sh --no-pause`, with `reload.canton` defaulting to `ForceFlags.none`:
