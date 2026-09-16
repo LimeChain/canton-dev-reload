@@ -256,8 +256,8 @@ right step: during archive, re-run archive; during reseed, re-run reseed.
 
 #### 3.6 Concurrency: scoped, not claimed
 
-Between archive and swap there is a window — roughly the ~1 s the upload and topology transaction
-take — in which a running application could create a contract on the old package and strand it. We
+Between archive and swap there is a brief window — we did not instrument its duration — in which a
+running application could create a contract on the old package and strand it. We
 have not verified a supported mechanism to block submissions for that window, so **we do not claim
 one**. Milestone 1 is instead scoped to a participant the tool has **detected idle**, and reports
 rather than prevents anything that slips through. Running an application against the ledger during a
@@ -506,8 +506,9 @@ Listed for context; **not part of this funding request**.
   close the concurrency window in §3.6 outright rather than detecting and refusing.
 - **Daml Studio integration** — reload on save. Different codebase, different direction.
 - **A resident daemon.** The measured prototype reload is ~19.9 s, and it launches five separate JVM
-  processes to get there (build, archive script, console, reseed script, verify). A resident admin
-  connection is where the remaining win is — the Canton work itself is a small fraction of that.
+  processes to get there (build, archive script, console, reseed script, verify). Holding one admin
+  connection instead would remove most of that repeated startup cost; we have not instrumented the
+  per-component split, so we state the opportunity rather than a projected figure.
 - **Multi-participant development topologies.**
 
 ---
