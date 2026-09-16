@@ -299,7 +299,14 @@ package name, same version, no restart, party IDs preserved, zero orphaned contr
 removed. Every claim below has a committed log with a provenance header (tool versions, harness
 revision, clean-tree assertions) and machine-checked assertions that exit non-zero on failure.
 
-| Claim | Evidence |
+Each code in the right-hand column names a run log committed under `evidence/` in the repository
+above, indexed by `evidence/INDEX.md`: **C** is a control, **E** a force-flag experiment, **M** a
+multi-package closure run, plus the four-act demo (`STORY`) and the timing measurement (`TIMING`).
+Every log carries a provenance header — tool versions, harness revision, clean-tree assertions — and
+machine-checked assertions that exit non-zero on failure, so a reviewer can open any row and see the
+raw console output rather than take the claim on trust.
+
+| Claim | Evidence log |
 | :---- | :---- |
 | Unforced `add-second` is **rejected** with `KNOWN_PACKAGE_VERSION`; forced is accepted | `C1`, `C2` |
 | The atomic swap succeeds with `ForceFlags.none`, contracts archived first | `E1` |
