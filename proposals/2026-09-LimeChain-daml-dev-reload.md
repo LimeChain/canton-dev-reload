@@ -226,8 +226,9 @@ reseed against the **new**, and the old one cannot be rebuilt once the source is
 baseline, captured by `dpm dev-reload init` and advanced only after a reload verifies. And authority
 must be established **per contract, not per declared party**, since a contract may carry an
 undeclared or jointly-controlled signatory; the tool confirms it can act for every signatory it
-discovers before archiving anything. The full interface is specified in `docs/design-note.md` in the
-proof-of-concept repository.
+discovers before archiving anything. The full interface is specified in
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v7/docs/design-note.md) in the proof-of-concept
+repository.
 
 #### 3.5 Failure safety
 
@@ -297,8 +298,9 @@ to run outside an isolated development participant.
 
 ## Proof of Concept Implementation
 
-Public repository: **this repository** — the submitted copy of this proposal carries a URL
-pinned to the commit these logs were produced at. Apache-2.0.
+Public repository: **<https://github.com/LimeChain/canton-dev-reload>** (Apache-2.0), pinned for review at
+[`harness-v7`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v7). Tags in that repository are provenance anchors and are never
+moved, so the link is stable; `main` is not, and should not be cited.
 
 **That repository is the evidence base, not the product.** It holds the test harness and its
 committed run logs — the investigation we did at our own cost to establish that the sequence works.
@@ -311,8 +313,8 @@ revision, clean-tree assertions) and machine-checked assertions that exit non-ze
 
 Each row below was a separate run from a clean sandbox. The middle column says what that run
 actually did, so the differences between them are visible rather than hidden behind a label; the
-right column is the log file name under `evidence/` in the repository above, indexed by
-`evidence/INDEX.md`. The file names encode the same thing — `E1__swap__force-none__archived` is the
+right column is the log file name under [`evidence/`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v7/evidence) in the
+repository above, indexed by [`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v7/evidence/INDEX.md). The file names encode the same thing — `E1__swap__force-none__archived` is the
 swap, with no force flag, with contracts archived first. Every log carries a provenance header
 (tool versions, harness revision, clean-tree assertions) and machine-checked assertions that exit
 non-zero on failure, so a reviewer can open any row and read raw console output rather than take
