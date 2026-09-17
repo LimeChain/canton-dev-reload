@@ -132,8 +132,8 @@ it does not tell us is how often a given team makes a *breaking* model change sp
 
 So we deliberately do **not** put a percentage on adoption here. We can substantiate the cost of the
 event. Measured over 10 alternating trials per path, each from a fully reset ledger: the prototype
-reload reaches a verified seeded state in a **median 19.9 s**, against **33.4 s** to restart and
-reseed — a **40.5% reduction**, and a conservative one, since it excludes repairing everything that
+reload reaches a verified seeded state in a **median 18.5 s**, against **30.6 s** to restart and
+reseed — a **39.5% reduction**, and a conservative one, since it excludes repairing everything that
 still holds the old party IDs after a restart. What we cannot substantiate is how many teams hit
 this or how often, and we would rather measure that in Milestone 3 than guess at it now.
 
@@ -329,7 +329,7 @@ the claim on trust.
 | Dependent not rebuilt → `PACKAGE_SELECTION_FAILED` | rebuild one package of a two-package project and swap only it | `M1` |
 | Full closure swapped in **one** topology transaction, unforced | rebuild all three packages, archive, swap both in a single transaction, reseed | `M2` |
 | PID unchanged, party IDs identical, `orphanedContracts=0`, old package removed | the four-act demo end to end, reload defaulting to no force flag | `STORY` |
-| Reload reaches a verified seeded state in median 19.9 s vs 33.4 s to restart and reseed | 10 alternating trials per path, each from a fully reset ledger | `TIMING` |
+| Reload reaches a verified seeded state in median 18.5 s vs 30.6 s to restart and reseed | 10 alternating trials per path, each from a fully reset ledger | `TIMING` |
 
 **C1 and C2 are the gate**, and they are why the rest can be believed. They are a positive control
 proving the harness can distinguish the two force settings at all: without them, a run that never
@@ -411,8 +411,10 @@ against the same participant, with the same party IDs, without restarting.
   machine, first trial of each path discarded, each trial from a reset ledger. The baseline reaches
   that state with **newly allocated party IDs**, and the comparison **excludes** the work of repairing
   scripts and config that still hold the old IDs, so the figure is a conservative floor. Target
-  **≥40% reduction** — the shell prototype already achieves 40.5% under this protocol, and the
-  product should improve on it by holding one admin connection instead of launching five processes.
+  **≥35% reduction**. The shell prototype measures 39.5% under this protocol (`TIMING`); the target
+  is set below that deliberately, because the measurement carries a few points of run-to-run variance
+  on the same machine. The product should improve on the prototype by holding one admin connection
+  instead of launching five processes.
 - **Party IDs are preserved across the reload** — stated separately from the timing, since the
   baseline cannot satisfy it by construction. A different
   threshold may be agreed with the committee at grant time.
@@ -525,7 +527,7 @@ Listed for context; **not part of this funding request**.
 - **An enforced commit-window quiesce**, if a supported mechanism exists — which would let the tool
   close the concurrency window in §3.6 outright rather than detecting and refusing.
 - **Daml Studio integration** — reload on save. Different codebase, different direction.
-- **A resident daemon.** The measured prototype reload is ~19.9 s, and it launches five separate JVM
+- **A resident daemon.** The measured prototype reload is ~18.5 s, and it launches five separate JVM
   processes to get there (build, archive script, console, reseed script, verify). Holding one admin
   connection instead would remove most of that repeated startup cost; we have not instrumented the
   per-component split, so we state the opportunity rather than a projected figure.

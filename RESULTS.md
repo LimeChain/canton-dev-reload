@@ -291,7 +291,7 @@ because that is a *code* linkage.
 ## Timing
 
 > **Superseded.** These figures were never measured — they were an estimate. The measured result
-> is a median **19.86 s** for the reload against **33.36 s** to restart and reseed, a 40.5%
+> is a median **18.50 s** for the reload against **30.58 s** to restart and reseed, a 39.5%
 > reduction, over 10 alternating trials per path. See the Timing section of `evidence/INDEX.md` and
 > the committed `…__TIMING__reload-vs-restart.log`. The per-component split below was never
 > instrumented at all.

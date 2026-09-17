@@ -20,7 +20,7 @@ The sequence: archive the old contracts → `dars.upload(dar, vetAllPackages = f
 vetted set in **one** `propose_delta` against the synchronizer store → reseed.
 
 Measured over 10 alternating trials per path: the reload reaches a verified seeded state in a median
-**19.9 s**, against **33.4 s** to restart and reseed — a 40.5% reduction, and a conservative one,
+**18.5 s**, against **30.6 s** to restart and reseed — a 39.5% reduction, and a conservative one,
 since it excludes repairing everything that still holds the old party IDs after a restart.
 
 ## Requirements
@@ -119,6 +119,7 @@ original file on exit, including any edit you already had there.
 | `variants/` | The v1/v2 sources. `Mirrors.v1` is `Text`, `v2` is `Int` — an invalid upgrade. |
 | `canton/` | Sandbox configs. |
 | `proposals/` | The Dev Fund proposal this repository is evidence for. |
+| `tools/` | Document utilities, not harness. `build-docx.sh` renders the proposal to `.docx`. |
 | `rfc/` | The superseded internal RFC that led to the proposal. |
 | `RESULTS.md` | Internal findings write-up, predating the evidence rebuild. See its header. |
 
