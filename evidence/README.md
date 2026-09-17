@@ -5,5 +5,5 @@ harness revision, clean-tree assertions) and machine-checked assertions. See IND
 run licenses, the reading and comparison rules, and an explicit list of what these runs do NOT
 establish.
 
-Regenerate with `scripts/70-matrix.sh`, `scripts/71-closure.sh` and `scripts/60-story.sh`; see the
-repository README.
+Regenerate with `scripts/70-matrix.sh`, `scripts/71-closure.sh`, `scripts/60-story.sh` or
+`scripts/80-timing.sh`; see the repository README for prerequisites and expected runtimes.

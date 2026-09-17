@@ -26,9 +26,16 @@ if [ "$reload_rc" -ne 0 ]; then
 fi
 
 banner "3/3  reseed"
-dpm script --dar artifacts/mirrors-seed.dar --script-name Seed:seed \
-  --ledger-host localhost --ledger-port 6865 -w 2>&1 \
-  | grep -E "MODEL|PARTY|SEED|SUCCESS|FAILURE" || true
+reseed_out="$(dpm script --dar artifacts/mirrors-seed.dar --script-name Seed:seed \
+  --ledger-host localhost --ledger-port 6865 -w 2>&1)"; reseed_rc=$?
+printf '%s\n' "$reseed_out" | grep -E "MODEL|PARTY|SEED|SUCCESS|FAILURE" || true
+# Previously `|| true`, so a failed reseed passed silently and the caller asserted invariants
+# against a ledger that was never reseeded.
+if [ "$reseed_rc" -ne 0 ]; then
+  echo "FAIL  reseed exited $reseed_rc"
+  printf '%s\n' "$reseed_out" | tail -15
+  exit 1
+fi
 
 pid_after="$(sandbox_pid)"
 banner "invariants"

@@ -21,6 +21,38 @@ for a in "$@"; do
   esac
 done
 
+# ---- assertion ledger --------------------------------------------------------------------
+# The proposal cites this run for: PID unchanged, party ids identical, orphanedContracts=0,
+# and the old package removed; evidence/INDEX.md adds Act 3's orphanedContracts=2, Act 4's
+# removeOld=DONE, and the ledger API staying open. All of those used to be coloured text that set
+# nothing, so the script always exited 0 no matter what happened. Each is now a check() whose
+# failure makes the run non-zero.
+FAILURES=0
+check() {  # name, condition-result(0/1), got, want
+  if [ "$2" -eq 0 ]; then printf '   \033[1;32mPASS\033[0m %-26s %s\n' "$1" "$3"
+  else printf '   \033[1;31mFAIL\033[0m %-26s got=%s want=%s\n' "$1" "$3" "$4"; FAILURES=$((FAILURES+1)); fi
+}
+eq() { [ "$1" = "$2" ] && return 0 || return 1; }
+
+# ---- evidence mode -----------------------------------------------------------------------
+# --live has the reviewer hand-edit a TRACKED source mid-run, so a start-of-run provenance stamp
+# would assert a clean harness over modified input -- a false header is worse than none. --live is
+# therefore explicitly NOT evidence-producing.
+if [ "$live" = 1 ]; then
+  echo "NOTE  --live is not evidence-producing: it edits a tracked source mid-run, so no"
+  echo "      evidence/ log is written. Use --no-pause for a citable run."
+  # Restore the developer's OWN bytes on exit -- not `git checkout`, which would silently destroy an
+  # edit they already had in this file before starting.
+  _SRC_BACKUP="$(mktemp)"; cp mirrors/daml/Mirrors.daml "$_SRC_BACKUP"
+  trap 'cp "$_SRC_BACKUP" mirrors/daml/Mirrors.daml 2>/dev/null; rm -f "$_SRC_BACKUP"' EXIT INT TERM
+else
+  STORY_LOG="evidence/$(date -u +%Y%m%dT%H%M%SZ)__STORY__60-story-noforce.log"
+  mkdir -p evidence
+  exec > >(tee "$STORY_LOG") 2>&1
+  bash scripts/env-stamp.sh; _stamp_rc=$?
+  [ "$_stamp_rc" -ne 0 ] && { echo "VOID provenance failed (env-stamp rc=$_stamp_rc); cannot be cited"; exit 1; }
+fi
+
 pause() { [ "$nopause" = 1 ] || { printf '\n\033[2m   ── press Enter ──\033[0m'; read -r _ </dev/tty; echo; }; }
 act()   { printf '\n\n\033[1;44m  %s  \033[0m\n\n' "$1"; }
 say()   { printf '   \033[2m%s\033[0m\n' "$1"; }
@@ -113,11 +145,15 @@ hit "starting point:   Alice $(sh_ "$A3")     contracts $(p_count "$F3")     PID
 say "Same edit you already made. The SAME package Canton just rejected in Act 1."
 say "Difference: upload it UNVETTED, then swap the vetted set in one topology transaction."
 printf '\n'
-bash scripts/30-reload.sh "$TARGET" 2>&1 | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|PASS|FAIL" | sed 's/^/   /'
+R3="$(bash scripts/30-reload.sh "$TARGET" 2>&1)"
+printf '%s\n' "$R3" | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|PASS|FAIL" | sed 's/^/   /'
 F4=$(facts); A4=$(p_alice "$F4")
 printf '\n'
-[ "$A4" = "$A3" ] && hit "Alice        $(sh_ "$A4")   <- IDENTICAL" || bad "Alice CHANGED (unexpected)"
-[ "$(sandbox_pid)" = "$PID3" ] && hit "PID          $PID3   <- IDENTICAL, never restarted" || bad "PID CHANGED (unexpected)"
+ORPH3=$(printf '%s\n' "$R3" | grep -oE "orphanedContracts=[0-9]+" | head -1 | cut -d= -f2)
+eq "$A4" "$A3";                      check "act3 party id identical" $? "$(sh_ "$A4")" "$(sh_ "$A3")"
+eq "$(sandbox_pid)" "$PID3";         check "act3 pid unchanged"      $? "$(sandbox_pid)" "$PID3"
+eq "${ORPH3:-}" "2";                 check "act3 strands contracts"  $? "orphanedContracts=${ORPH3:-none}" "2"
+port_open 6865;                      check "act3 ledger api open"    $? "6865" "open"
 hit "live model   $(p_live "$F4" | cut -c1-12)..   <- value : Int, still mirrors 1.0.0"
 printf '\n'
 good "-> incompatible model swapped into a running ledger. Same process, same parties."
@@ -150,19 +186,32 @@ hit "contracts now $(p_count "$F6")   <- the window in which the swap is safe"
 printf '\n'
 say "Step 2 -- now the identical reload, plus dropping the old package."
 printf '\n'
-POC_REMOVE_OLD=true bash scripts/30-reload.sh "$TARGET" 2>&1 \
-  | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|RELOAD removeOld|PASS|FAIL" | sed 's/^/   /'
+R4="$(POC_REMOVE_OLD=true bash scripts/30-reload.sh "$TARGET" 2>&1)"
+printf '%s\n' "$R4" | grep -E "RELOAD force|RELOAD swapped|RELOAD orphaned|RELOAD removeOld|PASS|FAIL" | sed 's/^/   /'
 F7=$(facts); A7=$(p_alice "$F7")
 printf '\n'
-[ "$A7" = "$A5" ] && hit "Alice        $(sh_ "$A7")   <- IDENTICAL" || bad "Alice CHANGED (unexpected)"
-[ "$(sandbox_pid)" = "$PID5" ] && hit "PID          $PID5   <- IDENTICAL, never restarted" || bad "PID CHANGED (unexpected)"
-hit "live model   $(p_live "$F7" | cut -c1-12)..   <- value : Int, still mirrors 1.0.0"
-printf '%s\n' "$F7" | awk -F'|' '$2=="dar"{n++} END{printf "   \033[1mmirrors packages on the ledger  %d   <- old one deleted\033[0m\n", n}'
-printf '\n'
-good "-> zero stranded contracts. One package. Nothing restarted."
+ORPH4=$(printf '%s\n' "$R4" | grep -oE "orphanedContracts=[0-9]+" | head -1 | cut -d= -f2)
+NDAR=$(printf '%s\n' "$F7" | awk -F'|' '$2=="dar"{n++} END{print n+0}')
+LIVE4=$(p_live "$F7")
+eq "$A7" "$A5";                      check "act4 party id identical" $? "$(sh_ "$A7")" "$(sh_ "$A5")"
+eq "$(sandbox_pid)" "$PID5";         check "act4 pid unchanged"      $? "$(sandbox_pid)" "$PID5"
+eq "${ORPH4:-}" "0";                 check "act4 nothing stranded"   $? "orphanedContracts=${ORPH4:-none}" "0"
+printf '%s\n' "$R4" | grep -q "removeOld=DONE"; check "act4 old package removed" $? "removeOld=DONE" "removeOld=DONE"
+eq "$NDAR" "1";                      check "act4 one package left"   $? "$NDAR" "1"
+eq "$LIVE4" "$(cat logs/pkgid-v2.txt 2>/dev/null)"; check "act4 live model is v2" $? "$(printf '%.12s' "$LIVE4")" "$(cut -c1-12 logs/pkgid-v2.txt 2>/dev/null)"
+port_open 6865;                      check "act4 ledger api open"    $? "6865" "open"
 say ""
 say "The only thing left is history in the event log, and in-memory that grows until"
 say "you restart. Canton can already delete it -- repair.purge works on Postgres, we"
 say "tested it -- but it is refused on the in-memory sandbox developers actually use."
 say ""
 hit "THE ASK: make repair.purge available on an in-memory dev participant."
+
+printf '\n'
+if [ "$FAILURES" -eq 0 ]; then
+  good "VERDICT PASS -- every property this run is cited for held."
+else
+  bad "VERDICT FAIL ($FAILURES) -- this run must not be cited."
+fi
+[ "$live" = 1 ] || echo "#### LOG ${STORY_LOG:-<none>}"
+exit "$FAILURES"

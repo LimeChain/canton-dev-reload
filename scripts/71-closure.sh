@@ -95,7 +95,8 @@ fi
 
 banner "provenance"
 bash scripts/env-stamp.sh; stamp_rc=$?
-[ "$stamp_rc" -eq 1 ] && { echo "VOID provenance assertions failed"; rc=1; }
+# Any nonzero result voids: 1 = dirty/drifted, 2 = no reachable harness tag.
+[ "$stamp_rc" -ne 0 ] && { echo "VOID provenance failed (env-stamp rc=$stamp_rc); cannot be cited"; rc=1; }
 
 echo
 echo "#### EXIT_CODE $rc"

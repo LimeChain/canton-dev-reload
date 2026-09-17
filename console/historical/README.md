@@ -16,4 +16,13 @@ currently be re-run. Restoring them needs tracked variant sources plus a version
 build step. Until then the Approach 1 results are historical, not reproducible, and are labelled as
 such in RESULTS.md.
 
+purge-pg.canton is also not reproducible as shipped. It needs a Postgres-backed sandbox, and
+nothing here starts one: scripts/00-sandbox.sh hardcodes canton/sandbox.conf, and
+canton/sandbox-pg.conf additionally requires a local postgres:16 with four separate databases that
+no script or compose file creates. The repair.purge result recorded in RESULTS.md was obtained by
+hand against such a sandbox and has no committed log.
+
+Note /private/tmp in the three upgrade scripts is the macOS-canonical form of /tmp — it was the
+author's scratch directory, not a path with any meaning.
+
 Everything under console/ outside this directory is reproducible — see evidence/INDEX.md.

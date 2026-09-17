@@ -1,3 +1,4 @@
+// HISTORICAL — not reproducible. See README.md in this directory.
 def try_(label: String, dar: String): Unit =
   scala.util.Try(sandbox.dars.upload(dar, vetAllPackages = true)) match {
     case scala.util.Success(id) => println(s"$label => ACCEPTED ${id.take(12)}")

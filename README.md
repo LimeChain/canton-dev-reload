@@ -1,155 +1,169 @@
-# Canton dev model reload — POC
+# Canton development reload — evidence base
 
-Change a Daml model on a **running** Canton participant: same package name, same version, no
-version bump, no restart, parties intact.
+**This repository is evidence, not a product.** It holds the test harness and committed run logs
+behind [`proposals/2026-09-LimeChain-daml-dev-reload.md`](proposals/2026-09-LimeChain-daml-dev-reload.md),
+a Canton Development Fund proposal. Every claim that proposal makes maps to a log file here that you
+can open and read. The tool the proposal asks to fund does not exist yet.
 
-The question this answers:
+**Start at [`evidence/INDEX.md`](evidence/INDEX.md)** — it maps each claim to the run that backs it,
+states the rules for reading them, and lists explicitly what these runs do *not* establish.
 
-> Can it be done with the APIs that ship in Canton 3.5.12, and if not, exactly which call stops us?
+## What was demonstrated
 
-**Answer: yes, two ways, neither needing a Canton change.**
+A Daml model was changed **incompatibly** — `type Val = Text` → `type Val = Int` — on a **running**
+Canton 3.5.12 participant. Same package name, same version, no restart, no force flag.
 
-| Your change | Approach | Dependent packages |
-|---|---|---|
-| **compatible** (add an optional field, add a choice) | bump the version, `1.0.0` → `1.0.1` | resolve automatically, no rebuild |
-| **incompatible** (change a type, drop a field) | **archive** → upload unvetted → swap → reseed | must be rebuilt too |
+The participant process and every **party ID** survive. Contracts do **not**: they are archived and
+recreated, so contract IDs change. That distinction matters and the proposal is careful about it.
 
-The only unsolved problem is reclaiming storage afterwards. Full evidence, with verbatim error
-strings, in **[RESULTS.md](RESULTS.md)**; the proposal in **[rfc/RFC-revised.md](rfc/RFC-revised.md)**.
+The sequence: archive the old contracts → `dars.upload(dar, vetAllPackages = false)` → swap the
+vetted set in **one** `propose_delta` against the synchronizer store → reseed.
+
+Measured over 10 alternating trials per path: the reload reaches a verified seeded state in a median
+**19.9 s**, against **33.4 s** to restart and reseed — a 40.5% reduction, and a conservative one,
+since it excludes repairing everything that still holds the old party IDs after a restart.
 
 ## Requirements
 
-- `dpm` (tested 1.0.21 / dpm-sdk 3.5.5 / Canton 3.5.12)
-- **An OpenJDK 17+, not an Oracle JDK.** Canton's fat jar bundles BouncyCastle unsigned; Oracle
-  JDKs refuse to authenticate it and *every transaction submit* fails with an opaque
-  `INTERNAL`. `scripts/lib.sh` points `JAVA_HOME` at `/opt/homebrew/opt/openjdk@21` if present
-  and leaves your global environment alone. `brew install openjdk@21`.
+- **`dpm`** — tested with 1.0.21 / dpm-sdk 3.5.5 / Canton 3.5.12.
+- **An OpenJDK 17+, not an Oracle JDK.** Canton's fat jar bundles BouncyCastle unsigned; Oracle JDKs
+  refuse to authenticate it and *every transaction submit* fails with an opaque `INTERNAL`. Verified:
+  Oracle 17.0.7 fails, Oracle 18.0.2 fails, OpenJDK 21.0.12.1 works. `scripts/lib.sh` points
+  `JAVA_HOME` at an OpenJDK if it finds one and warns loudly if it does not; your global environment
+  is untouched. `brew install openjdk@21`.
+- **`python3`** — used for timing arithmetic in `scripts/80-timing.sh`.
+- **macOS.** Every result here was produced on macOS with OpenJDK 21. The scripts use `shasum`,
+  `nc`, BSD `ps` and Homebrew paths; Linux is untested.
+- **Fetch the tags.** A clone without them, or a tarball download, leaves no `harness-*` tag
+  reachable, and every run will correctly refuse to produce a citable result. `git fetch --tags`.
 
-## Run it
+## Verifying a claim
+
+Each command below starts from a clean sandbox, asserts its own expectations, and **exits non-zero
+if any of them fail**. A run that cannot prove its own provenance refuses to produce a result rather
+than printing a green line — so if a command stops with `VOID`, that is the harness working.
 
 ```bash
-bash scripts/60-story.sh --live
+git fetch --tags                     # required, see above
+
+bash scripts/70-matrix.sh C1         # unforced add-second is REJECTED (KNOWN_PACKAGE_VERSION)
+bash scripts/70-matrix.sh C2         # the same call forced is ACCEPTED
+                                     #   C1+C2 are the control pair: they prove the harness can
+                                     #   tell the two force settings apart at all
+bash scripts/70-matrix.sh E1         # the swap, unforced, contracts archived first  <- the headline
+bash scripts/70-matrix.sh E2         # the swap, unforced, contracts still live (strands them)
+bash scripts/70-matrix.sh E3         # the swap WITH the flag — identical outcome to E1
+bash scripts/70-matrix.sh E4         # unvetting with live contracts, unforced
+bash scripts/70-matrix.sh E5         # the same unvet with the flag — inert, identical to E4
+bash scripts/70-matrix.sh E6         # three independent repeats of E1 (determinism)
+
+bash scripts/71-closure.sh M1        # dependent not rebuilt -> PACKAGE_SELECTION_FAILED
+bash scripts/71-closure.sh M2        # the closure loop end to end, one topology transaction
+
+bash scripts/60-story.sh --no-pause  # the four acts, reload defaulting to no force flag
+bash scripts/80-timing.sh 11         # reload vs restart, 10 measured trials per path
 ```
 
-Four acts, pausing between each so you can talk. In act 1 it waits while **you** hand-edit one
-line of the model — `type Val = Text` → `type Val = Int` — and tells you if the file was not
-saved.
+**Expect roughly:** a matrix row ~1 minute, a closure row ~2 minutes, the story ~4 minutes, the
+timing run ~35 minutes (22 trials, each from a full sandbox reset).
 
-| Act | What it shows |
-|---|---|
-| **Setup** | a working dev ledger: parties allocated, data seeded |
-| **1** | you change one line, rebuild, upload — **Canton rejects it**, with the real `KNOWN_PACKAGE_VERSION` error |
-| **2** | so you restart, and **lose every party and contract**; re-seeding hands you different party IDs |
-| **3** | the reload in the **wrong order** — works, but strands contracts that can no longer be archived |
-| **4** | the reload **archiving first** — nothing stranded, old package removed, same PID and party IDs |
-
-Add `--no-pause` to rehearse straight through (skips the hand edit). Drop `--live` to have the
-script swap the variant itself.
-
-One reload takes ~12s; nearly all of that is JVM startup across three processes, not Canton.
-
-## How the reload works
+**What success looks like.** Every run prints its expectations up front, then a line per assertion,
+then a verdict:
 
 ```
-1. archive the old contracts               ordinary Daml Archive, as the signatories.
-                                           The only valid window — after the swap the old
-                                           package is unvetted and nothing from it can be
-                                           exercised, archiving included.
-2. dars.upload(dar, vetAllPackages = false)  incompatible builds upload fine when unvetted
-3. topology.vetted_packages.propose_delta(   ONE transaction: old out, new in
-     adds    = [ VettedPackage(newId) ],
-     removes = [ oldId ],
-     store   = TopologyStoreId.Synchronizer(psid))   <- NOT the default Authorized store
-4. reseed                                  parties are reused, not reallocated
-5. dars.remove(oldId)                       optional; only possible because step 1 archived
+#### ROW E1  op=swap force=none state=archived
+#### EXPECT result=succeed v1Vetted=false v2Vetted=true serialDelta=1 acs=0 onV1=0
+...
+assert_committed PASS  no committed change outside evidence/ since harness-v5
+assert_clean     PASS  working tree clean outside evidence/
+OP   forceFlagsActual=ForceFlags(Set()) forceIsNone=true adds=[dba33b18bff3] removes=[c17b5cb16a9d]
+RESULT op=swap force=none forceIsNone=true => SUCCEEDED
+ASSERT serialDelta    PASS got=1 want=1
+VERDICT PASS
+#### ROW E1 PASS
 ```
 
-Two things that are easy to get wrong:
+Two lines are worth understanding:
 
-- **Target the synchronizer store.** `propose_delta` defaults to the *Authorized* store, which
-  on a fresh participant has no `VettedPackages` mapping — so a defaulted call emits serial 1,
-  silently changes nothing, and still returns success.
-- **`dars.vetting.enable` cannot express this.** It has no force parameter, so it fails with
-  `KNOWN_PACKAGE_VERSION`. Only the topology API can do the swap.
+- **`OP forceFlagsActual=…`** is the force flag *as reconstructed from what was passed to Canton*,
+  not as requested by a label. An earlier version of this harness chose the flag with a string test
+  that the operation names happened to satisfy, so runs labelled "unforced" had the flag set. That
+  defect, and the control pair built to catch it, are described in `evidence/INDEX.md`.
+- **`assert_clean` / `assert_committed`** anchor the run to a `harness-*` tag. If the working tree
+  has any change outside `evidence/`, the run voids itself rather than producing a citable result.
 
-No force flag is needed: `KNOWN_PACKAGE_VERSION` is evaluated against the *resulting* vetted
-set, and an atomic swap never produces two packages sharing a name and version.
+## The demo
 
-## Order matters: archive first
+```bash
+bash scripts/60-story.sh --no-pause    # citable; writes a log to evidence/
+bash scripts/60-story.sh --live        # you hand-edit the model; NOT citable
+```
 
-The swap does **not** touch contracts. Archive after it and the old contracts are stranded —
-active but unusable, and no longer archivable either, because archiving also needs the code
-that understands them. `scripts/30-reload.sh` reports the count as `orphanedContracts`.
+Four acts: a breaking change is rejected; restarting loses every party and contract; reloading in
+the wrong order strands contracts; reloading in the right order strands nothing.
 
-Archiving beforehand gives `orphanedContracts=0` and is what makes `dars.remove` succeed,
-leaving exactly one `mirrors 1.0.0` carrying the new types. It works because in a development
-sandbox you allocated every party yourself, so you hold the signatory authority — which is also
-why the technique is inherently development-only.
-
-What remains is **history** in the event log. With `storage = memory` it grows until you
-restart. `repair.purge` deletes contracts outright and is verified working on Postgres, but is
-refused in-memory; pruning never succeeded on either backend. That is the one open ask.
+`--live` pauses so you can edit `mirrors/daml/Mirrors.daml` yourself. It writes **no** evidence log —
+editing a tracked source mid-run would make any provenance header false — and it restores your
+original file on exit, including any edit you already had there.
 
 ## Layout
 
-```
-mirrors/         the model under test. daml.yaml name+version are NEVER edited.
-variants/        Mirrors.v1.daml (Text) and Mirrors.v2.daml (Int) — an invalid upgrade
-seed/            Daml Script package: seed + cleanup. Separate so the uploaded DAR contains
-                 ONLY the model; never uploaded itself (dpm script --upload-dar defaults false)
-multi/           two-package project (items + holders) used to test dependent packages
-canton/          sandbox.conf, and sandbox-pg.conf for the Postgres repair.purge test
-console/         canton-console bootstrap scripts
-scripts/         the runnable harness; lib.sh holds the JDK pin and the console wrapper
-artifacts/       built DARs
-rfc/             RFC-revised.md — superseded design note (see proposals/)
-proposals/       the Canton Development Fund proposal
-evidence/        committed run logs; INDEX.md maps each to the claim it licenses
-console/historical/  scripts whose fixtures are gone — not reproducible
-multi-package.yaml   so Daml Studio can resolve every package in the repo
-```
+| Path | What it is |
+|---|---|
+| `evidence/` | Committed run logs. `INDEX.md` maps each to the claim it backs. **Start here.** |
+| `scripts/` | The harness. Only four are meant to be run directly — see below. |
+| `console/` | Canton console bootstrap scripts, driven by `scripts/`. |
+| `console/historical/` | Scripts whose fixtures no longer exist. Not reproducible; see its README. |
+| `mirrors/`, `seed/` | The single-package model under test, and its Daml Script seed package. |
+| `multi/` | The three-package project (`items` → `holders` → `seedab`) used for closure tests. |
+| `variants/` | The v1/v2 sources. `Mirrors.v1` is `Text`, `v2` is `Int` — an invalid upgrade. |
+| `canton/` | Sandbox configs. |
+| `proposals/` | The Dev Fund proposal this repository is evidence for. |
+| `rfc/` | The superseded internal RFC that led to the proposal. |
+| `RESULTS.md` | Internal findings write-up, predating the evidence rebuild. See its header. |
 
-## Reproducing the evidence
+### Scripts: four drivers, the rest are steps
 
-Each of these was run to establish a specific claim in `RESULTS.md`:
+Only these four are meant to be typed:
 
-Each run starts from a clean sandbox, asserts its own expectations, and exits non-zero if any
-of them fail. Committed output is in `evidence/`, indexed by `evidence/INDEX.md`.
+| Driver | Produces |
+|---|---|
+| `70-matrix.sh <ROW>` | One force-matrix row (`C1 C2 E1..E6`) |
+| `71-closure.sh <ROW>` | One multi-package row (`M1 M2`) |
+| `60-story.sh` | The four-act demo |
+| `80-timing.sh [N]` | The reload-vs-restart measurement |
 
-```bash
-bash scripts/70-matrix.sh C1   # unforced add-second is REJECTED (KNOWN_PACKAGE_VERSION)
-bash scripts/70-matrix.sh C2   # forced add-second is accepted  -- C1+C2 are the control pair
-bash scripts/70-matrix.sh E1   # the swap, unforced, contracts archived first  <- the headline
-bash scripts/70-matrix.sh E2   # the swap, unforced, contracts still live
-bash scripts/70-matrix.sh E4   # unvetting with live contracts, unforced
-bash scripts/70-matrix.sh E6   # three independent repeats of E1
+The rest are steps the drivers call in order — `00-sandbox` (fresh participant), `05-variant` /
+`06-variant-multi` (build a model variant), `10-seed` (upload and seed), `30-reload` (the reload
+itself) — plus `lib.sh` (JDK pin, console wrapper) and `env-stamp.sh` (the provenance header).
 
-bash scripts/71-closure.sh M1  # dependent not rebuilt -> PACKAGE_SELECTION_FAILED
-bash scripts/71-closure.sh M2  # the closure loop end to end, one topology transaction
+Builds never touch the tracked sources: `05-variant.sh` materialises a throwaway project under a
+gitignored `.gen-*` directory and builds there. That is what lets `assert_clean` demand a spotless
+tree with no exclusions.
 
-bash scripts/60-story.sh --no-pause   # the four acts, reload defaulting to no force flag
-```
+## What this does not establish
 
-Still runnable directly:
+Summarised here, in full in [`evidence/INDEX.md`](evidence/INDEX.md):
 
-```bash
-. scripts/lib.sh
-console console/pv2.canton           # the sandbox runs stable protocol version 35
-console console/purge-pg.canton      # repair.purge — needs canton/sandbox-pg.conf
-```
+- **Pruning was not tested.** There is no pruning script and no log. The honest position is "we did
+  not test pruning", not "pruning does not work".
+- **`repair.purge`** was exercised by hand against a Postgres sandbox with no committed log, and the
+  script for it now sits in `console/historical/` because nothing here can start that sandbox.
+- **Approach 1** (the compatible version bump) is not reproducible — its DARs are gone. See
+  `console/historical/`.
+- **PQS** was not tested; a polling JSON-API consumer was substituted.
+- **Multi-participant** behaviour and **in-flight submissions during the swap** are untested.
+- **One machine.** macOS, OpenJDK 21, single-participant in-memory sandbox.
 
-**Not currently reproducible.** `console/historical/upgrade-test.canton`,
-`console/historical/forcebump.canton` and `console/historical/upg2.canton` load DARs from
-`/private/tmp` that no longer exist and have no build recipe
-in this repo, so the "Approach 1" section of `RESULTS.md` cannot be re-run until those fixtures
-are restored. `console/one-op.canton` is no longer runnable bare: it now requires an explicit
-operation, force setting and full set of expectations, which `scripts/70-matrix.sh` supplies.
+## Caveats on the technique itself
 
-## Caveats
-
-- Single-participant sandbox only. On a multi-participant synchronizer contracts are shared, so
-  unilateral ACS manipulation risks ACS-commitment mismatches.
-- `storage = memory`, so a restart loses everything — which is what makes "we did not restart" a
+- **Development only.** It works because you allocated every party yourself and therefore hold the
+  signatory authority to archive their contracts. That is not true anywhere else.
+- **Single-participant sandbox only.** On a shared synchronizer, contracts are shared and unilateral
+  ACS manipulation risks ACS-commitment mismatches.
+- **`storage = memory`**, so a restart loses everything — which is what makes "we did not restart" a
   meaningful claim, and also why `repair.*` is unavailable.
-- A Postgres-backed sandbox is not a workaround: `dpm sandbox` re-runs topology initialisation
-  on startup and fails against already-initialised databases.
+
+## Licence
+
+Apache-2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).

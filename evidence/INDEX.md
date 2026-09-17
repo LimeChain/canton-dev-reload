@@ -1,8 +1,10 @@
 # Evidence index
 
-Every run here was produced from a clean sandbox by `scripts/70-matrix.sh`,
-`scripts/71-closure.sh` or `scripts/60-story.sh`, and carries a provenance header naming the
-harness revision that produced it.
+Every run here was produced from a clean sandbox by `scripts/70-matrix.sh`, `scripts/71-closure.sh`,
+`scripts/60-story.sh` or `scripts/80-timing.sh`, and carries a provenance header naming the harness
+revision that produced it. A run that cannot assert its own provenance — dirty tree, drifted
+harness, or no reachable tag — voids itself and exits non-zero rather than producing a citable
+result.
 
 **Reading rule.** Each log's `RESULT` line states the resolved force argument as reconstructed
 from the value actually passed to Canton, not as requested by a label. Any quoted console output
@@ -16,6 +18,8 @@ as follows:
 | `harness-v1` | Force matrix harness. `reload.canton` still defaults to `AllowVetIncompatibleUpgrades`, i.e. the shipped behaviour at the time. |
 | `harness-v2` | Adds the closure rows; flips `reload.canton`'s default to `ForceFlags.none` (gated on E1/E2); corrects the oracle interpretation. |
 | `harness-v3` | `60-story.sh` no longer filters out the `RELOAD force=` line. |
+| `harness-v4` | Adds `scripts/80-timing.sh` and the source-write instant captured by `05-variant.sh`. |
+| `harness-v5` | Publication revision: every driver voids on any failed provenance check, `60-story.sh` gained a provenance header and machine-checked assertions for all the properties it is cited for, and the orphaned ladder/upload2/swap-both scripts were removed. |
 
 ## Force-flag matrix (harness-v1)
 
@@ -91,9 +95,10 @@ evidenced separately as a reload-only property.
 - **Pruning.** No run here touches it. There is still no pruning script in the repo and
   `UNSAFE_TO_PRUNE` appears nowhere in the participant logs. The honest position remains
   "we did not test pruning", not "pruning did not work".
-- **`repair.purge`.** Not re-run here; the existing claim rests on `console/purge-pg.canton`
-  against a Postgres sandbox.
-- **Approach 1** (compatible version bump). `console/upgrade-test.canton`, `forcebump.canton` and
+- **`repair.purge`.** Not re-run here and it has **no committed log**; the claim rests on a
+  by-hand run against a Postgres sandbox that nothing in this repo can start. The script now sits
+  in `console/historical/`.
+- **Approach 1** (compatible version bump). `console/historical/upgrade-test.canton`, `forcebump.canton` and
   `upg2.canton` still load DARs from `/private/tmp` that do not exist, so that section of
   RESULTS.md is not reproducible and must be labelled historical until those fixtures are restored.
 - **PQS**, multi-participant behaviour, and in-flight submissions during the swap: untested.

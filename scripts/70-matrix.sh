@@ -73,10 +73,15 @@ fi
 
 banner "provenance"
 bash scripts/env-stamp.sh; stamp_rc=$?
-# rc 2 means the harness tag does not exist yet: the run is reproducible but not evidence-grade.
-# rc 1 means provenance FAILED -- a dirty tree or a drifted harness -- and must void the row.
-if [ "$stamp_rc" -eq 1 ]; then
-  echo "VOID  provenance assertions failed; this row cannot be cited"
+# ANY nonzero stamp result voids the row. rc 1 is a dirty tree or a drifted harness; rc 2 is a
+# missing tag. Both mean the run cannot be cited -- previously only rc 1 voided, so a clone fetched
+# without --tags printed "NOT evidence-grade" in the header and then reported PASS anyway.
+if [ "$stamp_rc" -ne 0 ]; then
+  case "$stamp_rc" in
+    1) echo "VOID  provenance assertions failed (dirty tree or drifted harness); cannot be cited" ;;
+    2) echo "VOID  no harness tag reachable -- fetch tags (git fetch --tags); cannot be cited" ;;
+    *) echo "VOID  env-stamp exited $stamp_rc; cannot be cited" ;;
+  esac
   exit 1
 fi
 

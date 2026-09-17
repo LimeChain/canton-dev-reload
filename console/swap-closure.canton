@@ -3,8 +3,7 @@
 // Params:
 //   POC_A_DAR   new items DAR (required)
 //   POC_B_DAR   new holders DAR (empty string = swap A only, which is the M1 control)
-// No force flag: E1/E3 established that the atomic swap does not need one, and swap-both.canton
-// has always omitted it.
+// No force flag: E1/E3 established that the atomic swap does not need one.
 //
 // Guard rationale: this uploads DARs the builder just wrote. If a build silently no-opped, new
 // and old ids would be equal and a vacuous swap would still report success -- which is exactly

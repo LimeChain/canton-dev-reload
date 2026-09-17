@@ -13,7 +13,10 @@ cd "$(dirname "$0")/.." || exit 1
 # which is exactly the kind of mislabelling this rebuild exists to remove.
 . scripts/lib.sh
 
-HARNESS_TAG="${POC_HARNESS_TAG:-harness-v1}"
+# Default to the newest harness-* tag rather than a hardcoded one: pinning to v1 meant every run
+# after the first harness revision reported drift and voided itself.
+HARNESS_TAG="${POC_HARNESS_TAG:-$(git tag -l 'harness-v*' --sort=-v:refname | head -1)}"
+HARNESS_TAG="${HARNESS_TAG:-harness-v1}"
 
 echo "==== ENVIRONMENT ===================================================="
 echo "utc              $(date -u +%Y-%m-%dT%H:%M:%SZ)"

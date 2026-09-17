@@ -8,8 +8,11 @@ logs/
 # throwaway projects materialised by the variant builders; never tracked sources
 .gen-*/
 
-# loop-review sandbox (single-cycle, wiped on finalize)
+# local tooling and editor state - not part of the evidence base
 .skills-workspace/
+.agents/
+.claude/
+.DS_Store
 
 # evidence logs ARE tracked: they are the proposal's citations
 !evidence/

@@ -1,3 +1,4 @@
+// HISTORICAL — not reproducible. See README.md in this directory.
 scala.util.Try(sandbox.dars.upload("/private/tmp/mirrors-102-incompatible.dar", vetAllPackages = true)) match {
   case scala.util.Success(id) => println(s"1.0.2 INCOMPATIBLE => ACCEPTED ${id.take(12)}")
   case scala.util.Failure(e)  => println("1.0.2 INCOMPATIBLE => REJECTED")

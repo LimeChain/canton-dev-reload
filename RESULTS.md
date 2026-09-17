@@ -1,5 +1,12 @@
 # Dev Model Reload — POC Results
 
+> **Internal findings write-up, predating the evidence rebuild.** Retained for the detail it carries
+> (contract keys, the environment findings, the `repair.purge` result) that lives nowhere else.
+> Where this file and `evidence/INDEX.md` disagree, **`INDEX.md` is authoritative** — it is the only
+> document whose every claim maps to a committed log. The timing figures here were superseded by a
+> measured run; see the Timing section below.
+
+
 All results below are **observed output**, not inference. Verbatim error strings are quoted.
 Tested against **Canton 3.5.12 / dpm-sdk 3.5.5**, OpenJDK 21.
 
@@ -218,7 +225,8 @@ Blocked by the ledger deduplication window: `UNSAFE_TO_PRUNE: Participant cannot
 specified offset due to max deduplication duration of 168h`, and `find_safe_offset` returns
 `None`. Setting `canton.participants.sandbox.init.ledger-api.max-deduplication-duration=60s`
 is accepted and moved the error on to `UNSAFE_TO_PRUNE: no suitable offset for synchronizer
-…`, but we never got a successful prune, on either storage backend.
+…`, but we never got a successful prune, on either storage backend. **Stated precisely:** we did not
+test pruning to a conclusion — that is different from, and weaker than, "pruning does not work".
 
 Pruning is a documented, first-class Canton feature for storage management, so **asking why it
 is unusable on a development participant is a legitimate question**, not a feature request.
@@ -281,6 +289,12 @@ because that is a *code* linkage.
    `dars.remove`. `enable-testing-commands` does not unlock either.
 
 ## Timing
+
+> **Superseded.** These figures were never measured — they were an estimate. The measured result
+> is a median **19.86 s** for the reload against **33.36 s** to restart and reseed, a 40.5%
+> reduction, over 10 alternating trials per path. See the Timing section of `evidence/INDEX.md` and
+> the committed `…__TIMING__reload-vs-restart.log`. The per-component split below was never
+> instrumented at all.
 
 One reload: **~12s** — roughly 4s `dpm build`, 4s console session, 4s `dpm script` reseed.
 Almost all of it is process startup: a no-op console session alone costs ~3s, so the upload

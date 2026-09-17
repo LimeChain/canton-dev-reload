@@ -1,3 +1,4 @@
+// HISTORICAL — not reproducible. See README.md in this directory.
 import com.digitalasset.canton.topology.transaction.VettedPackage
 import com.digitalasset.canton.topology.{ForceFlag, ForceFlags}
 import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId

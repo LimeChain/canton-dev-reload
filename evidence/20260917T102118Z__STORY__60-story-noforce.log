@@ -1,0 +1,170 @@
+==== ENVIRONMENT ====================================================
+utc              2026-09-17T10:21:18Z
+host             Darwin 25.6.0 arm64
+dpm              version: 1.0.21 build: c4b92eb buildDate: c4b92eb 
+java             openjdk version "21.0.12.1" 2026-08-18
+java_home        /opt/homebrew/opt/openjdk@21
+sandbox_pid      23024
+canton_jar       canton-open-source-3.5.12.jar
+==== PROVENANCE =====================================================
+head             8368e4c2faf9c837dbb48aec51d922b34cf258fc
+harness_tag      harness-test
+HARNESS_REV      8368e4c2faf9c837dbb48aec51d922b34cf258fc
+assert_committed PASS  no committed change outside evidence/ since harness-test
+assert_clean     PASS  working tree clean outside evidence/
+==== INPUTS =========================================================
+variant-multi-v1  variant=v1
+variant-multi-v1  items_source=variants/Items.v1.daml
+variant-multi-v1  items_blob=68e73b3c68883c040900b7abcd0c4796e29303c6
+variant-multi-v1  items_pkgid=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0
+variant-multi-v1  holders_source=variants/Holders.v1.daml
+variant-multi-v1  holders_blob=16b9eea33b62dec1d0cad9d4c7fec9642ff4bbfe
+variant-multi-v1  holders_pkgid=92c6c3f57ebf11304d00da6e306d0679520a9722902337e48d40794cb9bad3b9
+variant-multi-v1  seedab_source=variants/SeedAB.v1.daml
+variant-multi-v1  seedab_blob=b0b4bee5cbedb5f7f4be34283344864a698ac21e
+variant-multi-v1  seedab_pkgid=8aa526cbbaedfb57039f82efbd1953520839a2a66b141ea2bcee9f4e7f42f346
+variant-multi-v2  variant=v2
+variant-multi-v2  items_source=variants/Items.v2.daml
+variant-multi-v2  items_blob=136114561128f1871f6fcda596a396b8815922fc
+variant-multi-v2  items_pkgid=04d8ea17faefa94806d0f6c78604ab3a6c61670db273114d1144a02f8b938724
+variant-multi-v2  holders_source=variants/Holders.v2.daml
+variant-multi-v2  holders_blob=5958288a58a40f22c9d681ee2d9e9a1ffe05b72c
+variant-multi-v2  holders_pkgid=3069c0dc4233ebc12ce78410d50685710d314b7929310bf234788ad9b3e909bf
+variant-multi-v2  seedab_source=variants/SeedAB.v2.daml
+variant-multi-v2  seedab_blob=7b0f9a0528fb3549eb9721f552c48894423ece4f
+variant-multi-v2  seedab_pkgid=946a8e545aeb28b9da8b3074163749cf0f90245aa9a4aab2998c676c03b85030
+variant-v1  variant=v1
+variant-v1  mirrors_source=variants/Mirrors.v1.daml
+variant-v1  mirrors_blob=137cb8f4736533416e3f00029acdc6995735b1c5
+variant-v1  mirrors_pkgid=c17b5cb16a9d77bd395b104da3cb7433b4fa73ec34eb332bc3e47cbcb72276b9
+variant-v2  variant=v2
+variant-v2  mirrors_source=variants/Mirrors.v2.daml
+variant-v2  mirrors_blob=77569ab2574da63e4c90d9366857366130b2eb9f
+variant-v2  mirrors_pkgid=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778
+dar holders-v1.dar                     ff0d939d8dca808988403f08fcedf872f620d6f594c5072a3e7d147405de508d
+dar holders-v2.dar                     1362434608349479b1a5cf906750639d027e6b9f505f4ebb8b476988484575d9
+dar holders.dar                        1362434608349479b1a5cf906750639d027e6b9f505f4ebb8b476988484575d9
+dar items-v1.dar                       9a6567d26dcfb2379e5a004f1184837b13d6801c071f7dde0bb74de75590399d
+dar items-v2.dar                       632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
+dar items.dar                          632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
+dar mirrors-live.dar                   afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
+dar mirrors-seed-v1.dar                e79375903102db9d9219870d1802e382f387d86fa8c35740e1bf017dd6eb596a
+dar mirrors-seed.dar                   5ea89c8dca193c06456267a0e8ca915c863c1a0f720617a91e2fd1b1ca7c4537
+dar mirrors-v1.dar                     afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
+dar mirrors-v2.dar                     4a08209bff5de8c67202c35f953de3197bc82ad23bb9a07a08948fb5e7b73ac0
+dar mirrors.dar                        4a08209bff5de8c67202c35f953de3197bc82ad23bb9a07a08948fb5e7b73ac0
+dar seedab-v1.dar                      a456e1695b4982443eb5afeeca35ad00b64e14c48c6159e462f145e65d03d54d
+dar seedab-v2.dar                      41a943f59e6a854048dc49cc8a672c335c6a5c3f2a8896630435278fa79b2fa0
+dar seedab.dar                         41a943f59e6a854048dc49cc8a672c335c6a5c3f2a8896630435278fa79b2fa0
+=====================================================================
+
+
+[1;44m  SETUP  a running ledger with the current model and some data  [0m
+
+jvm: openjdk version "21.0.12.1" 2026-08-18
+sandbox ready, PID=26166  (ledger 6865 / json 6864 / admin 6866)
+   [1mAlice       Alice::12206acdad7c5589b584401..[0m
+   [1mcontracts   2     PID 26166[0m
+   [1mmodel       mirrors 1.0.0  c17b5cb16a9d..   (value : Text)[0m
+   [2mA developer's working environment: parties allocated, test data created,[0m
+   [2man app connected. Everything below is about not losing it.[0m
+
+
+[1;44m  ACT 1  you change one line and rebuild.  Canton says no.  [0m
+
+   [2mEditing mirrors/daml/Mirrors.daml:   type Val = Text  ->  type Val = Int[0m
+
+   [1mwas  mirrors 1.0.0  c17b5cb16a9d..   (value : Text)[0m
+   [1mnow  mirrors 1.0.0  dba33b18bff3..   (value : Int)[0m
+   [2mSame name. Same version. Different hash. A field type change can never be a valid upgrade.[0m
+   [2m[0m
+   [2mSo do the obvious thing -- upload it.[0m
+
+   [1;31mREJECTED  KNOWN_PACKAGE_VERSION(8,2e65c2c8): Tried to vet two packages with the same name and version[0m
+   [1m          -> Canton will not run two packages with the same name and version.[0m
+   [2m[0m
+   [2mBumping to 1.0.1 does not help either: the upgrade checks then reject the type change.[0m
+   [2mSo today there is exactly one way forward.[0m
+
+
+[1;44m  ACT 2  so you restart the ledger.  Here is what that costs.  [0m
+
+   [1mbefore restart:   Alice Alice::12206acdad7c5589b584401..     contracts 2[0m
+   [2mRestarting... (your edit stays in the editor; only the ledger is thrown away)[0m
+
+   [1mafter restart:    parties 0     contracts 0     PID 27118  [2m(was 26166)[0m[0m
+   [1;31m-> every party gone, every contract gone, new process.[0m
+   [2mStorage is in-memory, so a restart is a clean slate. Now re-seed to get working again:[0m
+
+   [1mold Alice   Alice::12206acdad7c5589b584401..[0m
+   [1mnew Alice   Alice::12204e6dbff3d360458f7b3..[0m
+   [1;31m-> different party id. Any app holding the old one is now broken.[0m
+   [2mThis is the price on every single save. That is the problem.[0m
+
+
+[1;44m  ACT 3  the reload -- but in the wrong order.  [0m
+
+   [1mstarting point:   Alice Alice::12204e6dbff3d360458f7b3..     contracts 2     PID 27118     model Text[0m
+   [2mSame edit you already made. The SAME package Canton just rejected in Act 1.[0m
+   [2mDifference: upload it UNVETTED, then swap the vetted set in one topology transaction.[0m
+
+   RELOAD force=none forceIsNone=true
+   RELOAD swapped oldVetted=false newVetted=true serialDelta=1
+   RELOAD orphanedContracts=2 (left active unless archived first)
+   PASS  sandbox PID unchanged (27118)
+   PASS  ledger-api 6865 still open
+
+   [1;32mPASS[0m act3 party id identical    Alice::12204e6dbff3d360458f7b3..
+   [1;32mPASS[0m act3 pid unchanged         27118
+   [1;32mPASS[0m act3 strands contracts     orphanedContracts=2
+   [1;32mPASS[0m act3 ledger api open       6865
+   [1mlive model   dba33b18bff3..   <- value : Int, still mirrors 1.0.0[0m
+
+   [1;32m-> incompatible model swapped into a running ledger. Same process, same parties.[0m
+   [2m[0m
+   [2mBut look at the contract count:[0m
+   [1;33m2 contracts from the old model are STRANDED -- still active, unusable.[0m
+   [2mThe swap never touches contracts. It only changes which code may run.[0m
+   [2mSo those are left behind -- and they cannot be exercised OR archived any more,[0m
+   [2mbecause archiving also needs the code that understands them.[0m
+   [2m[0m
+   [2mThat is the wrong order. Watch the right one.[0m
+
+
+[1;44m  ACT 4  the same reload, archiving FIRST.  [0m
+
+   [2mResetting the experiment to a clean ledger, then doing it in the right order.[0m
+   [1mstarting point:   Alice Alice::1220405cec3f92c84ec9eb0..     contracts 2     PID 28195[0m
+
+   [2mStep 1 -- archive the old contracts, as their signatories.[0m
+   [2m(in a dev sandbox we allocated every party, so we hold the authority)[0m
+   CLEANUP Alice::1220405cec3f92c84ec9eb0ad0faa0a6838aa4f6fe1029a181f98584199e401f750e found 1
+   CLEANUP Bob::1220405cec3f92c84ec9eb0ad0faa0a6838aa4f6fe1029a181f98584199e401f750e found 1
+   CLEANUP complete
+   [1mcontracts now 0   <- the window in which the swap is safe[0m
+
+   [2mStep 2 -- now the identical reload, plus dropping the old package.[0m
+
+   RELOAD force=none forceIsNone=true
+   RELOAD swapped oldVetted=false newVetted=true serialDelta=1
+   RELOAD orphanedContracts=0 (left active unless archived first)
+   RELOAD removeOld=DONE c17b5cb16a9d
+   PASS  sandbox PID unchanged (28195)
+   PASS  ledger-api 6865 still open
+
+   [1;32mPASS[0m act4 party id identical    Alice::1220405cec3f92c84ec9eb0..
+   [1;32mPASS[0m act4 pid unchanged         28195
+   [1;32mPASS[0m act4 nothing stranded      orphanedContracts=0
+   [1;32mPASS[0m act4 old package removed   removeOld=DONE
+   [1;32mPASS[0m act4 one package left      1
+   [1;32mPASS[0m act4 live model is v2      dba33b18bff3
+   [1;32mPASS[0m act4 ledger api open       6865
+   [2m[0m
+   [2mThe only thing left is history in the event log, and in-memory that grows until[0m
+   [2myou restart. Canton can already delete it -- repair.purge works on Postgres, we[0m
+   [2mtested it -- but it is refused on the in-memory sandbox developers actually use.[0m
+   [2m[0m
+   [1mTHE ASK: make repair.purge available on an in-memory dev participant.[0m
+
+   [1;32mVERDICT PASS -- every property this run is cited for held.[0m
+#### LOG evidence/20260917T102118Z__STORY__60-story-noforce.log

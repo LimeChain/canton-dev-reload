@@ -294,8 +294,10 @@ Unrelated to the proposal, but found in the shipped toolchain.
 
 ## References
 
-- This POC — `README.md`, `RESULTS.md`, `logs/ladder.log`
+- This POC — `README.md`, `RESULTS.md`, and `evidence/INDEX.md`
+  (an earlier draft cited `logs/ladder.log`; it was never produced and the ladder scripts that
+  would have written it have since been removed)
 - Canton 3.5.12 binary — `ForceFlag` inventory; `KNOWN_PACKAGE_VERSION`; `ParticipantRepairService.PurgeContracts`; `UpdateVettedPackages`
 - Canton 3.4 release notes (Splice 0.5.0) — https://blog.digitalasset.com/developers/release-notes/canton-3.4-release-notes-for-splice-0.5.0
-- Manage Daml packages and archives — https://docs.digitalasset.com/operate/3.3/howtos/operate/packages/packages.html
-- DPM docs — https://docs.digitalasset.com/build/3.4/dpm/dpm.html
+- Canton package management and vetting — https://docs.daml.com/canton/usermanual/packagemanagement.html
+- Digital Asset developer documentation — https://docs.digitalasset.com/

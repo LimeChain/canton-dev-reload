@@ -1,5 +1,10 @@
 # Development Fund Proposal: Daml Development Reload for DPM
 
+> **This is the copy held in the evidence repository.** The copy submitted to
+> `canton-foundation/canton-dev-fund` is authoritative; if the two differ, that one governs. It is
+> included here so a visitor can see what this repository is evidence for.
+
+
 | Field | Value |
 | :---- | :---- |
 | Organization | LimeChain |
@@ -221,7 +226,7 @@ reseed against the **new**, and the old one cannot be rebuilt once the source is
 baseline, captured by `dpm dev-reload init` and advanced only after a reload verifies. And authority
 must be established **per contract, not per declared party**, since a contract may carry an
 undeclared or jointly-controlled signatory; the tool confirms it can act for every signatory it
-discovers before archiving anything. The full interface is specified in the design note in the
+discovers before archiving anything. The full interface is specified in `docs/design-note.md` in the
 proof-of-concept repository.
 
 #### 3.5 Failure safety
@@ -292,7 +297,8 @@ to run outside an isolated development participant.
 
 ## Proof of Concept Implementation
 
-Public repository: **TBD — link pinned to a commit SHA before submission.** Apache-2.0.
+Public repository: **this repository** — the submitted copy of this proposal carries a URL
+pinned to the commit these logs were produced at. Apache-2.0.
 
 **That repository is the evidence base, not the product.** It holds the test harness and its
 committed run logs — the investigation we did at our own cost to establish that the sequence works.
@@ -625,7 +631,8 @@ is not restart-safe. We are filing these with Digital Asset independently of thi
 
 ## References
 
-- This proof of concept — repository **TBD**, `evidence/INDEX.md` for the claim-to-log map
+- This proof of concept — `evidence/INDEX.md` for the claim-to-log map, and
+  `docs/design-note.md` for the interface and lifecycle design
 - Canton 3.4 release notes (Splice 0.5.0) — cited for the **force-flag history**, not the tested
   version: 3.4 is where `FORCE_FLAG_ALLOW_UNVET_PACKAGE_WITH_ACTIVE_CONTRACTS` was removed and
   `AllowVetIncompatibleUpgrades` added, and where the unvetting guidance in §3.6 comes from. All

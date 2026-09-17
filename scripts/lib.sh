@@ -17,16 +17,31 @@ fi
 #   SecurityException: JCE cannot authenticate the provider BC
 # surfacing to the client as an opaque INTERNAL error. OpenJDK builds do not enforce this.
 # Verified: Oracle 17.0.7 FAIL, Oracle 18.0.2 FAIL, OpenJDK 21.0.12.1 OK.
-for _jdk in /opt/homebrew/opt/openjdk@21 /opt/homebrew/opt/openjdk; do
+for _jdk in /opt/homebrew/opt/openjdk@21 /opt/homebrew/opt/openjdk \
+            /usr/local/opt/openjdk@21 /usr/local/opt/openjdk \
+            /usr/lib/jvm/java-21-openjdk-amd64 /usr/lib/jvm/java-21-openjdk; do
   if [ -x "$_jdk/bin/java" ]; then
     export JAVA_HOME="$_jdk"
     export PATH="$_jdk/bin:$PATH"
     break
   fi
 done
+# If none matched we fall through to whatever `java` is on PATH -- which is exactly the failure this
+# block exists to prevent, so say so loudly rather than silently. An Oracle JDK here means every
+# transaction submit dies with an opaque INTERNAL.
+if ! java -version 2>&1 | grep -qi "openjdk"; then
+  echo "WARNING: no OpenJDK found (searched Homebrew and /usr/lib/jvm). Running on:" >&2
+  java -version 2>&1 | head -1 | sed 's/^/         /' >&2
+  echo "         On an Oracle JDK every Daml transaction will fail with an opaque INTERNAL." >&2
+fi
 LOGS="$ROOT/logs"
-LADDER_LOG="$LOGS/ladder.log"
-mkdir -p "$LOGS"
+# Both are gitignored, so a fresh clone has neither. Every driver's first real action builds into
+# artifacts/, so without this a clean checkout fails on its first command.
+mkdir -p "$LOGS" "$ROOT/artifacts"
+
+# The Canton console runs a Scala 2.13 compiler. `import scala.util.{Try, ...}` makes it read
+# scala/util/*.tasty out of the Canton fat jar and fail with "Add -Ytasty-reader to scalac options".
+# Every console script in this repo therefore uses fully-qualified `scala.util.Try` instead.
 
 # macOS has no coreutils `timeout`; the Canton console can hang on a failed bootstrap,
 # so every console invocation gets a hard watchdog.
@@ -56,13 +71,6 @@ console() {
   with_timeout "$secs" dpm canton-console \
     -C canton.features.enable-repair-commands=yes \
     -C canton.features.enable-preview-commands=yes \
-    --bootstrap "$script" --no-tty < /dev/null
-}
-
-# Same, but WITHOUT the repair gate -- used once to prove the gate is load-bearing.
-console_nogate() {
-  local script="$1"; local secs="${2:-240}"
-  with_timeout "$secs" dpm canton-console \
     --bootstrap "$script" --no-tty < /dev/null
 }
 
