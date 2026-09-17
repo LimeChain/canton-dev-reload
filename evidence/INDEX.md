@@ -10,8 +10,11 @@ result.
 from the value actually passed to Canton, not as requested by a label. Any quoted console output
 in the proposal must be a verbatim contiguous excerpt from exactly one file listed here.
 
-**Comparison rule.** Rows are only comparable within a single `HARNESS_REV`. The revisions differ
-as follows:
+**Comparison rule.** Rows are only comparable within a single `HARNESS_REV`. **Every log in this
+directory was produced at `harness-v5`**, in a single pass from a neutral checkout, so every row
+here is directly comparable to every other. `harness-v6` is a documentation-only revision that
+leaves the harness byte-identical, so these logs remain current at the published tip. The tag
+history is kept below because the narrative of how the evidence was corrected depends on it.
 
 | Tag | What changed |
 |---|---|
@@ -20,8 +23,9 @@ as follows:
 | `harness-v3` | `60-story.sh` no longer filters out the `RELOAD force=` line. |
 | `harness-v4` | Adds `scripts/80-timing.sh` and the source-write instant captured by `05-variant.sh`. |
 | `harness-v5` | Publication revision: every driver voids on any failed provenance check, `60-story.sh` gained a provenance header and machine-checked assertions for all the properties it is cited for, and the orphaned ladder/upload2/swap-both scripts were removed. |
+| `harness-v6` | **Documentation only.** Corrected the timing figures to match the committed `TIMING` run and moved the docx utility out of `scripts/`. The harness is byte-identical to `harness-v5` — check with `git diff --stat harness-v5 harness-v6 -- scripts console`. The logs here were produced at v5 and remain current. |
 
-## Force-flag matrix (harness-v1)
+## Force-flag matrix
 
 Common setup: `mirrors` v1 (`Text`) vetted with 2 active contracts; v2 (`Int`) uploaded unvetted.
 `Δ` is the synchronizer-store `VettedPackages` serial delta. `onV1` counts active contracts whose
@@ -42,27 +46,31 @@ package is v1.
 at all. Without them, a run that never passed `none` and a run whose `none` was silently ignored
 produce identical output, and "no force flag is needed" is unfalsifiable by our own harness.
 
-## Dependency closure (harness-v2)
+## Dependency closure
 
 | Row | Scenario | Result |
 |---|---|---|
 | M1 | Rebuild `items` only; leave `holders` and the client script at v1. Swap `items` alone, unforced. | `PEEK holders=1`, then `PACKAGE_SELECTION_FAILED(9,…): No synchronizers satisfy the topology requirements`. The dependent-not-rebuilt control. |
 | M2 | Archive first, rebuild all three, upload both unvetted, **one** `propose_delta` `adds=[newA,newB] removes=[oldA,oldB]` unforced, reseed, peek. | SUCCEEDED, Δ=1, both old unvetted, both new vetted, `PEEK holders=1`, `PEEK label=1`. **First end-to-end run of the closure loop as a single operation.** |
 
-Package IDs are the historical ones: `items` v1 `f598c7e1de1b` → v2 `04d8ea17faef`,
+Package IDs, which the builds reproduce exactly: `items` v1 `f598c7e1de1b` → v2 `04d8ea17faef`,
 `holders` v1 `92c6c3f57ebf` → v2 `3069c0dc4233`.
 
-## Timing (harness-v4)
+## Timing
 
 `scripts/80-timing.sh`, 11 trials per path, alternating, first of each discarded as warm-up, every
 trial from a fresh sandbox + rebuilt v1 + fresh seed performed outside the timed interval.
 
 | Path | n | median | min | max |
 |---|---|---|---|---|
-| reload | 10 | **19.86 s** | 19.19 s | 21.20 s |
-| restart and reseed | 10 | **33.36 s** | 32.38 s | 34.91 s |
+| reload | 10 | **18.50 s** | 17.91 s | 19.52 s |
+| restart and reseed | 10 | **30.58 s** | 29.37 s | 33.07 s |
 
-**Reduction: 40.5%** (median to median).
+**Reduction: 39.5%** (median to median).
+
+The figure carries a few points of run-to-run variance: an earlier run of the same protocol on the
+same machine measured 40.5%. Only the run committed here is citable, so 39.5% is the number the
+proposal uses.
 
 Protocol, in full, in the log header. The parts that matter for reading the number:
 
@@ -82,7 +90,7 @@ Protocol, in full, in the log header. The parts that matter for reading the numb
 Party-ID preservation is **not** part of this measurement — see the `STORY` row, where it is
 evidenced separately as a reload-only property.
 
-## Story (harness-v3)
+## Story
 
 `60-story.sh --no-pause`, with `reload.canton` defaulting to `ForceFlags.none`:
 

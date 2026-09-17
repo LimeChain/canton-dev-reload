@@ -1,20 +1,20 @@
-#### ROW M2  (dependency closure)
+#### ROW M1  (dependency closure)
 
 
 [1m=== setup: clean sandbox, build closure at v1, upload VETTED, seed ===[0m
 jvm: openjdk version "21.0.12.1" 2026-08-18
-sandbox ready, PID=26920  (ledger 6865 / json 6864 / admin 6866)
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/items.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/holders.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/seedab.dar
+sandbox ready, PID=51405  (ledger 6865 / json 6864 / admin 6866)
+Created /private/tmp/canton-dev-reload/artifacts/items.dar
+Created /private/tmp/canton-dev-reload/artifacts/holders.dar
+Created /private/tmp/canton-dev-reload/artifacts/seedab.dar
 items=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0
 holders=92c6c3f57ebf11304d00da6e306d0679520a9722902337e48d40794cb9bad3b9
 seedab=8aa526cbbaedfb57039f82efbd1953520839a2a66b141ea2bcee9f4e7f42f346
 multi variant=v1 built from .gen-multi-v1
-[34mCompiling /Users/georgiradev/Desktop/canton-demos/Main.sc[39m
+[34mCompiling /private/tmp/canton-dev-reload/Main.sc[39m
 [34mBye![39m
 UPLOADED dar=artifacts/items-v1.dar vetAllPackages=true mainPackageId=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0
-[34mCompiling /Users/georgiradev/Desktop/canton-demos/Main.sc[39m
+[34mCompiling /private/tmp/canton-dev-reload/Main.sc[39m
 [34mBye![39m
 UPLOADED dar=artifacts/holders-v1.dar vetAllPackages=true mainPackageId=92c6c3f57ebf11304d00da6e306d0679520a9722902337e48d40794cb9bad3b9
 [DA.Internal.Prelude:557]: \"SEEDAB created Item + Holder\"
@@ -22,50 +22,44 @@ UPLOADED dar=artifacts/holders-v1.dar vetAllPackages=true mainPackageId=92c6c3f5
 [1m=== baseline: confirm the closure seeded (NON-DESTRUCTIVE) ===[0m
 ACS_PROBE total=2 items=1 holders=1 templates=[Item@f598c7e1,Holder@92c6c3f5]
 
-[1m=== M2: archive FIRST (dependents before dependencies: Holders, then Items) ===[0m
-[DA.Internal.Prelude:557]: \"WIPE holders=1\"
-[DA.Internal.Prelude:557]: \"WIPE items=1\"
-[DA.Internal.Prelude:557]: \"WIPE complete\"
-
-[1m=== M2: rebuild ALL THREE at v2 ===[0m
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/items.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/holders.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/seedab.dar
+[1m=== M1: rebuild items ONLY to v2; holders and the client script stay at v1 ===[0m
+Created /private/tmp/canton-dev-reload/artifacts/items.dar
+Created /private/tmp/canton-dev-reload/artifacts/holders.dar
+Created /private/tmp/canton-dev-reload/artifacts/seedab.dar
 items=04d8ea17faefa94806d0f6c78604ab3a6c61670db273114d1144a02f8b938724
 holders=3069c0dc4233ebc12ce78410d50685710d314b7929310bf234788ad9b3e909bf
 seedab=946a8e545aeb28b9da8b3074163749cf0f90245aa9a4aab2998c676c03b85030
 multi variant=v2 built from .gen-multi-v2
+NOTE holders/seedab v2 DARs were built but are deliberately NOT uploaded here.
 
-[1m=== M2: upload both unvetted and swap the closure in ONE transaction ===[0m
-[34mCompiling /Users/georgiradev/Desktop/canton-demos/Main.sc[39m
+[1m=== M1: swap items alone (adds=[newA] removes=[oldA]), no force flag ===[0m
+[34mCompiling /private/tmp/canton-dev-reload/Main.sc[39m
 [34mBye![39m
-CLOSURE oldA=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0 oldB=92c6c3f57ebf11304d00da6e306d0679520a9722902337e48d40794cb9bad3b9
-CLOSURE newA=04d8ea17faefa94806d0f6c78604ab3a6c61670db273114d1144a02f8b938724 newB=3069c0dc4233ebc12ce78410d50685710d314b7929310bf234788ad9b3e909bf
-CLOSURE adds=[04d8ea17faef,3069c0dc4233] removes=[f598c7e1de1b,92c6c3f57ebf] force=none
-CLOSURE_RESULT serialDelta=1 oldAVetted=false newAVetted=true oldBVetted=false newBVetted=true
+CLOSURE oldA=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0 oldB=<not swapped>
+CLOSURE newA=04d8ea17faefa94806d0f6c78604ab3a6c61670db273114d1144a02f8b938724 newB=<not swapped>
+CLOSURE adds=[04d8ea17faef] removes=[f598c7e1de1b] force=none
+CLOSURE_RESULT serialDelta=1 oldAVetted=false newAVetted=true oldBVetted=n/a newBVetted=n/a
 CLOSURE VERDICT PASS
 
-[1m=== M2: reseed and peek with the v2 script ===[0m
-[DA.Internal.Prelude:557]: \"SEEDAB created Item + Holder\"
+[1m=== M1: peek again with the v1 script -- the fetch must now fail ===[0m
 PEEK holders=1
-PEEK label=1
-ASSERT closureWorks  PASS  the rebuilt dependent fetched from the rebuilt dependency
-ASSERT newTypeLive   PASS  label came back as the Int 1
+PACKAGE_SELECTION_FAILED(9,76a989f3): No synchronizers satisfy the topology requirements for the submitted command: Discarded synchronizers: 
+ASSERT dependentFails PASS  exercising the fetch failed with PACKAGE_SELECTION_FAILED
 
 [1m=== provenance ===[0m
 ==== ENVIRONMENT ====================================================
-utc              2026-09-14T15:16:16Z
+utc              2026-09-17T10:39:41Z
 host             Darwin 25.6.0 arm64
 dpm              version: 1.0.21 build: c4b92eb buildDate: c4b92eb 
 java             openjdk version "21.0.12.1" 2026-08-18
 java_home        /opt/homebrew/opt/openjdk@21
-sandbox_pid      26920
+sandbox_pid      51405
 canton_jar       canton-open-source-3.5.12.jar
 ==== PROVENANCE =====================================================
-head             771630724f02c4e79d97390616ed2224b0edc210
-harness_tag      harness-v2
-HARNESS_REV      f6b48fa501d584de393d6c7d205bc8c18d925df1
-assert_committed PASS  no committed change outside evidence/ since harness-v2
+head             766d02452c122e3e94c6ec6282d3e0af9d0160f1
+harness_tag      harness-v5
+HARNESS_REV      6ea8853c2617155bcb7fe1c999cf0a5caea99262
+assert_committed PASS  no committed change outside evidence/ since harness-v5
 assert_clean     PASS  working tree clean outside evidence/
 ==== INPUTS =========================================================
 variant-multi-v1  variant=v1
@@ -102,7 +96,6 @@ dar holders.dar                        1362434608349479b1a5cf906750639d027e6b9f5
 dar items-v1.dar                       9a6567d26dcfb2379e5a004f1184837b13d6801c071f7dde0bb74de75590399d
 dar items-v2.dar                       632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
 dar items.dar                          632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
-dar mirrors-live.dar                   afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
 dar mirrors-seed-v1.dar                e79375903102db9d9219870d1802e382f387d86fa8c35740e1bf017dd6eb596a
 dar mirrors-seed.dar                   5ea89c8dca193c06456267a0e8ca915c863c1a0f720617a91e2fd1b1ca7c4537
 dar mirrors-v1.dar                     afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
@@ -114,5 +107,5 @@ dar seedab.dar                         41a943f59e6a854048dc49cc8a672c335c6a5c3f2
 =====================================================================
 
 #### EXIT_CODE 0
-#### ROW M2 PASS
-#### LOG evidence/20260914T151517Z__M2__closure.log
+#### ROW M1 PASS
+#### LOG evidence/20260917T103853Z__M1__closure.log

@@ -1,0 +1,91 @@
+#### ROW C2  op=add-second force=allow-vet-incompatible state=live
+#### EXPECT result=succeed err='' v1Vetted=true v2Vetted=true serialDelta=1 acs=2 onV1=2
+
+
+[1m=== setup: clean sandbox ===[0m
+jvm: openjdk version "21.0.12.1" 2026-08-18
+sandbox ready, PID=41980  (ledger 6865 / json 6864 / admin 6866)
+
+[1m=== setup: build v1 (Text) and seed ===[0m
+Created /private/tmp/canton-dev-reload/artifacts/mirrors.dar
+Created /private/tmp/canton-dev-reload/artifacts/mirrors-seed.dar
+variant=v1 mainPackageId=c17b5cb16a9d77bd395b104da3cb7433b4fa73ec34eb332bc3e47cbcb72276b9 builtFrom=.gen-mirrors-v1 source=variants/Mirrors.v1.daml
+
+[1m=== setup: build v2 (Int), upload UNVETTED ===[0m
+Created /private/tmp/canton-dev-reload/artifacts/mirrors.dar
+Created /private/tmp/canton-dev-reload/artifacts/mirrors-seed.dar
+variant=v2 mainPackageId=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778 builtFrom=.gen-mirrors-v2 source=variants/Mirrors.v2.daml
+[34mCompiling /private/tmp/canton-dev-reload/Main.sc[39m
+[34mBye![39m
+UPLOADED dar=artifacts/mirrors-v2.dar vetAllPackages=false mainPackageId=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778
+VETTED_CONTAINS_MAIN false
+
+[1m=== provenance ===[0m
+==== ENVIRONMENT ====================================================
+utc              2026-09-17T10:33:03Z
+host             Darwin 25.6.0 arm64
+dpm              version: 1.0.21 build: c4b92eb buildDate: c4b92eb 
+java             openjdk version "21.0.12.1" 2026-08-18
+java_home        /opt/homebrew/opt/openjdk@21
+sandbox_pid      41980
+canton_jar       canton-open-source-3.5.12.jar
+==== PROVENANCE =====================================================
+head             766d02452c122e3e94c6ec6282d3e0af9d0160f1
+harness_tag      harness-v5
+HARNESS_REV      6ea8853c2617155bcb7fe1c999cf0a5caea99262
+assert_committed PASS  no committed change outside evidence/ since harness-v5
+assert_clean     PASS  working tree clean outside evidence/
+==== INPUTS =========================================================
+variant-v1  variant=v1
+variant-v1  mirrors_source=variants/Mirrors.v1.daml
+variant-v1  mirrors_blob=137cb8f4736533416e3f00029acdc6995735b1c5
+variant-v1  mirrors_pkgid=c17b5cb16a9d77bd395b104da3cb7433b4fa73ec34eb332bc3e47cbcb72276b9
+variant-v2  variant=v2
+variant-v2  mirrors_source=variants/Mirrors.v2.daml
+variant-v2  mirrors_blob=77569ab2574da63e4c90d9366857366130b2eb9f
+variant-v2  mirrors_pkgid=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778
+dar mirrors-seed-v1.dar                e79375903102db9d9219870d1802e382f387d86fa8c35740e1bf017dd6eb596a
+dar mirrors-seed.dar                   5ea89c8dca193c06456267a0e8ca915c863c1a0f720617a91e2fd1b1ca7c4537
+dar mirrors-v1.dar                     afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
+dar mirrors-v2.dar                     4a08209bff5de8c67202c35f953de3197bc82ad23bb9a07a08948fb5e7b73ac0
+dar mirrors.dar                        4a08209bff5de8c67202c35f953de3197bc82ad23bb9a07a08948fb5e7b73ac0
+=====================================================================
+
+[1m=== operation ===[0m
+2026-09-17 13:33:05,322 [main] WARN  org.jline - Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+[34mCompiling /private/tmp/canton-dev-reload/Main.sc[39m
+PRE  op=add-second force=allow-vet-incompatible v1Vetted=true v2Vetted=false serial=2 acs=2
+OP   forceFlagsActual=ForceFlags(Set(AllowVetIncompatibleUpgrades)) forceIsNone=false adds=[dba33b18bff3] removes=[]
+RESULT op=add-second force=allow-vet-incompatible forceIsNone=false => SUCCEEDED
+POST v1Vetted=true v2Vetted=true serial=3 serialDelta=1 acs=2 onV1=2
+ASSERT result         PASS got=succeed want=succeed
+NOTE errorCodeCheck delegated to driver (exception message was: <succeeded>); want=''
+ASSERT v1Vetted       PASS got=true want=true
+ASSERT v2Vetted       PASS got=true want=true
+ASSERT serialDelta    PASS got=1 want=1
+ASSERT acs            PASS got=2 want=2
+ASSERT onV1           PASS got=2 want=2
+VERDICT PASS
+   _____            _
+  / ____|          | |
+ | |     __ _ _ __ | |_ ___  _ __
+ | |    / _` | '_ \| __/ _ \| '_ \
+ | |___| (_| | | | | || (_) | | | |
+  \_____\__,_|_| |_|\__\___/|_| |_|
+
+  Welcome to Canton!
+  Type `help` to get started. `exit` to leave.
+
+
+@ [34mBye![39m
+
+[1m=== force-flag oracle (participant log) ===[0m
+oracle_lines_this_row   1   (before=0 after=1)
+oracle_interpretation   expect >0 (flag was passed). On an unvet row the line
+                        still fires, logging 'newly-added packages Set()' -- the flag
+                        is applied but has nothing to validate, which is why E4==E5.
+oracle_verdict          CONSISTENT
+
+#### EXIT_CODE 0
+#### ROW C2 PASS
+#### LOG evidence/20260917T103228Z__C2__add-second__force-allow-vet-incompatible__live.log

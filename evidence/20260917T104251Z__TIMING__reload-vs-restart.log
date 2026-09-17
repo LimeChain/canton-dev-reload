@@ -1,44 +1,22 @@
-#### ROW E1  op=swap force=none state=archived
-#### EXPECT result=succeed err='' v1Vetted=false v2Vetted=true serialDelta=1 acs=0 onV1=0
+#### TIMING  reload vs restart-and-reseed
+#### trials=11 per path (first of each discarded as warm-up)
+#### PROTOTYPE TIMING -- dpm dev-reload does not exist; this is the shell/console harness
 
-
-[1m=== setup: clean sandbox ===[0m
-jvm: openjdk version "21.0.12.1" 2026-08-18
-sandbox ready, PID=4975  (ledger 6865 / json 6864 / admin 6866)
-
-[1m=== setup: build v1 (Text) and seed ===[0m
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/mirrors.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/mirrors-seed.dar
-variant=v1 mainPackageId=c17b5cb16a9d77bd395b104da3cb7433b4fa73ec34eb332bc3e47cbcb72276b9 builtFrom=.gen-mirrors-v1 source=variants/Mirrors.v1.daml
-
-[1m=== setup: build v2 (Int), upload UNVETTED ===[0m
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/mirrors.dar
-Created /Users/georgiradev/Desktop/canton-demos/artifacts/mirrors-seed.dar
-variant=v2 mainPackageId=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778 builtFrom=.gen-mirrors-v2 source=variants/Mirrors.v2.daml
-[34mCompiling /Users/georgiradev/Desktop/canton-demos/Main.sc[39m
-[34mBye![39m
-UPLOADED dar=artifacts/mirrors-v2.dar vetAllPackages=false mainPackageId=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778
-VETTED_CONTAINS_MAIN false
-
-[1m=== setup: archive v1 contracts (the only window in which this is possible) ===[0m
-CLEANUP Alice::122056fae3852849dcfae06f10743bb3123bb35607a86099c6093d6e657be46d53ed found 1
-CLEANUP Bob::122056fae3852849dcfae06f10743bb3123bb35607a86099c6093d6e657be46d53ed found 1
-CLEANUP complete
 
 [1m=== provenance ===[0m
 ==== ENVIRONMENT ====================================================
-utc              2026-09-14T15:00:54Z
+utc              2026-09-17T10:42:51Z
 host             Darwin 25.6.0 arm64
 dpm              version: 1.0.21 build: c4b92eb buildDate: c4b92eb 
 java             openjdk version "21.0.12.1" 2026-08-18
 java_home        /opt/homebrew/opt/openjdk@21
-sandbox_pid      4975
+sandbox_pid      56127
 canton_jar       canton-open-source-3.5.12.jar
 ==== PROVENANCE =====================================================
-head             8791ff2f416a87b1d02818b13d757fd2806ebbc3
-harness_tag      harness-v1
-HARNESS_REV      9420992f88185800366ca6c40a70f213affbb17d
-assert_committed PASS  no committed change outside evidence/ since harness-v1
+head             766d02452c122e3e94c6ec6282d3e0af9d0160f1
+harness_tag      harness-v5
+HARNESS_REV      6ea8853c2617155bcb7fe1c999cf0a5caea99262
+assert_committed PASS  no committed change outside evidence/ since harness-v5
 assert_clean     PASS  working tree clean outside evidence/
 ==== INPUTS =========================================================
 variant-multi-v1  variant=v1
@@ -75,7 +53,6 @@ dar holders.dar                        1362434608349479b1a5cf906750639d027e6b9f5
 dar items-v1.dar                       9a6567d26dcfb2379e5a004f1184837b13d6801c071f7dde0bb74de75590399d
 dar items-v2.dar                       632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
 dar items.dar                          632bfe2c1968c6f7a38923914eb35b4961712a77db74b563f7084e0b76694b1a
-dar mirrors-live.dar                   afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
 dar mirrors-seed-v1.dar                e79375903102db9d9219870d1802e382f387d86fa8c35740e1bf017dd6eb596a
 dar mirrors-seed.dar                   5ea89c8dca193c06456267a0e8ca915c863c1a0f720617a91e2fd1b1ca7c4537
 dar mirrors-v1.dar                     afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
@@ -85,40 +62,34 @@ dar seedab-v1.dar                      a456e1695b4982443eb5afeeca35ad00b64e14c48
 dar seedab-v2.dar                      41a943f59e6a854048dc49cc8a672c335c6a5c3f2a8896630435278fa79b2fa0
 dar seedab.dar                         41a943f59e6a854048dc49cc8a672c335c6a5c3f2a8896630435278fa79b2fa0
 =====================================================================
+  trial 1/11 (warm-up, discarded) reload   19.51s
+  trial 1/11 (warm-up, discarded) restart  29.94s
+  trial 2/11 reload   18.36s
+  trial 2/11 restart  30.16s
+  trial 3/11 reload   18.50s
+  trial 3/11 restart  31.75s
+  trial 4/11 reload   18.63s
+  trial 4/11 restart  32.71s
+  trial 5/11 reload   19.52s
+  trial 5/11 restart  29.37s
+  trial 6/11 reload   18.35s
+  trial 6/11 restart  29.80s
+  trial 7/11 reload   18.67s
+  trial 7/11 restart  32.33s
+  trial 8/11 reload   18.50s
+  trial 8/11 restart  30.85s
+  trial 9/11 reload   17.91s
+  trial 9/11 restart  30.31s
+  trial 10/11 reload   18.53s
+  trial 10/11 restart  33.07s
+  trial 11/11 reload   18.16s
+  trial 11/11 restart  29.75s
 
-[1m=== operation ===[0m
-2026-09-14 18:00:56,523 [main] WARN  org.jline - Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
-[34mCompiling /Users/georgiradev/Desktop/canton-demos/Main.sc[39m
-PRE  op=swap force=none v1Vetted=true v2Vetted=false serial=2 acs=0
-OP   forceFlagsActual=ForceFlags(Set()) forceIsNone=true adds=[dba33b18bff3] removes=[c17b5cb16a9d]
-RESULT op=swap force=none forceIsNone=true => SUCCEEDED
-POST v1Vetted=false v2Vetted=true serial=3 serialDelta=1 acs=0 onV1=0
-ASSERT result         PASS got=succeed want=succeed
-NOTE errorCodeCheck delegated to driver (exception message was: <succeeded>); want=''
-ASSERT v1Vetted       PASS got=false want=false
-ASSERT v2Vetted       PASS got=true want=true
-ASSERT serialDelta    PASS got=1 want=1
-ASSERT acs            PASS got=0 want=0
-ASSERT onV1           PASS got=0 want=0
-VERDICT PASS
-   _____            _
-  / ____|          | |
- | |     __ _ _ __ | |_ ___  _ __
- | |    / _` | '_ \| __/ _ \| '_ \
- | |___| (_| | | | | || (_) | | | |
-  \_____\__,_|_| |_|\__\___/|_| |_|
+[1m=== results ===[0m
+reload    n=10  median= 18.50s  min= 17.91s  max= 19.52s
+restart   n=10  median= 30.58s  min= 29.37s  max= 33.07s
 
-  Welcome to Canton!
-  Type `help` to get started. `exit` to leave.
+reduction  39.5%  (median restart 30.58s -> median reload 18.50s)
+           conservative floor: excludes repairing anything holding the old party ids
 
-
-@ [34mBye![39m
-
-[1m=== force-flag oracle (participant log) ===[0m
-oracle_lines_this_row   0   (before=2 after=2)
-oracle_interpretation   expect 0 (no flag passed)
-oracle_verdict          CONSISTENT
-
-#### EXIT_CODE 0
-#### ROW E1 PASS
-#### LOG evidence/20260914T150011Z__E1__swap__force-none__archived.log
+#### LOG evidence/20260917T104251Z__TIMING__reload-vs-restart.log
