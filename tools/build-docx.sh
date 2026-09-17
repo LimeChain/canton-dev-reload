@@ -15,6 +15,7 @@
 #
 # usage: tools/build-docx.sh [OUTPUT.docx]
 #   default output: ~/Desktop/LimeChain-Daml-Dev-Reload-proposal-DRAFT.docx
+#   a sibling .md (same name, banner stripped) is written alongside it
 #   set PANDOC=/path/to/pandoc to use a pandoc that is not on PATH
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
@@ -82,4 +83,10 @@ toc = "yes" if "instrText" in x else "no"
 print("  tables %d (bordered %d) | code blocks %d (shaded %d) | quotes %d | TOC field: %s"
       % (x.count("<w:tbl>"), x.count("<w:tblBorders>"), sc, x.count("F4F4F6"), bq, toc))
 PY
+# Also emit the stripped Markdown next to the docx. The banner-free source already exists as
+# $TMP/src.md; copying it here means the two colleague-facing copies cannot drift, and neither
+# depends on remembering an ad-hoc command.
+MD_OUT="${OUT%.docx}.md"
+cp "$TMP/src.md" "$MD_OUT"
 echo "  -> $OUT"
+echo "  -> $MD_OUT"

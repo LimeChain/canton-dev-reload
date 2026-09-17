@@ -411,13 +411,14 @@ against the same participant, with the same party IDs, without restarting.
   machine, first trial of each path discarded, each trial from a reset ledger. The baseline reaches
   that state with **newly allocated party IDs**, and the comparison **excludes** the work of repairing
   scripts and config that still hold the old IDs, so the figure is a conservative floor. Target
-  **≥35% reduction**. The shell prototype measures 39.5% under this protocol (`TIMING`); the target
-  is set below that deliberately, because the measurement carries a few points of run-to-run variance
-  on the same machine. The product should improve on the prototype by holding one admin connection
-  instead of launching five processes.
+  **≥40% reduction**. The shell prototype measures 39.5% under this protocol (`TIMING`). The
+  prototype spawns a Canton console twice per reload — once for the topology swap, once for the end
+  condition — where the component performs both inside its own process, over the Canton admin and
+  Ledger APIs (§3.5, steps 7 and 9), so it does not pay that startup at all. We have not instrumented
+  the per-component split and so project no figure. A different threshold may be agreed with the
+  committee at grant time.
 - **Party IDs are preserved across the reload** — stated separately from the timing, since the
-  baseline cannot satisfy it by construction. A different
-  threshold may be agreed with the committee at grant time.
+  baseline cannot satisfy it by construction.
 - **Injected failures** at five boundaries behave correctly: upload failure, hook-resolution failure
   and a concurrently-changed topology serial each abort in preflight with no archival and no topology
   change; a failure mid-archive resumes and converges; a failure mid-reseed resumes without
@@ -527,10 +528,12 @@ Listed for context; **not part of this funding request**.
 - **An enforced commit-window quiesce**, if a supported mechanism exists — which would let the tool
   close the concurrency window in §3.6 outright rather than detecting and refusing.
 - **Daml Studio integration** — reload on save. Different codebase, different direction.
-- **A resident daemon.** The measured prototype reload is ~18.5 s, and it launches five separate JVM
-  processes to get there (build, archive script, console, reseed script, verify). Holding one admin
-  connection instead would remove most of that repeated startup cost; we have not instrumented the
-  per-component split, so we state the opportunity rather than a projected figure.
+- **A resident daemon.** The measured prototype reload is ~18.5 s across five separate JVM launches
+  (build, archive script, console, reseed script, verify). Two of those are Canton consoles the
+  component does not pay for, since it performs the swap and the verification in its own process. The
+  rest — the build and the two Daml Script launches — are paid once per invocation regardless. A
+  resident process holding warm connections across invocations would remove most of what remains; we
+  have not instrumented the per-component split, so we state the opportunity rather than a figure.
 - **Multi-participant development topologies.**
 
 ---
