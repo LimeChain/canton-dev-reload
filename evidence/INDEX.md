@@ -12,9 +12,11 @@ in the proposal must be a verbatim contiguous excerpt from exactly one file list
 
 **Comparison rule.** Rows are only comparable within a single `HARNESS_REV`. **Every log in this
 directory was produced at `harness-v5`**, in a single pass from a neutral checkout, so every row
-here is directly comparable to every other. `harness-v6`, `harness-v7` and `harness-v8` are
-documentation-only revisions that leave the harness byte-identical, so these logs remain current at the published tip. The tag
-history is kept below because the narrative of how the evidence was corrected depends on it.
+here is directly comparable to every other. `harness-v6` and later are documentation-only revisions
+that leave the harness byte-identical, so these logs remain current at the published tip — each row
+below says what changed, and `git diff --stat harness-v5 <tag> -- scripts console` is empty for every
+one of them. The tag history is kept below because the narrative of how the evidence was corrected
+depends on it.
 
 | Tag | What changed |
 |---|---|
@@ -26,6 +28,7 @@ history is kept below because the narrative of how the evidence was corrected de
 | `harness-v6` | **Documentation only.** Corrected the timing figures to match the committed `TIMING` run and moved the docx utility out of `scripts/`. The harness is byte-identical to `harness-v5` — check with `git diff --stat harness-v5 harness-v6 -- scripts console`. The logs here were produced at v5 and remain current. |
 | `harness-v7` | **Documentation and document tooling only.** Milestone 1's iteration-time target was restored to ≥40% and the docx utility now also emits a Markdown copy. The harness is byte-identical to `harness-v5` — check with `git diff --stat harness-v6 harness-v7 -- scripts console`. The logs here were produced at v5 and remain current. |
 | `harness-v8` | **Documentation only.** The proposal now links the public repository, pinned to the `harness-v7` tag rather than to `main`. Harness byte-identical to `harness-v5`. |
+| `harness-v9` | **Documentation only.** §2 now answers why `dpm test` and the Daml Studio script runner do not cover this, and the repository links are re-pinned to this tag. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 

@@ -117,9 +117,20 @@ after restart:    parties 0     contracts 0     PID 34991  (was 34023)
 That third line is the real cost. The restart itself takes seconds; re-establishing ledger state and
 fixing every hardcoded party ID in scripts, config and test fixtures does not.
 
+**Existing test tooling does not reach this.** `dpm test` and the Daml Studio script runner are fast,
+and for model logic they are the right tool. But they run against the compiler's own ephemeral
+in-memory ledger: there is no participant, no synchronizer and no topology, and `dpm test` has no
+`--ledger-host` — it cannot be pointed at a running node. Package vetting therefore does not exist in
+a test run, so the `KNOWN_PACKAGE_VERSION` rejection above cannot arise there at all. Nor can these
+runners validate what only a *persistent* participant has: party IDs that must survive the change,
+contracts created before it that are still active, and consumers already holding the old shape. Every
+test run starts from an empty ledger — precisely the state a developer is trying not to be returned
+to. Isolated tests tell you the new model is correct; they cannot tell you whether it can replace the
+old one on a participant that is already running.
+
 **Who this affects.** Unlike a language SDK, this has no language or framework filter: **every team
 writing Daml has an inner development loop**, and DPM is the standard CLI for it — `dpm build`,
-`dpm sandbox`, `dpm script`, `dpm studio`. The filter is not team type but change class: only
+`dpm sandbox`, `dpm script`, `dpm test`, `dpm studio`. The filter is not team type but change class: only
 *breaking* changes need this, because compatible ones are already solved. Breaking changes dominate
 early model design, when the shape of the model is exactly what is under discussion — which means
 the population that benefits most is the one the Foundation is trying to grow, teams building their
@@ -227,7 +238,7 @@ baseline, captured by `dpm dev-reload init` and advanced only after a reload ver
 must be established **per contract, not per declared party**, since a contract may carry an
 undeclared or jointly-controlled signatory; the tool confirms it can act for every signatory it
 discovers before archiving anything. The full interface is specified in
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v7/docs/design-note.md) in the proof-of-concept
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v9/docs/design-note.md) in the proof-of-concept
 repository.
 
 #### 3.5 Failure safety
@@ -299,7 +310,7 @@ to run outside an isolated development participant.
 ## Proof of Concept Implementation
 
 Public repository: **<https://github.com/LimeChain/canton-dev-reload>** (Apache-2.0), pinned for review at
-[`harness-v7`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v7). Tags in that repository are provenance anchors and are never
+[`harness-v9`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v9). Tags in that repository are provenance anchors and are never
 moved, so the link is stable; `main` is not, and should not be cited.
 
 **That repository is the evidence base, not the product.** It holds the test harness and its
@@ -313,8 +324,8 @@ revision, clean-tree assertions) and machine-checked assertions that exit non-ze
 
 Each row below was a separate run from a clean sandbox. The middle column says what that run
 actually did, so the differences between them are visible rather than hidden behind a label; the
-right column is the log file name under [`evidence/`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v7/evidence) in the
-repository above, indexed by [`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v7/evidence/INDEX.md). The file names encode the same thing — `E1__swap__force-none__archived` is the
+right column is the log file name under [`evidence/`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v9/evidence) in the
+repository above, indexed by [`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v9/evidence/INDEX.md). The file names encode the same thing — `E1__swap__force-none__archived` is the
 swap, with no force flag, with contracts archived first. Every log carries a provenance header
 (tool versions, harness revision, clean-tree assertions) and machine-checked assertions that exit
 non-zero on failure, so a reviewer can open any row and read raw console output rather than take
