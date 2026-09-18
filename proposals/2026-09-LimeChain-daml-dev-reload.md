@@ -238,7 +238,7 @@ baseline, captured by `dpm dev-reload init` and advanced only after a reload ver
 must be established **per contract, not per declared party**, since a contract may carry an
 undeclared or jointly-controlled signatory; the tool confirms it can act for every signatory it
 discovers before archiving anything. The full interface is specified in
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v9/docs/design-note.md) in the proof-of-concept
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v10/docs/design-note.md) in the proof-of-concept
 repository.
 
 #### 3.5 Failure safety
@@ -310,7 +310,7 @@ to run outside an isolated development participant.
 ## Proof of Concept Implementation
 
 Public repository: **<https://github.com/LimeChain/canton-dev-reload>** (Apache-2.0), pinned for review at
-[`harness-v9`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v9). Tags in that repository are provenance anchors and are never
+[`harness-v10`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v10). Tags in that repository are provenance anchors and are never
 moved, so the link is stable; `main` is not, and should not be cited.
 
 **That repository is the evidence base, not the product.** It holds the test harness and its
@@ -324,8 +324,8 @@ revision, clean-tree assertions) and machine-checked assertions that exit non-ze
 
 Each row below was a separate run from a clean sandbox. The middle column says what that run
 actually did, so the differences between them are visible rather than hidden behind a label; the
-right column is the log file name under [`evidence/`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v9/evidence) in the
-repository above, indexed by [`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v9/evidence/INDEX.md). The file names encode the same thing — `E1__swap__force-none__archived` is the
+right column is the log file name under [`evidence/`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v10/evidence) in the
+repository above, indexed by [`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v10/evidence/INDEX.md). The file names encode the same thing — `E1__swap__force-none__archived` is the
 swap, with no force flag, with contracts archived first. Every log carries a provenance header
 (tool versions, harness revision, clean-tree assertions) and machine-checked assertions that exit
 non-zero on failure, so a reviewer can open any row and read raw console output rather than take
@@ -540,6 +540,17 @@ Listed for context; **not part of this funding request**.
   have no evidence for it today.
 - **An enforced commit-window quiesce**, if a supported mechanism exists — which would let the tool
   close the concurrency window in §3.6 outright rather than detecting and refusing.
+- **Long-running integration environments.** A test environment that has accumulated state over hours
+  is exactly what this technique protects, and rebuilding it after a breaking model change carries the
+  cost §2 describes — with the added operational risk that an unattended failure is detected and
+  recovered later than one a developer is watching. Where such an environment has applications
+  attached, it is quiesce-dependent: §3.6 restricts the tool to a participant it has detected idle, so
+  the prerequisite is the commit-window quiesce above, not the reload itself.
+- **Unattended use in CI.** A job that owns its own participant, with nothing else submitting, already
+  satisfies that envelope, and Milestone 1's refusal and resume semantics are the ones an unattended
+  run needs. What is missing is not capability but validation — we have not run this on a CI runner
+  and claim nothing about it. Confirming and documenting it is a small follow-on rather than a new
+  direction.
 - **Daml Studio integration** — reload on save. Different codebase, different direction.
 - **A resident daemon.** The measured prototype reload is ~18.5 s across five separate JVM launches
   (build, archive script, console, reseed script, verify). Two of those are Canton consoles the

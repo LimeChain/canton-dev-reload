@@ -29,6 +29,7 @@ depends on it.
 | `harness-v7` | **Documentation and document tooling only.** Milestone 1's iteration-time target was restored to ≥40% and the docx utility now also emits a Markdown copy. The harness is byte-identical to `harness-v5` — check with `git diff --stat harness-v6 harness-v7 -- scripts console`. The logs here were produced at v5 and remain current. |
 | `harness-v8` | **Documentation only.** The proposal now links the public repository, pinned to the `harness-v7` tag rather than to `main`. Harness byte-identical to `harness-v5`. |
 | `harness-v9` | **Documentation only.** §2 now answers why `dpm test` and the Daml Studio script runner do not cover this, and the repository links are re-pinned to this tag. Harness byte-identical to `harness-v5`. |
+| `harness-v10` | **Documentation only.** Potential Follow-Ons now names long-running integration environments and unattended CI use, and the repository links are re-pinned to this tag. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 
