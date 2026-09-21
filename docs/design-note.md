@@ -1,7 +1,7 @@
 # Design note — `dpm dev-reload`
 
-Supporting detail for §3.4–3.6 of
-[`proposals/2026-09-LimeChain-daml-dev-reload.md`](../proposals/2026-09-LimeChain-daml-dev-reload.md).
+Supporting detail for the Implementation Mechanics section of
+[`proposals/2026-09-LimeChain-daml-dev-reload-v2.md`](../proposals/2026-09-LimeChain-daml-dev-reload-v2.md).
 The proposal states the shape of the interface; this note specifies it.
 
 **Status: design, not implementation.** Nothing here exists yet — Milestone 1 builds it. The
@@ -135,6 +135,28 @@ is part of Milestone 1.
 
 Durable per-phase checkpoints (`archived` / `swapped` / `reseeded`) let a resumed run re-enter at
 the right step rather than restarting.
+
+**Why not an append-only log of what has been archived?** Because a local list must not be the
+authority for a retry. What makes `archive` re-runnable is current state, not history: `discover`
+re-queries the active set, so after a partial archive it returns exactly what remains and re-running
+converges to zero. A component-side "already archived" list is a second claim about that same state
+and can disagree with it in either direction, a submission that committed after the local write
+failed, or a local write that landed for a submission that did not. Resolving the disagreement means
+querying the ledger again, which is what the hook already does.
+
+The ledger is not a durable substitute for forensic history either: a participant can be pruned,
+after which it retains a state snapshot and can no longer serve the preceding events. So current
+state is authoritative for **convergence**, while **"what did this run destroy?"** has no
+authoritative answer here at all, and §5 opens by saying archival is irreversible.
+
+**Optional, not required by Milestone 1.** The durable checkpoint store could carry a run journal
+beside the phase name: the set `discover` returned, the vetted package ids added and removed, the
+synchronizer serial before and after, and the phase reached. Those are facts the orchestrator already
+holds. It could **not** record what `reseed` created, since `reseed` is an arbitrary Daml Script hook
+with no declared result and this design neither brackets ledger offsets nor consumes the update
+stream, nor state precisely which contracts a mid-hook failure archived, which is resolved by
+re-running `discover`. Recording more than that needs an offset-bracketing design and a
+reconciliation rule for uncertain submissions; neither is specified here.
 
 ## 7. What `verify` means
 

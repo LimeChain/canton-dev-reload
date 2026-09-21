@@ -1,7 +1,8 @@
 # Canton development reload — evidence base
 
 **This repository is evidence, not a product.** It holds the test harness and committed run logs
-behind [`proposals/2026-09-LimeChain-daml-dev-reload.md`](proposals/2026-09-LimeChain-daml-dev-reload.md),
+behind [`proposals/2026-09-LimeChain-daml-dev-reload-v2.md`](proposals/2026-09-LimeChain-daml-dev-reload-v2.md),
+the current draft (the longer first edition is retained beside it),
 a Canton Development Fund proposal. Every claim that proposal makes maps to a log file here that you
 can open and read. The tool the proposal asks to fund does not exist yet.
 
