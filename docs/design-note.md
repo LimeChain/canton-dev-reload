@@ -1,8 +1,9 @@
 # Design note — `dpm dev-reload`
 
-Supporting detail for the Implementation Mechanics section of
-[`proposals/2026-09-LimeChain-FRED.md`](../proposals/2026-09-LimeChain-FRED.md).
-The proposal states the shape of the interface; this note specifies it.
+Specifies the reload core, the baseline lifecycle and the hook contract, which is what the
+`fred reload` fallback path runs. The supervisor layer described in
+[`proposals/2026-09-LimeChain-FRED-v3.md`](../proposals/2026-09-LimeChain-FRED-v3.md), which starts
+the sandbox and watches for rebuilt DARs, is not specified here yet.
 
 **Status: design, not implementation.** Nothing here exists yet — Milestone 1 builds it. The
 evidence in this repository establishes that the underlying *sequence* works; it does not establish
