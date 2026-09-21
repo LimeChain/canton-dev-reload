@@ -1,6 +1,7 @@
-# Development Fund Proposal: Daml Development Reload for DPM
+# Development Fund Proposal: FRED, Daml Development Reload for DPM
 
-> Second edition, revised to Champion feedback. The first edition is retained as
+> Second edition, revised to Champion feedback, and naming the component FRED. The first edition is
+> retained as
 > `2026-09-LimeChain-daml-dev-reload.md`. The copy submitted to
 > `canton-foundation/canton-dev-fund` is authoritative.
 
@@ -24,7 +25,7 @@
 A Daml developer who makes a breaking change to their model, such as changing a field's type or a
 signatory, must restart the participant. The restart destroys every party and every contract, and
 re-seeding returns different party IDs, so scripts, configuration and applications holding the old
-ones break. We propose a DPM component that replaces the restart with an in-place reload: archive
+ones break. We propose FRED, a DPM component that replaces the restart with an in-place reload: archive
 the affected contracts, upload the rebuilt DAR unvetted, swap the vetted package set in a single
 topology transaction, then reseed. The participant keeps running and every party ID survives.
 Contracts are archived and recreated, so contract IDs change. We have already proved this mechanism
@@ -40,7 +41,7 @@ any Daml project can use.
 
 By the end of this grant a Daml developer will change a model incompatibly and carry on working
 against the same running participant, with the same party IDs, using one command. The capability
-ships as a DPM component, installable with `dpm add component`, configured by a small file in the
+ships as FRED, a DPM component installable with `dpm add component`, configured by a small file in the
 project that names four Daml Script hooks, and documented well enough for a developer with no
 contact with us to use it on their own project.
 
@@ -59,7 +60,7 @@ name and version.
 
 Two details carry the design, and both fail silently when got wrong, which is why this belongs in a
 tool rather than a documentation page. The topology call defaults to a store where it changes nothing
-and still returns success, so the component targets the synchronizer store and asserts the serial
+and still returns success, so FRED targets the synchronizer store and asserts the serial
 advanced. And archiving must precede the swap, because afterwards the old package is unvetted and its
 contracts can no longer be archived at all.
 
@@ -70,7 +71,7 @@ interface specification.
 
 ### 3. Architectural Alignment
 
-No Canton change, no protocol change, no Ledger API change and no compiler change. The component uses
+No Canton change, no protocol change, no Ledger API change and no compiler change. FRED uses
 only APIs shipping in Canton 3.5.12 and alters nothing about Smart Contract Upgrades or production
 vetting.
 
@@ -81,7 +82,7 @@ RFP 18 on integration into SDLCs, which names package vetting and environment ma
 
 ### 4. Backward Compatibility
 
-No backward compatibility impact. The component is additive and opt-in. It does not change existing
+No backward compatibility impact. FRED is additive and opt-in. It does not change existing
 Daml applications, Canton nodes, Ledger API semantics, package upload or package vetting. It refuses
 to run outside a development participant it has detected to be idle.
 
@@ -97,7 +98,7 @@ to run outside a development participant it has detected to be idle.
 A developer makes a breaking change to a single-package model and carries on against the same sandbox
 participant, with the same party IDs.
 
-**Deliverables:** the DPM component, published to an OCI registry under Apache-2.0 and installable
+**Deliverables:** FRED, published to an OCI registry under Apache-2.0 and installable
 with `dpm add component`; the hook interface and baseline lifecycle; change classification that sends
 compatible changes to a version bump instead; the preflight and commit sequence with checkpointed
 resume, serial and authority verification, and idle detection; a conformance check for hooks; and
@@ -161,7 +162,7 @@ Value delivered: independent teams report a measurably shorter code-test-debug c
 projects, and the Milestone 3 adoption report carries those measurements. The workflow is accepted
 into, or formally submitted for inclusion in, Canton and Daml developer documentation.
 
-Usable without us: a developer with no contact with LimeChain installs the component in a clean
+Usable without us: a developer with no contact with LimeChain installs FRED in a clean
 environment and completes a reload from the published documentation, on the then-current stable Daml
 SDK.
 
@@ -265,7 +266,7 @@ Digital Asset independently of this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned for review at
-[`harness-v11`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v11). Tags there are
+[`harness-v12`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v12). Tags there are
 provenance anchors and never move, so the link is stable; `main` is not and should not be cited.
 
 That repository is the evidence base, not the product. Fourteen committed runs back the claims here:
@@ -274,9 +275,9 @@ the two force settings apart at all, which is what makes the headline falsifiabl
 unrebuilt fails; a full closure swaps in one topology transaction; party IDs survive and ordering
 decides whether contracts are stranded. Every log carries a provenance header and machine-checked
 assertions that exit non-zero on failure.
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v11/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v12/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v11/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v12/docs/design-note.md)
 specifies the hook interface, the baseline lifecycle, the commit ordering and the concurrency
 envelope.
 

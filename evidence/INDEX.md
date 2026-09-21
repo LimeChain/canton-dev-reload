@@ -31,6 +31,7 @@ depends on it.
 | `harness-v9` | **Documentation only.** §2 now answers why `dpm test` and the Daml Studio script runner do not cover this, and the repository links are re-pinned to this tag. Harness byte-identical to `harness-v5`. |
 | `harness-v10` | **Documentation only.** Potential Follow-Ons now names long-running integration environments and unattended CI use, and the repository links are re-pinned to this tag. Harness byte-identical to `harness-v5`. |
 | `harness-v11` | **Documentation only.** Adds a second edition of the proposal, cut by 61% to Champion feedback, and answers the append-only-log question in the design note. Harness byte-identical to `harness-v5`. |
+| `harness-v12` | **Documentation only.** The second edition names the component FRED and moves to `proposals/2026-09-LimeChain-FRED.md`. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 

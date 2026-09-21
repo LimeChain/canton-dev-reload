@@ -14,15 +14,15 @@
 # nothing the runs in evidence/ depend on.
 #
 # usage: tools/build-docx.sh [OUTPUT.docx]
-#   default output: ~/Desktop/LimeChain-Daml-Dev-Reload-proposal-DRAFT.docx
+#   default output: ~/Desktop/LimeChain-FRED-proposal-DRAFT.docx
 #   a sibling .md (same name, banner stripped) is written alongside it
 #   set PANDOC=/path/to/pandoc to use a pandoc that is not on PATH
 #   set PROPOSAL=<path.md> to build a different edition (default: the second edition)
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
-OUT="${1:-$HOME/Desktop/LimeChain-Daml-Dev-Reload-proposal-v2-DRAFT.docx}"
-SRC="${PROPOSAL:-proposals/2026-09-LimeChain-daml-dev-reload-v2.md}"
+OUT="${1:-$HOME/Desktop/LimeChain-FRED-proposal-DRAFT.docx}"
+SRC="${PROPOSAL:-proposals/2026-09-LimeChain-FRED.md}"
 
 PANDOC="${PANDOC:-$(command -v pandoc || echo /tmp/pandoc-dist/pandoc-3.11-arm64/bin/pandoc)}"
 [ -x "$PANDOC" ] || { echo "pandoc not found. Install it, or fetch the release binary:" >&2
