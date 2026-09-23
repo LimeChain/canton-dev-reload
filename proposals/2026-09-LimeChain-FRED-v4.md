@@ -33,6 +33,33 @@ every claim.
 
 ---
 
+## Motivation
+
+The code-test-debug cycle is where Daml developers spend their time, and a breaking model change
+resets it. The real cost is not the restart, which takes seconds, but repairing every script,
+configuration file and test fixture that held the old party IDs. The session is awkward too:
+`dpm sandbox` holds a terminal, so a developer backgrounds it and loses its output.
+
+The Foundation's 2026 developer-experience survey points the same way: 41% of respondents named
+environment setup and node operations as the task that took them longest.
+
+Existing test tooling does not reach this: `dpm test` and the Daml Studio script runner use the
+compiler's own in-memory ledger, with no participant and no topology.
+
+Measured on the shell prototype, a reload reaches a verified seeded state in a median 18.5 seconds
+against 30.6 seconds to restart and set up again, a 39.5% reduction. The prototype spawns a Canton
+console twice per reload, which the component does in its own process.
+
+---
+
+## Rationale
+
+The command first, the supervisor after. The reload is the part our evidence covers and everything
+else depends on, so it ships first and stays available where Fred does not own the participant. The
+supervisor is what makes it a development loop.
+
+---
+
 ## Specification
 
 ### 1. Objective
@@ -238,34 +265,6 @@ channel approvals:
 
 ---
 
-## Motivation
-
-The code-test-debug cycle is where Daml developers spend their time, and a breaking model change
-resets it. The real cost is not the restart, which takes seconds, but repairing every script,
-configuration file and test fixture that held the old party IDs. The session is awkward too:
-`dpm sandbox` holds a terminal, so a developer backgrounds it and loses its output.
-
-The Foundation's 2026 developer-experience survey points the same way: 41% of respondents named
-environment setup and node operations as the task that took them longest.
-
-Existing test tooling does not reach this: `dpm test` and the Daml Studio script runner use the
-compiler's own in-memory ledger, with no participant and no topology.
-
-Measured on the shell prototype, a reload reaches a verified seeded state in a median 18.5 seconds
-against 30.6 seconds to restart and set up again, a 39.5% reduction. The prototype spawns a Canton
-console twice per reload, which the component does in its own process.
-
----
-
-## Rationale
-
-The command first, the supervisor after. The reload is the part our evidence covers and everything
-else depends on, so it ships first and stays available where Fred does not own the participant. The
-supervisor is what makes it a development loop.
-
-
----
-
 ## About the Team
 
 LimeChain is a blockchain engineering company founded in 2017. The evidence below is selected for
@@ -325,7 +324,7 @@ reference flow and the adoption evidence defined in this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v17`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v17). Tags there never move, so
+[`harness-v18`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v18). Tags there never move, so
 the link is stable; `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -342,7 +341,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v17/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v18/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v17/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v18/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.

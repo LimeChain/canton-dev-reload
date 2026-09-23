@@ -37,6 +37,7 @@ depends on it.
 | `harness-v15` | **Documentation only.** Renames the product's setup hook, makes the auto policy disarm after a failed commit, simplifies reset, and states the configuration principle. Harness byte-identical to `harness-v5`. |
 | `harness-v16` | **Documentation only.** Merges the command and closure milestones, separates PQS from adoption, and cuts delivery effort to 11 engineer-weeks. Harness byte-identical to `harness-v5`. |
 | `harness-v17` | **Documentation only.** Fills the team track record and rewrites Co-Marketing with the release assets. Harness byte-identical to `harness-v5`. |
+| `harness-v18` | **Documentation only.** Moves Motivation and Rationale ahead of Specification, matching the PQS reference proposal. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 
