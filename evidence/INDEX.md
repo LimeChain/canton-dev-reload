@@ -33,6 +33,7 @@ depends on it.
 | `harness-v11` | **Documentation only.** Adds a second edition of the proposal, cut by 61% to Champion feedback, and answers the append-only-log question in the design note. Harness byte-identical to `harness-v5`. |
 | `harness-v12` | **Documentation only.** The second edition names the component FRED and moves to `proposals/2026-09-LimeChain-FRED.md`. Harness byte-identical to `harness-v5`. |
 | `harness-v13` | **Documentation only.** Adds a third edition recasting Fred as a development loop supervisor, per Champion feedback. Harness byte-identical to `harness-v5`. |
+| `harness-v14` | **Documentation only.** Adds a fourth edition: the one-shot command becomes Milestone 1 and the live sandbox is built on it, with PQS as a managed component. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 

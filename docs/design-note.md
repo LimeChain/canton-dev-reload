@@ -104,6 +104,10 @@ COMMIT  (destructive; from here, resume rather than restart)
  10. dars.remove(old) <- optional
 ```
 
+**Step 10 is conditional when PQS is attached.** Removing the old DAR leaves history that references
+it unreadable, which breaks a PQS re-ingest. While PQS is configured the old DARs are retained for the
+life of the session. Unvetted packages cannot be submitted against, so retention costs nothing.
+
 Two details in that sequence are load-bearing, and both are evidenced:
 
 - **Step 7 targets the synchronizer store.** `propose_delta` defaults to the *Authorized* store,
