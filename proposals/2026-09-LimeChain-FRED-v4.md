@@ -132,7 +132,7 @@ development participant it owns or has detected to be idle.
 
 ### Milestone 1: The Reload Command
 
-**Estimated Delivery:** week 4
+**Estimated Delivery:** week 4  
 **Estimated Effort:** ~4 engineer-weeks
 
 `fred reload` performs a breaking-change reload against a participant the developer is already
@@ -164,7 +164,7 @@ destroyed, or resume and converge.
 
 ### Milestone 2: The Live Sandbox
 
-**Estimated Delivery:** week 7
+**Estimated Delivery:** week 7  
 **Estimated Effort:** ~3 engineer-weeks
 
 Fred runs for the length of a session, so the developer runs one thing in one terminal.
@@ -187,7 +187,7 @@ under the Milestone 1 protocol.
 
 ### Milestone 3: PQS
 
-**Estimated Delivery:** week 9
+**Estimated Delivery:** week 9  
 **Estimated Effort:** ~2 engineer-weeks
 
 PQS indexes the ledger into Postgres for SQL queries. A reload leaves it holding rows for contracts
@@ -209,7 +209,7 @@ impossible. The LocalNet report is published.
 
 ### Milestone 4: Adoption
 
-**Estimated Delivery:** week 12
+**Estimated Delivery:** week 12  
 **Estimated Effort:** ~2 engineer-weeks, plus 2 for maintenance
 
 The component is public from Milestone 1, so teams use it while the rest is built. This milestone is
@@ -343,7 +343,7 @@ reference flow and the adoption evidence defined in this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v21`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v21). Tags there never move, so
+[`harness-v22`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v22). Tags there never move, so
 the link is stable, and `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -360,7 +360,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v21/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v22/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v21/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v22/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.
