@@ -14,7 +14,7 @@
 | RFP / Roadmap Area | Developer Experience, Tooling & Education. RFP 19, secondary RFP 18 |
 | Champion | Curtis Hrischuk, Digital Asset, [`hrischuk-da`](https://github.com/hrischuk-da) |
 | Total Funding Request | *to be completed before submission* |
-| Project Duration | ~17 weeks of delivery, followed by a 6-month maintenance term |
+| Project Duration | ~12 weeks of delivery, followed by a 6-month maintenance term |
 | Label | `daml-tooling` |
 
 ---
@@ -102,44 +102,33 @@ development participant it owns or has detected to be idle.
 **Estimated Delivery:** week 4
 **Estimated Effort:** ~4 engineer-weeks
 
-`fred reload` performs a breaking-change reload on a single-package project against a participant the
-developer is already running. This is the capability everything else is built on, and it remains the
-fallback once the supervisor exists.
+`fred reload` performs a breaking-change reload against a participant the developer is already
+running. Real Daml projects are several packages, and compiled Daml embeds the package ID of its
+dependencies, so changing one leaves its dependents no longer fitting; the command handles the whole
+closure. This is what everything else is built on, and it remains the fallback once the supervisor
+exists.
 
 **Deliverables:** the component, published to an OCI registry under Apache-2.0 and installable with
-`dpm add component`; the hook interface; the durable baseline; the preflight and commit sequence with
-serial and authority verification and checkpointed resume; and documentation.
+`dpm add component`, as the first public release; the hook interface; the durable baseline; the
+preflight and commit sequence with serial and authority verification and checkpointed resume; closure
+computation, rebuilt in dependency order and archived in reverse, with every add and remove in one
+topology transaction; a diagnosis naming the package that must be rebuilt; and documentation with a
+worked multi-package example.
 
 **Acceptance Criteria:** on a project that is not the proof of concept, a developer completes a
-breaking-change reload with the participant process unchanged, every declared party ID identical, and
-no contracts left on the old package. A committee member does this from the published documentation
-alone, with the component verified on all three operating systems. Median iteration time is at least
-40% below the restart baseline, over at least ten alternating trials per path from a reset ledger,
-with the baseline re-measured on the same machine. Injected failures at five boundaries abort with
-nothing destroyed, or resume and converge.
+breaking-change reload with the participant unchanged, every declared party ID identical, and no
+contracts left on the old package. A multi-package project reloads across its full closure in one
+operation with dependents working afterwards, and a closure with dependents omitted names every one
+and exits before any change. A committee member does both from the published documentation alone,
+with the component verified on all three operating systems. Median iteration time is at least 40%
+below the restart baseline, over at least ten alternating trials per path from a reset ledger, with
+the baseline re-measured on the same machine. Injected failures at five boundaries abort with nothing
+destroyed, or resume and converge.
 
-### Milestone 2: Multi-Package Projects
+### Milestone 2: The Live Sandbox
 
 **Estimated Delivery:** week 7
-**Estimated Effort:** ~2.5 engineer-weeks
-
-Real Daml projects are several packages, and compiled Daml embeds the package ID of its dependencies,
-so changing one leaves its dependents no longer fitting.
-
-**Deliverables:** closure computation from the project's multi-package configuration; rebuild in
-dependency order and archive in reverse; every add and remove in one topology transaction; a diagnosis
-naming the package that must be rebuilt, replacing the current `PACKAGE_SELECTION_FAILED`; and a
-worked example.
-
-**Acceptance Criteria:** a multi-package project that is not the proof of concept reloads across its
-full closure in one operation, with dependents working immediately afterwards, reproduced by a
-committee member. Given a closure with dependents omitted, the tool names every one and exits before
-any change. Closure iteration time meets the Milestone 1 threshold.
-
-### Milestone 3: The Live Sandbox
-
-**Estimated Delivery:** week 12
-**Estimated Effort:** ~5 engineer-weeks
+**Estimated Effort:** ~3 engineer-weeks
 
 Fred runs for the length of a session, so the developer runs one thing in one terminal.
 
@@ -156,10 +145,10 @@ watch until resumed or reset. Fred reports its effective configuration at startu
 that party IDs will be discarded. Median iteration time is at least 50% below the restart baseline
 under the Milestone 1 protocol.
 
-### Milestone 4: PQS, Release and Adoption
+### Milestone 3: PQS
 
-**Estimated Delivery:** week 17
-**Estimated Effort:** ~5 engineer-weeks, plus 2 for maintenance
+**Estimated Delivery:** week 9
+**Estimated Effort:** ~2 engineer-weeks
 
 PQS indexes the ledger into Postgres for SQL queries. A reload leaves it holding rows for contracts
 that no longer exist, and removing the old DAR leaves history it cannot read.
@@ -167,20 +156,32 @@ that no longer exist, and removing the old DAR leaves history it cannot read.
 **Deliverables:** PQS lifecycle, started after vetting and stopped on shutdown when configured;
 retention of old DARs while PQS is configured, so history stays readable and a re-ingest remains
 possible; synchronisation, where Fred waits for PQS to catch up before reporting a reload verified;
-and `fred reset --pqs`, which a full reset also covers because a fresh sandbox restarts offsets.
-
-Also: public release and OCI publication; a LocalNet validation report covering multiple validators,
-published whatever it finds; a quickstart with an example repository; submission of the workflow for
-Canton and Daml developer documentation; and six months of maintenance, restoring compatibility with
-each new SDK release within 60 days.
+`fred reset --pqs`, which a full reset also covers; and a LocalNet validation report covering multiple
+validators, published whatever it finds.
 
 **Acceptance Criteria:** after a breaking reload with PQS attached, a query returns the new shape and
 no rows from the old package, and Fred does not report the reload verified until PQS has caught up. No
-reset leaves Fred reporting a stale PQS as synchronised, and Fred refuses with a reason when a
-complete re-ingest is impossible. At least three independent organisations use Fred on their own
-project and report in writing whether it changed their development loop, one of them multi-package.
-The adoption report carries measured before-and-after iteration times, and a developer new to Fred
-completes the quickstart unaided.
+reset leaves Fred reporting a stale PQS as synchronised, and Fred refuses when a complete re-ingest is
+impossible. The LocalNet report is published.
+
+### Milestone 4: Adoption
+
+**Estimated Delivery:** week 12
+**Estimated Effort:** ~2 engineer-weeks, plus 2 for maintenance
+
+The component is public from Milestone 1, so teams use it while the rest is built. This milestone is
+accepted on what they report.
+
+**Deliverables:** a quickstart with an example repository; submission of the workflow for Canton and
+Daml developer documentation and a presentation to the Daml Language and Developer Tooling SIG;
+hands-on sessions with independent teams recruited through that SIG and the Canton Network forum; the
+adoption report; and six months of maintenance, restoring compatibility with each new SDK release
+within 60 days.
+
+**Acceptance Criteria:** at least three independent organisations use Fred on their own project and
+report in writing whether it changed their development loop, one of them multi-package. The adoption
+report carries measured before-and-after iteration times, and a developer new to Fred completes the
+quickstart unaided.
 
 ---
 
@@ -197,18 +198,18 @@ three operating systems, and all software is released under Apache-2.0 before an
 
 **Total Funding Request:** *to be completed before submission.*
 
-Delivery is 16.5 engineer-weeks by one engineer over about 17 calendar weeks: 4, 2.5, 5 and 5 across
-the milestones. A further 2 cover the six-month maintenance term, giving **18.5 engineer-weeks** in
-total, stated so the figure can be checked.
+Delivery is 11 engineer-weeks by one engineer over about 12 calendar weeks: 4, 3, 2 and 2 across the
+milestones. A further 2 cover the six-month maintenance term, giving **13 engineer-weeks** in total,
+stated so the figure can be checked.
 
 ### Payment Breakdown by Milestone
 
-- Milestone 1, The Reload Command: **25%**
-- Milestone 2, Multi-Package Projects: **20%**
-- Milestone 3, The Live Sandbox: **25%**
-- Milestone 4, PQS, Release and Adoption: **30%**, on acceptance and the adoption criteria
+- Milestone 1, The Reload Command: **30%**
+- Milestone 2, The Live Sandbox: **25%**
+- Milestone 3, PQS: **15%**
+- Milestone 4, Adoption: **30%**, on acceptance and the adoption criteria
 
-Milestone 4 carries the largest share: it holds adoption evidence and maintenance.
+The split tracks effort against the 13 engineer-week total, with Milestone 4 counting its two weeks of maintenance.
 
 ### Volatility Stipulation
 
@@ -230,8 +231,7 @@ walkthrough, and a presentation to the Daml Language and Developer Tooling SIG.
 The code-test-debug cycle is where Daml developers spend their time, and a breaking model change
 resets it. The real cost is not the restart, which takes seconds, but repairing every script,
 configuration file and test fixture that held the old party IDs. The session is awkward too:
-`dpm sandbox` holds a terminal, so a developer backgrounds it and loses its output. Fred owns the
-sandbox, so there is one process and one log.
+`dpm sandbox` holds a terminal, so a developer backgrounds it and loses its output.
 
 The Foundation's 2026 developer-experience survey points the same way: 41% of respondents named
 environment setup and node operations as the task that took them longest.
@@ -248,8 +248,8 @@ console twice per reload, which the component does in its own process.
 ## Rationale
 
 The command first, the supervisor after. The reload is the part our evidence covers and everything
-else depends on, so it ships as Milestone 1 and stays available where Fred does not own the
-participant. The supervisor is what makes it a development loop.
+else depends on, so it ships first and stays available where Fred does not own the participant. The
+supervisor is what makes it a development loop.
 
 
 ---
@@ -272,7 +272,7 @@ Asset.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v15`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v15). Tags there never move, so
+[`harness-v16`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v16). Tags there never move, so
 the link is stable; `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -286,10 +286,10 @@ and assertions that exit non-zero on failure.
 **What it does not establish.** It validates the mechanism the first milestone is built on, not the
 milestone itself. The hook interface, the durable baseline, checkpointed resume, cross-platform
 behaviour and both thresholds are new work, as are the supervisor, the file watching and PQS. PQS is
-designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 4
+designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v15/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v16/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v15/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v16/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.
