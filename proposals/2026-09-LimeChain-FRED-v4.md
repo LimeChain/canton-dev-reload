@@ -48,7 +48,8 @@ compiler's own in-memory ledger, with no participant and no topology.
 
 Measured on the shell prototype, a reload reaches a verified seeded state in a median 18.5 seconds
 against 30.6 seconds to restart and set up again, a 39.5% reduction. The prototype spawns a Canton
-console twice per reload, which the component does in its own process.
+console twice per reload, which the component does in its own process. The appendix maps every claim
+in this proposal to the log behind it.
 
 ---
 
@@ -57,6 +58,10 @@ console twice per reload, which the component does in its own process.
 The command first, the supervisor after. The reload is the part our evidence covers and everything
 else depends on, so it ships first and stays available where Fred does not own the participant. The
 supervisor is what makes it a development loop.
+
+We removed our own protocol ask. Our internal RFC proposed a new Canton operation. Building the proof
+of concept showed it unnecessary, and we would rather report that than request surface we do not
+need.
 
 ---
 
@@ -85,7 +90,8 @@ topology call defaults to a store where it changes nothing and still returns suc
 targets the synchronizer store and asserts the serial advanced, and archival must precede the swap
 because afterwards the old contracts can no longer be archived. Archiving needs the build that
 preceded the change, so the component keeps a durable baseline on disk, advanced only after a reload
-verifies, and the project declares four hooks as Daml Script: discover, archive, setup and verify.
+verifies, and the project declares four hooks as Daml Script: discover, archive, setup and verify,
+specified in full in the design note the appendix links.
 
 `fred reload` performs that sequence once and exits, against a participant the developer started.
 Fred adds a supervisor around it: it starts the sandbox, runs setup, watches the DARs, and classifies
@@ -324,7 +330,7 @@ reference flow and the adoption evidence defined in this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v18`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v18). Tags there never move, so
+[`harness-v19`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v19). Tags there never move, so
 the link is stable; `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -341,7 +347,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v18/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v19/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v18/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v19/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.

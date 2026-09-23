@@ -38,6 +38,7 @@ depends on it.
 | `harness-v16` | **Documentation only.** Merges the command and closure milestones, separates PQS from adoption, and cuts delivery effort to 11 engineer-weeks. Harness byte-identical to `harness-v5`. |
 | `harness-v17` | **Documentation only.** Fills the team track record and rewrites Co-Marketing with the release assets. Harness byte-identical to `harness-v5`. |
 | `harness-v18` | **Documentation only.** Moves Motivation and Rationale ahead of Specification, matching the PQS reference proposal. Harness byte-identical to `harness-v5`. |
+| `harness-v19` | **Documentation only.** Points the reader at the appendix from Motivation and Implementation Mechanics, and restores the withdrawn protocol ask to Rationale. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 
