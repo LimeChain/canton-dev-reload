@@ -14,7 +14,7 @@ evidence row that shows it; where it does not cite one, it is a design decision 
 
 ## 1. Why an interface is needed at all
 
-The reload primitive is generic: archive → upload unvetted → one `propose_delta` → reseed. The
+The reload primitive is generic: archive → upload unvetted → one `propose_delta` → setup. The
 **contract lifecycle around it is not**. A component cannot know which contracts matter to a
 project, cannot infer a `Text` → `Int` migration, and cannot recreate application data.
 
@@ -31,7 +31,7 @@ script-package: seed          # the Daml Script package providing the hooks
 hooks:
   discover: Seed:discover     # -> contracts in scope, with their required signatories
   archive:  Seed:cleanup      # archives them, as their signatories
-  reseed:   Seed:seed         # recreates working state after the swap
+  setup:   Seed:seed         # recreates working state after the swap
   verify:   Seed:verify       # optional postcondition, checked before the baseline advances
 ```
 
@@ -42,13 +42,13 @@ out of the vetting set and is never part of the closure being swapped — though
 against the model and must be rebuilt when the model changes.
 
 **The component never infers a migration.** If the new schema needs data the old shape cannot
-supply, that is `reseed`'s problem and the developer's decision. Automatic schema migration is
+supply, that is `setup`'s problem and the developer's decision. Automatic schema migration is
 explicitly out of scope.
 
 ## 3. The old/new boundary, and why a baseline is required
 
 `archive` must run against the **old** packages — it queries contracts of the old shape — while
-`reseed` must run against the **new** ones. Once the developer edits the source, the old hook can no
+`setup` must run against the **new** ones. Once the developer edits the source, the old hook can no
 longer be built.
 
 The proof of concept solves this by hand, keeping a copy: `scripts/70-matrix.sh:59` preserves
@@ -60,7 +60,7 @@ So the component owns a **baseline**:
 
 - **`dpm dev-reload init`** captures the last-known-good closure — every model DAR *and* the built
   script-package DAR — into a component-managed directory, recording each package id.
-- **Each reload** resolves `discover` and `archive` from the *baseline* build, and `reseed` and
+- **Each reload** resolves `discover` and `archive` from the *baseline* build, and `setup` and
   `verify` from the *new* build. One source package, two builds, selected by phase.
 - **The baseline advances only after step 9 verifies** (below) — not after the swap, and not
   optimistically. A failed reload leaves the baseline describing what is actually on the ledger.
@@ -85,7 +85,7 @@ API guarantee.
 ## 5. Ordering is a correctness property
 
 Archival is irreversible. A naive implementation archives and then does build, upload, topology and
-reseed — any of which can fail, leaving a developer with destroyed state and no reload. So every
+setup — any of which can fail, leaving a developer with destroyed state and no reload. So every
 fallible step happens first:
 
 ```
@@ -97,9 +97,9 @@ PREFLIGHT  (nothing destructive; abort freely)
   4. resolve hooks; run discover; verify actAs for every required signatory
   5. read and record the synchronizer-store VettedPackages serial
 COMMIT  (destructive; from here, resume rather than restart)
-  6. archive          <- irreversible, and now preceded by nothing that can fail
+  6. archive          <- irreversible; every step that can be moved ahead of it has been
   7. propose_delta    <- assert the serial advanced from (5)
-  8. reseed
+  8. setup
   9. verify, then advance the baseline
  10. dars.remove(old) <- optional
 ```
@@ -125,11 +125,11 @@ A Daml Script hook contains multiple submissions, so it can fail part-way. There
 
 - **`archive` must converge** — re-running drives the discovered set to zero, so a mid-archive
   failure is recoverable by re-running. Query-then-archive satisfies this.
-- **`reseed` must not duplicate** — it must query before creating, the way `getOrAllocate` in
+- **`setup` must not duplicate** — it must query before creating, the way `getOrAllocate` in
   `seed/daml/Seed.daml` already does for parties.
 
 **Neither can be verified on the developer's live ledger**, and the component must not pretend
-otherwise: running `reseed` twice *is* a mutation, and proving `archive` converges would destroy the
+otherwise: running `setup` twice *is* a mutation, and proving `archive` converges would destroy the
 state being protected. `dev-reload check` validates both in a **throwaway sandbox** instead —
 destructive by design on a ledger that is discarded, and re-runnable against the new build after an
 edit.
@@ -138,7 +138,7 @@ Worth noting that the proof of concept's own example fails this contract: `Seed:
 re-runnable, but `Seed:seed` does a blind `createCmd` per party and duplicates on re-run. Fixing it
 is part of Milestone 1.
 
-Durable per-phase checkpoints (`archived` / `swapped` / `reseeded`) let a resumed run re-enter at
+Durable per-phase checkpoints (`archived` / `swapped` / `setup`) let a resumed run re-enter at
 the right step rather than restarting.
 
 **Why not an append-only log of what has been archived?** Because a local list must not be the
@@ -157,7 +157,7 @@ authoritative answer here at all, and §5 opens by saying archival is irreversib
 **Optional, not required by Milestone 1.** The durable checkpoint store could carry a run journal
 beside the phase name: the set `discover` returned, the vetted package ids added and removed, the
 synchronizer serial before and after, and the phase reached. Those are facts the orchestrator already
-holds. It could **not** record what `reseed` created, since `reseed` is an arbitrary Daml Script hook
+holds. It could **not** record what `setup` created, since `setup` is an arbitrary Daml Script hook
 with no declared result and this design neither brackets ledger offsets nor consumes the update
 stream, nor state precisely which contracts a mid-hook failure archived, which is resolved by
 re-running `discover`. Recording more than that needs an offset-bracketing design and a
