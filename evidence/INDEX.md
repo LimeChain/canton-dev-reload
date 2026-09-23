@@ -40,6 +40,7 @@ depends on it.
 | `harness-v18` | **Documentation only.** Moves Motivation and Rationale ahead of Specification, matching the PQS reference proposal. Harness byte-identical to `harness-v5`. |
 | `harness-v19` | **Documentation only.** Points the reader at the appendix from Motivation and Implementation Mechanics, and restores the withdrawn protocol ask to Rationale. Harness byte-identical to `harness-v5`. |
 | `harness-v20` | **Documentation only.** Replaces three prose semicolons with full stops. Harness byte-identical to `harness-v5`. |
+| `harness-v21` | **Documentation only.** Deliverables become bullet lists, removing 23 semicolons. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 

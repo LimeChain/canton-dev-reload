@@ -79,9 +79,9 @@ rather than protocol work.
 
 ### 2. Implementation Mechanics
 
-The reload is four steps: archive the contracts of the changed packages, using the signatory authority
-the developer holds because they allocated the parties; upload the rebuilt DAR unvetted; remove the
-old package IDs and add the new ones in one topology transaction against the synchronizer store; run
+The reload is four steps. Archive the contracts of the changed packages, using the signatory authority
+the developer holds because they allocated the parties. Upload the rebuilt DAR unvetted. Remove the
+old package IDs and add the new ones in one topology transaction against the synchronizer store. Run
 setup. The single transaction is load-bearing: vetting a new package while the old is still vetted
 produces `KNOWN_PACKAGE_VERSION`, and that atomicity is what makes a force flag unnecessary.
 
@@ -96,8 +96,8 @@ specified in full in the design note the appendix links.
 `fred reload` performs that sequence once and exits, against a participant the developer started.
 Fred adds a supervisor around it: it starts the sandbox, runs setup, watches the DARs, and classifies
 each change with `dpm upgrade-check` before touching the ledger. A compatible change needs no reload.
-A breaking change follows the policy: `confirm`, the default, asks before archiving; `notify` reports
-and waits; `auto` runs without prompting. Both paths read the same baseline.
+A breaking change follows the policy. `confirm`, the default, asks before archiving. `notify` reports
+and waits. `auto` runs without prompting. Both paths read the same baseline.
 
 Preflight exhausts the work that can be moved ahead of the irreversible phase, so a failure there
 leaves the ledger untouched. Later steps can still fail. After a failed commit Fred stops acting on
@@ -141,12 +141,16 @@ dependencies, so changing one leaves its dependents no longer fitting. The comma
 closure. This is what everything else is built on, and it remains the fallback once the supervisor
 exists.
 
-**Deliverables:** the component, published to an OCI registry under Apache-2.0 and installable with
-`dpm add component`, as the first public release; the hook interface; the durable baseline; the
-preflight and commit sequence with serial and authority verification and checkpointed resume; closure
-computation, rebuilt in dependency order and archived in reverse, with every add and remove in one
-topology transaction; a diagnosis naming the package that must be rebuilt; and documentation with a
-worked multi-package example.
+**Deliverables:**
+
+- The component, published to an OCI registry under Apache-2.0 and installable with
+  `dpm add component`, as the first public release.
+- The hook interface and the durable baseline.
+- The preflight and commit sequence, with serial and authority verification and checkpointed resume.
+- Closure computation, rebuilt in dependency order and archived in reverse, with every add and remove
+  in one topology transaction.
+- A diagnosis naming the package that must be rebuilt.
+- Documentation with a worked multi-package example.
 
 **Acceptance Criteria:** on a project that is not the proof of concept, a developer completes a
 breaking-change reload with the participant unchanged, every declared party ID identical, and no
@@ -165,9 +169,12 @@ destroyed, or resume and converge.
 
 Fred runs for the length of a session, so the developer runs one thing in one terminal.
 
-**Deliverables:** sandbox startup and setup; DAR watching; the `confirm`, `notify` and `auto` policy
-with project and user configuration; the reload triggered from the watcher, sharing Milestone 1's core
-and baseline; and reset from the session.
+**Deliverables:**
+
+- Sandbox startup and setup, and DAR watching.
+- The `confirm`, `notify` and `auto` policy, with project and user configuration.
+- The reload triggered from the watcher, sharing Milestone 1's core and baseline.
+- Reset from the session.
 
 **Acceptance Criteria:** a developer starts Fred, edits a model, rebuilds, and continues working
 without restarting, on all three operating systems. Defaults are asserted rather than described, being
@@ -186,11 +193,14 @@ under the Milestone 1 protocol.
 PQS indexes the ledger into Postgres for SQL queries. A reload leaves it holding rows for contracts
 that no longer exist, and removing the old DAR leaves history it cannot read.
 
-**Deliverables:** PQS lifecycle, started after vetting and stopped on shutdown when configured;
-retention of old DARs while PQS is configured, so history stays readable and a re-ingest remains
-possible; synchronisation, where Fred waits for PQS to catch up before reporting a reload verified;
-`fred reset --pqs`, which a full reset also covers; and a LocalNet validation report covering multiple
-validators, published whatever it finds.
+**Deliverables:**
+
+- PQS lifecycle, started after vetting and stopped on shutdown when configured.
+- Retention of old DARs while PQS is configured, so history stays readable and a re-ingest remains
+  possible.
+- Synchronisation, where Fred waits for PQS to catch up before reporting a reload verified.
+- `fred reset --pqs`, which a full reset also covers.
+- A LocalNet validation report covering multiple validators, published whatever it finds.
 
 **Acceptance Criteria:** after a breaking reload with PQS attached, a query returns the new shape and
 no rows from the old package, and Fred does not report the reload verified until PQS has caught up. No
@@ -205,11 +215,14 @@ impossible. The LocalNet report is published.
 The component is public from Milestone 1, so teams use it while the rest is built. This milestone is
 accepted on what they report.
 
-**Deliverables:** a quickstart with an example repository; submission of the workflow for Canton and
-Daml developer documentation and a presentation to the Daml Language and Developer Tooling SIG;
-hands-on sessions with independent teams recruited through that SIG and the Canton Network forum; the
-adoption report; and six months of maintenance, restoring compatibility with each new SDK release
-within 60 days.
+**Deliverables:**
+
+- A quickstart with an example repository.
+- Submission of the workflow for Canton and Daml developer documentation, and a presentation to the
+  Daml Language and Developer Tooling SIG.
+- Hands-on sessions with independent teams recruited through that SIG and the Canton Network forum.
+- The adoption report.
+- Six months of maintenance, restoring compatibility with each new SDK release within 60 days.
 
 **Acceptance Criteria:** at least three independent organisations use Fred on their own project and
 report in writing whether it changed their development loop, one of them multi-package. The adoption
@@ -330,7 +343,7 @@ reference flow and the adoption evidence defined in this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v20`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v20). Tags there never move, so
+[`harness-v21`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v21). Tags there never move, so
 the link is stable, and `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -347,7 +360,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v20/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v21/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v20/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v21/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.
