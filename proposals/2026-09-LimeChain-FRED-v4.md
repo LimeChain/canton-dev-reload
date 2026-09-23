@@ -105,7 +105,7 @@ file changes until the developer resumes or resets, and because the checkpoint i
 refuses to watch at startup while a commit is incomplete.
 
 Behaviour is declared in project configuration with command-line overrides. Hook declarations are
-committed with the project; interaction preferences stay with the developer. Fred prints its effective
+committed with the project. Interaction preferences stay with the developer. Fred prints its effective
 configuration at startup, so a setting that destroys data is never out of sight. Fred is interactive:
 a reload or a reset can be triggered without leaving the session. A reset re-invokes the startup
 sequence and, unlike a reload, discards party IDs, which it says first.
@@ -137,7 +137,7 @@ development participant it owns or has detected to be idle.
 
 `fred reload` performs a breaking-change reload against a participant the developer is already
 running. Real Daml projects are several packages, and compiled Daml embeds the package ID of its
-dependencies, so changing one leaves its dependents no longer fitting; the command handles the whole
+dependencies, so changing one leaves its dependents no longer fitting. The command handles the whole
 closure. This is what everything else is built on, and it remains the fallback once the supervisor
 exists.
 
@@ -330,8 +330,8 @@ reference flow and the adoption evidence defined in this proposal.
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v19`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v19). Tags there never move, so
-the link is stable; `main` should not be cited.
+[`harness-v20`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v20). Tags there never move, so
+the link is stable, and `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
 unvetted, one `propose_delta` against the synchronizer store removing the old package IDs and adding
@@ -347,7 +347,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v19/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v20/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v19/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v20/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.
