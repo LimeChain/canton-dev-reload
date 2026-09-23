@@ -221,8 +221,20 @@ renegotiated to account for USD/CC price volatility.
 
 ## Co-Marketing
 
-Upon release, LimeChain will collaborate with the Foundation on a technical blog post, a recorded
-walkthrough, and a presentation to the Daml Language and Developer Tooling SIG.
+As part of Milestone 4, LimeChain will create and publish the release assets below. Foundation
+amplification is requested, not assumed, and remains subject to the Foundation's editorial and
+channel approvals:
+
+- A technical article, "Changing a Daml model without restarting Canton, and why it needs no force
+  flag," explaining the developer problem, safety model, implementation boundaries and supporting
+  evidence.
+- A short recorded walkthrough showing a complete reload, the pre-flight and failure-safety checks,
+  recovery behavior and the resulting developer workflow.
+- A live walkthrough and Q&A for the Daml Language & Developer Tooling SIG, subject to SIG
+  scheduling, with the recording or slides published where permitted.
+- A documentation contribution covering installation, supported scenarios, limitations and
+  troubleshooting, plus a post-release update summarizing repository activity, user feedback and
+  adoption evidence gathered during Milestone 4.
 
 ---
 
@@ -256,23 +268,64 @@ supervisor is what makes it a development loop.
 
 ## About the Team
 
-LimeChain has built and shipped blockchain infrastructure and developer tooling since 2017.
+LimeChain is a blockchain engineering company founded in 2017. The evidence below is selected for
+direct funding with Daml Development Reload: SDK and CLI maintenance, local development, debugging
+and test tooling, package and dependency workflows, protocol-facing engineering, public releases,
+documentation, adoption and long-term maintenance.
 
-*Track record: **TBD before submission**. Named prior work, ecosystems and engagement durations to be
-listed here.*
+**Canton Network:** LimeChain members were named among Canton's inaugural Community Tech Partners, an
+invite-only volunteer developer-enablement program. For this proposal, LimeChain built and published
+an evidence-backed development-reload prototype tested on Canton 3.5.12 and dpm-sdk 3.5.5. Separately,
+LimeChain did R&D on a few initiatives including an open Daml Package Registry architecture as a dpm
+extension, direct Canton/Daml toolchain work, package-lifecycle analysis and public developer
+enablement, x402, Metamask adapters, while building several projects for clients on Canton around
+tokenization of financial instruments.
 
-How we work is visible in the evidence base. We set out to prove a result and then tried to disprove
-it: we found a mislabelling defect in our own harness, built a control that would fail if it could not
-tell the two configurations apart, re-ran the matrix against it, and published every log including the
-correction. The proof of concept also surfaced six defects in the toolchain, filed with Digital
-Asset.
+**Hedera:** key development partner, ongoing for more than five years. Hedera attributes the JSON-RPC
+Relay, Java SDK, Local Node environment and EVM-compatibility work including HIP-415 and HIP-376 to
+LimeChain. Relevance: sustained delivery and maintenance of SDKs, local-development environments,
+compatibility layers and public infrastructure.
+
+**Solana Foundation:** grant-funded and commissioned developer tooling. A Solana Foundation grant
+supported Zest, LimeChain's open-source Rust code-coverage CLI; the original repository now
+transparently points to its successor. LimeChain's tooling catalogue describes Gimlet, its maintained
+VS Code debugger, as created for the Foundation. In September 2026, a LimeChain-authored contribution
+adding Kamino scenario support was merged into the Foundation-owned Surfpool repository.
+
+**NEAR ecosystem:** Limechain has been a Wallet Selector maintainer and JavaScript tooling
+Contributor; added near-workspaces-based CI to near-api-js and security improvements to near-sdk-js;
+worked inside established SDK repositories on CI, integration testing, security and everyday developer
+workflows.
+
+**Polkadot ecosystem:** Polkadot Pioneers Prize-funded protocol implementation. Fruzhin is LimeChain's
+Java implementation of the Polkadot Host. Its public development branch reports light-client,
+full-node and authoring-node support. It has relevance to protocol and runtime engineering, state
+synchronization, node lifecycle and interoperability testing with clear production-readiness
+boundaries.
+
+**Additional open-source developer tooling:** ecosystem contributions; LimeChain's stylus-toolkit
+provides reusable Rust building blocks for Arbitrum Stylus, while Matchstick provides a Rust-based
+unit-testing framework for The Graph subgraphs. The direct relevance covers reusable libraries,
+package integration, sandboxed testing, release workflows and developer-facing documentation across
+different runtimes.
+
+**Evidence discipline.** The reload prototype reflects how LimeChain works: the team found a
+mislabeling defect in its own harness, corrected it, added a control that would fail if the harness
+could not distinguish the configurations being compared, re-ran the full matrix and published the logs
+and correction. The same work surfaced six toolchain defects and documented them separately.
+
+**Delivery and maintenance.** One senior engineer will lead implementation, supported by protocol and
+developer-tooling reviewers. LimeChain owns the component implementation, tests, release engineering,
+documentation, adoption support, Committee reporting and six months of post-release maintenance.
+Milestone acceptance remains tied to a clean-environment installation, independent execution of the
+reference flow and the adoption evidence defined in this proposal.
 
 ---
 
 ## Appendix: Mechanism and Evidence
 
 Public repository: <https://github.com/LimeChain/canton-dev-reload> (Apache-2.0), pinned at
-[`harness-v16`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v16). Tags there never move, so
+[`harness-v17`](https://github.com/LimeChain/canton-dev-reload/tree/harness-v17). Tags there never move, so
 the link is stable; `main` should not be cited.
 
 **What the evidence establishes.** Fourteen committed runs cover one sequence: archive, upload
@@ -289,7 +342,7 @@ behaviour and both thresholds are new work, as are the supervisor, the file watc
 designed here and unproven: our evidence substituted a polling JSON-API consumer, and Milestone 3
 requires it demonstrated against a real PQS and Postgres.
 
-[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v16/evidence/INDEX.md)
+[`evidence/INDEX.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v17/evidence/INDEX.md)
 maps each claim to its log and states what the runs do not establish.
-[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v16/docs/design-note.md)
+[`docs/design-note.md`](https://github.com/LimeChain/canton-dev-reload/blob/harness-v17/docs/design-note.md)
 specifies the reload core, the baseline lifecycle and the hook contract.

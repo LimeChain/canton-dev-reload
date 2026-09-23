@@ -36,6 +36,7 @@ depends on it.
 | `harness-v14` | **Documentation only.** Adds a fourth edition: the one-shot command becomes Milestone 1 and the live sandbox is built on it, with PQS as a managed component. Harness byte-identical to `harness-v5`. |
 | `harness-v15` | **Documentation only.** Renames the product's setup hook, makes the auto policy disarm after a failed commit, simplifies reset, and states the configuration principle. Harness byte-identical to `harness-v5`. |
 | `harness-v16` | **Documentation only.** Merges the command and closure milestones, separates PQS from adoption, and cuts delivery effort to 11 engineer-weeks. Harness byte-identical to `harness-v5`. |
+| `harness-v17` | **Documentation only.** Fills the team track record and rewrites Co-Marketing with the release assets. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 
