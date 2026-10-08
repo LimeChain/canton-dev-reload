@@ -104,9 +104,21 @@ COMMIT  (destructive; from here, resume rather than restart)
  10. dars.remove(old) <- optional
 ```
 
-**Step 10 is conditional when PQS is attached.** Removing the old DAR leaves history that references
-it unreadable, which breaks a PQS re-ingest. While PQS is configured the old DARs are retained for the
-life of the session. Unvetted packages cannot be submitted against, so retention costs nothing.
+**Step 10 is unconditional. An earlier version of this note was wrong here.** It claimed that
+removing the old DAR leaves its history unreadable and so breaks a PQS re-ingest, and that the old
+DARs therefore had to be retained while PQS was configured. That was reasoning, not a result, and the
+result goes the other way.
+
+A by-hand check on a 3.5.12 sandbox unvetted a package, removed its DAR, confirmed the package was
+absent from `packages.list()` (30 packages remained, none of them the target), and then read the
+transaction stream from the beginning: both the historical create and the archive came back with
+payloads intact. So the history a re-ingest depends on survives removal, and no DAR retention is
+required. **No committed log** — the check is not wired into the harness, so it carries the same
+status as the `repair.purge` claim in `evidence/INDEX.md`.
+
+Two caveats. PQS itself was not run; the check read the participant's transaction stream, which is
+the stream PQS consumes. And pruning is a separate matter, still untested: a pruned participant
+cannot serve the preceding events regardless of what happens to the DAR.
 
 Two details in that sequence are load-bearing, and both are evidenced:
 

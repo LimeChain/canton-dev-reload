@@ -42,6 +42,7 @@ depends on it.
 | `harness-v20` | **Documentation only.** Replaces three prose semicolons with full stops. Harness byte-identical to `harness-v5`. |
 | `harness-v21` | **Documentation only.** Deliverables become bullet lists, removing 23 semicolons. Harness byte-identical to `harness-v5`. |
 | `harness-v22` | **Documentation only.** Fixes the milestone delivery and effort lines running together. Harness byte-identical to `harness-v5`. |
+| `harness-v23` | **Documentation only.** Corrects the design note: removing the old DAR does **not** make its history unreadable, so no DAR retention is required when PQS is attached. The earlier claim was reasoning, not a result. Carries no committed log, like the `repair.purge` claim below. Harness byte-identical to `harness-v5`. |
 
 ## Force-flag matrix
 
