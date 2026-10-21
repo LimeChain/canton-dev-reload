@@ -1,7 +1,7 @@
 # Evidence index
 
 Every run here was produced from a clean sandbox by `scripts/70-matrix.sh`, `scripts/71-closure.sh`,
-`scripts/60-story.sh` or `scripts/80-timing.sh`, and carries a provenance header naming the harness
+`scripts/72-multisync.sh`, `scripts/60-story.sh` or `scripts/80-timing.sh`, and carries a provenance header naming the harness
 revision that produced it. A run that cannot assert its own provenance — dirty tree, drifted
 harness, or no reachable tag — voids itself and exits non-zero rather than producing a citable
 result.
@@ -11,12 +11,14 @@ from the value actually passed to Canton, not as requested by a label. Any quote
 in the proposal must be a verbatim contiguous excerpt from exactly one file listed here.
 
 **Comparison rule.** Rows are only comparable within a single `HARNESS_REV`. **Every log in this
-directory was produced at `harness-v5`**, in a single pass from a neutral checkout, so every row
-here is directly comparable to every other. `harness-v6` and later are documentation-only revisions
-that leave the harness byte-identical, so these logs remain current at the published tip — each row
-below says what changed, and `git diff --stat harness-v5 <tag> -- scripts console` is empty for every
-one of them. The tag history is kept below because the narrative of how the evidence was corrected
-depends on it.
+directory except `MS1` was produced at `harness-v5`**, in a single pass from a neutral checkout, so
+those rows are directly comparable to each other. `harness-v6` to `harness-v23` are documentation-only
+revisions that leave the harness byte-identical, so these logs remain current at the published tip —
+each row below says what changed, and `git diff --stat harness-v5 <tag> -- scripts console` is empty
+for every one of them. `harness-v24` adds the `MS1` row as two new files and changes no existing one,
+so `git diff --stat harness-v5 harness-v24 -- scripts console` lists only those two additions and the
+v5 logs remain current. `MS1` was produced at `harness-v24` and stands on its own. The tag history is
+kept below because the narrative of how the evidence was corrected depends on it.
 
 | Tag | What changed |
 |---|---|
@@ -43,6 +45,8 @@ depends on it.
 | `harness-v21` | **Documentation only.** Deliverables become bullet lists, removing 23 semicolons. Harness byte-identical to `harness-v5`. |
 | `harness-v22` | **Documentation only.** Fixes the milestone delivery and effort lines running together. Harness byte-identical to `harness-v5`. |
 | `harness-v23` | **Documentation only.** Corrects the design note: removing the old DAR does **not** make its history unreadable, so no DAR retention is required when PQS is attached. The earlier claim was reasoning, not a result. Carries no committed log, like the `repair.purge` claim below. Harness byte-identical to `harness-v5`. |
+| `harness-v24` | **Harness addition.** Adds the multi-synchronizer row: `scripts/72-multisync.sh` and `console/multisync.canton`. No existing script or console file changes, so the v5 logs remain current. The `MS1` log was produced at this tag. |
+| `harness-v25` | **Documentation only.** Commits the `MS1` log and indexes it below. Harness byte-identical to `harness-v24`. |
 
 ## Force-flag matrix
 
@@ -74,6 +78,30 @@ produce identical output, and "no force flag is needed" is unfalsifiable by our 
 
 Package IDs, which the builds reproduce exactly: `items` v1 `f598c7e1de1b` → v2 `04d8ea17faef`,
 `holders` v1 `92c6c3f57ebf` → v2 `3069c0dc4233`.
+
+## Multi-synchronizer
+
+`scripts/72-multisync.sh` against `dpm sandbox --multi-sync`: the `sandbox` participant connected to
+`synchronizer-1` (A) and `synchronizer-2` (B), `mirrors` v1 (`Text`) → v2 (`Int`). Log:
+`20261021T132713Z__MS1__multisync.log`, produced at `harness-v24`, 37 assertions and 5 error codes, all PASS.
+
+| Claim | Assertions | Result |
+|---|---|---|
+| An upload that also vets fails when two synchronizers are connected | `q1UploadVetFails`, `q1V1NotVetted`, `code-q1` | FAILED `PACKAGE_SERVICE_CANNOT_AUTODETECT_SYNCHRONIZER`; v1 vetted nowhere. Uploading unvetted and vetting per synchronizer works (`v1VettedOnBoth`). |
+| Vetting is per synchronizer, and each swap needs no force flag | `q2SwapAUnforced`, `q2SerialA`, `q2SerialBUnchanged`, `q2VettedA`, `q2VettedBUntouched`, `q4SwapBUnforced`, `q4SerialB`, `q4OnlyV2OnBoth` | The swap on A moves A's serial by 1 and leaves B's at 0; the swap on B then completes it. `ForceFlags.none` throughout. |
+| Between swaps, the old package stays usable on the unswapped synchronizer | `q3NewRoutesToA`, `q3NewRejectedOnB`, `code-q3newB`, `q3OldStillUsable`, `q3CheckCatchesStray` | v2 routes to A and is refused on B (`INVALID_PRESCRIBED_SYNCHRONIZER_ID`); **a v1 create still succeeds, routed to B**. The no-old-contracts check before B's swap catches it. |
+| After both swaps the old package is unusable | `q4NewUsableOnB`, `q4OldRejected`, `code-q4old` | v2 creates on B; v1 is refused everywhere (`NO_SYNCHRONIZER_FOR_SUBMISSION`). |
+| A contract left mid-reassignment is stranded | `q5InFlightListed`, `q5InFlightInAcs`, `q5InFlightArchiveFails`, `code-q5archive`, `q5LateAssignSucceeds`, `q5StrandedNoArchive`, `code-q5stranded`, `q5StrandedOnUnvetted` | It stays in the active set but cannot be archived (`UNKNOWN_CONTRACT_SYNCHRONIZERS`). Its assignment still succeeds after the swap, landing it on a synchronizer where its package is unvetted, where archival is refused. |
+| Completing the reassignment before archival prevents that | `q6AssignBeforeArchive`, `q6RemedyNotStranded` | The contract whose reassignment was completed first is archived normally and is not left on v1. |
+
+**Inputs.** This host cannot run `damlc` (x86_64 only, no Rosetta), so the row reused the
+`mirrors-v1.dar` and `mirrors-v2.dar` built by the harness on 2026-09-17 (`POC_PREBUILT_DIR`). The
+log asserts that each DAR's recorded source blob equals the committed `variants/Mirrors.v*.daml`
+(`prebuilt-v1-source`, `prebuilt-v2-source`) and that Canton derives the recorded package id on upload
+(`v1PackageId` `c17b5cb16a9d`, `v2PackageId` `dba33b18bff3`). On a host that can build, the driver
+builds them from source with `05-variant.sh` instead.
+
+**Scope.** One participant. Several participants across several synchronizers is not covered here.
 
 ## Timing
 
@@ -129,5 +157,7 @@ evidenced separately as a reload-only property.
   `upg2.canton` still load DARs from `/private/tmp` that do not exist, so that section of
   RESULTS.md is not reproducible and must be labelled historical until those fixtures are restored.
 - **PQS**, multi-participant behaviour, and in-flight submissions during the swap: untested.
+  Multi-synchronizer behaviour is covered for one participant by `MS1`; several participants across
+  several synchronizers, and PQS on a multi-synchronizer participant, are not.
 - **Contract identities.** The loop archives and recreates contracts; only the participant process
   and the party IDs survive.

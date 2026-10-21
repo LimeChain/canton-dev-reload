@@ -1,0 +1,91 @@
+#### ROW MS1  (multi-synchronizer)
+
+
+[1m=== setup: clean multi-synchronizer sandbox ===[0m
+sandbox ready, PID=54138  (multi-sync)
+
+[1m=== setup: reuse prebuilt mirrors v1 (Text) and v2 (Int) from /Users/georgiradev/Desktop/canton-demos ===[0m
+ASSERT prebuilt-v1-source  PASS  built from committed blob 137cb8f4736533416e3f00029acdc6995735b1c5
+ASSERT prebuilt-v2-source  PASS  built from committed blob 77569ab2574da63e4c90d9366857366130b2eb9f
+
+[1m=== MS1: reload across two synchronizers ===[0m
+ASSERT connectedSynchronizers PASS got=2 want=2
+SETUP A=synchronizer-1 B=synchronizer-2
+ASSERT q1UploadVetFails       PASS got=fail want=fail
+EXPECT_CODE q1 PACKAGE_SERVICE_CANNOT_AUTODETECT_SYNCHRONIZER
+ASSERT q1V1NotVetted          PASS got=A=false B=false want=A=false B=false
+ASSERT v1PackageId            PASS got=c17b5cb16a9d want=c17b5cb16a9d
+ASSERT v1VettedOnBoth         PASS got=A=true B=true want=A=true B=true
+ASSERT contractsPlaced        PASS got=A,B,A,A want=A,B,A,A
+ASSERT q5InFlightListed       PASS got=2 want=2
+ASSERT q5InFlightInAcs        PASS got=true want=true
+ASSERT q6AssignBeforeArchive  PASS got=succeed want=succeed
+ASSERT q5InFlightArchiveFails PASS got=fail want=fail
+EXPECT_CODE q5archive UNKNOWN_CONTRACT_SYNCHRONIZERS
+ASSERT onlyInFlightRemains    PASS got=1 want=1 (c3)
+ASSERT v2PackageId            PASS got=dba33b18bff3 want=dba33b18bff3
+ASSERT q2SwapAUnforced        PASS got=succeed want=succeed
+ASSERT q2SerialA              PASS got=1 want=1
+ASSERT q2SerialBUnchanged     PASS got=0 want=0
+ASSERT q2VettedA              PASS got=v1=false v2=true want=v1=false v2=true
+ASSERT q2VettedBUntouched     PASS got=v1=true v2=false want=v1=true v2=false
+ASSERT q3NewRoutesToA         PASS got=A want=A
+ASSERT q3NewRejectedOnB       PASS got=fail want=fail
+EXPECT_CODE q3newB INVALID_PRESCRIBED_SYNCHRONIZER_ID
+ASSERT q3OldStillUsable       PASS got=B want=B
+ASSERT q3CheckCatchesStray    PASS got=true want=true
+ASSERT q4SwapBUnforced        PASS got=succeed want=succeed
+ASSERT q4SerialB              PASS got=1 want=1
+ASSERT q4OnlyV2OnBoth         PASS got=A=true B=true want=v2 only on both
+ASSERT q4NewUsableOnB         PASS got=succeed want=succeed
+ASSERT q4OldRejected          PASS got=fail want=fail
+EXPECT_CODE q4old NO_SYNCHRONIZER_FOR_SUBMISSION
+ASSERT q5LateAssignSucceeds   PASS got=succeed want=succeed
+ASSERT q5StrandedNoArchive    PASS got=fail want=fail
+EXPECT_CODE q5stranded INVALID_PRESCRIBED_SYNCHRONIZER_ID
+ASSERT q5StrandedOnUnvetted   PASS got=1 want=1 (c3)
+ASSERT q6RemedyNotStranded    PASS got=false want=false
+VERDICT PASS
+
+[1m=== MS1: error codes behind each expected failure ===[0m
+ASSERT code-q1           PASS  PACKAGE_SERVICE_CANNOT_AUTODETECT_SYNCHRONIZER present in console output
+ASSERT code-q5archive    PASS  UNKNOWN_CONTRACT_SYNCHRONIZERS present in console output
+ASSERT code-q3newB       PASS  INVALID_PRESCRIBED_SYNCHRONIZER_ID present in console output
+ASSERT code-q4old        PASS  NO_SYNCHRONIZER_FOR_SUBMISSION present in console output
+ASSERT code-q5stranded   PASS  INVALID_PRESCRIBED_SYNCHRONIZER_ID present in console output
+VERBATIM GrpcRequestRefusedByServer: FAILED_PRECONDITION/PACKAGE_SERVICE_CANNOT_AUTODETECT_SYNCHRONIZER(9,f0e3ea56): Cannot autodetect synchronizer: currently connected synchronizers synchronizer-1::122068039f28..., synchronizer-2::1220adf5a221...
+VERBATIM GrpcRequestRefusedByServer: FAILED_PRECONDITION/UNKNOWN_CONTRACT_SYNCHRONIZERS(9,804b4fc7): The synchronizers for the contracts (00faa2d24cad8d8a642c4ab9323f8d20a1314fd64f77e529771df8ff33ad56a3a4ca121220ce3efe9510e662fbca9fa358cb4e2cf5ac6ffce96ee41d31d
+VERBATIM GrpcRequestRefusedByServer: FAILED_PRECONDITION/INVALID_PRESCRIBED_SYNCHRONIZER_ID(9,0): Cannot submit transaction to prescribed synchronizer `synchronizer-2::1220adf5a221...` because: Some packages are not known to all informees on synchronizer syn
+VERBATIM GrpcRequestRefusedByServer: FAILED_PRECONDITION/NO_SYNCHRONIZER_FOR_SUBMISSION(9,0): No valid synchronizer for submission found. Discarded synchronizers: synchronizer-1::122068039f28...::35-0: Some packages are not known to all informees on sync
+
+[1m=== provenance ===[0m
+==== ENVIRONMENT ====================================================
+utc              2026-10-21T13:27:42Z
+host             Darwin 27.0.0 arm64
+dpm              version: 1.0.21 build: c4b92eb buildDate: c4b92eb 
+java             openjdk version "21.0.12.1" 2026-08-18
+java_home        /opt/homebrew/opt/openjdk@21
+sandbox_pid      54138
+canton_jar       canton-open-source-3.5.12.jar
+==== PROVENANCE =====================================================
+head             818ba04ac14a8405192c2859dbb6756b704d31ab
+harness_tag      harness-v24
+HARNESS_REV      818ba04ac14a8405192c2859dbb6756b704d31ab
+assert_committed PASS  no committed change outside evidence/ since harness-v24
+assert_clean     PASS  working tree clean outside evidence/
+==== INPUTS =========================================================
+variant-v1  variant=v1
+variant-v1  mirrors_source=variants/Mirrors.v1.daml
+variant-v1  mirrors_blob=137cb8f4736533416e3f00029acdc6995735b1c5
+variant-v1  mirrors_pkgid=c17b5cb16a9d77bd395b104da3cb7433b4fa73ec34eb332bc3e47cbcb72276b9
+variant-v2  variant=v2
+variant-v2  mirrors_source=variants/Mirrors.v2.daml
+variant-v2  mirrors_blob=77569ab2574da63e4c90d9366857366130b2eb9f
+variant-v2  mirrors_pkgid=dba33b18bff3b4f03e0db7aa72140b02912cce695595e5c1e154d0a9bf7dc778
+dar mirrors-v1.dar                     afbdcc336157ae0c1bed83e9cc7c6ca83ad71ca58c8d45ec7aa7981e56e625bd
+dar mirrors-v2.dar                     4a08209bff5de8c67202c35f953de3197bc82ad23bb9a07a08948fb5e7b73ac0
+=====================================================================
+
+#### EXIT_CODE 0
+#### ROW MS1 PASS
+#### LOG evidence/20261021T132713Z__MS1__multisync.log
