@@ -1,0 +1,176 @@
+// Multi-synchronizer reload against `dpm sandbox --multi-sync`, with a machine-checked assertion
+// contract. The `sandbox` participant is connected to synchronizer-1 (A) and synchronizer-2 (B).
+//
+// What this row establishes, in order:
+//   Q1  an upload that also vets fails when more than one synchronizer is connected
+//   Q2  vetting is per synchronizer: a swap on A leaves B untouched, and needs no force flag
+//   Q3  between swaps, the old package stays usable on the unswapped synchronizer
+//   Q4  the swap on B completes the reload, again without a force flag
+//   Q5  a contract left mid-reassignment cannot be archived, and is stranded after the swap
+//   Q6  the remedy: completing the reassignment before archival leaves nothing stranded
+//
+// Error CODES are not assertable here: the console throws "Command execution failed." and routes
+// the decoded error to its logger. Each expected failure prints EXPECT_CODE, and the driver
+// asserts that code appears in the console output.
+//
+// Inputs: POC_V1_DAR, POC_V2_DAR (mirrors v1 = Text field, v2 = Int field, same name and version),
+//         POC_V1_PKG, POC_V2_PKG (main package ids recorded when each DAR was built).
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.ForceFlags
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.canton.protocol.LfContractId
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+
+def req(k: String): String =
+  sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+
+val failures = scala.collection.mutable.ListBuffer[String]()
+def check(name: String, ok: Boolean, got: String, want: String): Unit = {
+  println(f"ASSERT $name%-22s ${if (ok) "PASS" else "FAIL"}%-4s got=$got want=$want")
+  if (!ok) failures += s"$name got=$got want=$want"
+}
+def attempt[T](f: => T): Either[String, T] = scala.util.Try(f) match {
+  case scala.util.Success(v) => Right(v)
+  case scala.util.Failure(e) => Left(Option(e.getMessage).getOrElse(e.toString).take(120))
+}
+def ok(e: Either[String, _]) = if (e.isRight) "succeed" else "fail"
+def expectCode(step: String, code: String): Unit = println(s"EXPECT_CODE $step $code")
+
+// ---- synchronizers --------------------------------------------------------------------------
+val conns = sandbox.synchronizers.list_connected()
+check("connectedSynchronizers", conns.size == 2, conns.size.toString, "2")
+val sorted = conns.sortBy(_.synchronizerAlias.unwrap)
+val (psA, psB) = (sorted(0).physicalSynchronizerId, sorted(1).physicalSynchronizerId)
+val (aliasA, aliasB) = (sorted(0).synchronizerAlias.unwrap, sorted(1).synchronizerAlias.unwrap)
+val A = psA.logical; val B = psB.logical
+// MUST target each synchronizer store explicitly (see one-op.canton for the Authorized-store trap).
+val (stA, stB) = (TopologyStoreId.Synchronizer(psA), TopologyStoreId.Synchronizer(psB))
+println(s"SETUP A=$aliasA B=$aliasB")
+
+def mine(st: TopologyStoreId) =
+  sandbox.topology.vetted_packages.list(store = Some(st)).filter(_.item.participantId == sandbox.id)
+def vetted(st: TopologyStoreId): Set[String] = mine(st).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(st: TopologyStoreId): Long = mine(st).map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+def swap(st: TopologyStoreId, add: String, remove: String) =
+  sandbox.topology.vetted_packages.propose_delta(sandbox.id, adds = Seq(VettedPackage(add, None, None)),
+    removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(remove)), store = st,
+    force = ForceFlags.none)
+
+// ---- Q1: upload with vetting, no synchronizer named ------------------------------------------
+val q1 = attempt(sandbox.dars.upload(req("POC_V1_DAR"), vetAllPackages = true))
+check("q1UploadVetFails", q1.isLeft, ok(q1), "fail")
+expectCode("q1", "PACKAGE_SERVICE_CANNOT_AUTODETECT_SYNCHRONIZER")
+// The sandbox pre-vets its own library packages, so check mirrors v1 itself, by its recorded id.
+check("q1V1NotVetted", !vetted(stA).contains(req("POC_V1_PKG")) && !vetted(stB).contains(req("POC_V1_PKG")),
+  s"A=${vetted(stA).contains(req("POC_V1_PKG"))} B=${vetted(stB).contains(req("POC_V1_PKG"))}", "A=false B=false")
+
+// The working path: upload unvetted, then vet on each synchronizer explicitly.
+val V1 = sandbox.dars.upload(req("POC_V1_DAR"), vetAllPackages = false)
+Seq(stA, stB).foreach(st => sandbox.topology.vetted_packages.propose_delta(
+  sandbox.id, adds = Seq(VettedPackage(V1, None, None)), store = st))
+check("v1PackageId", V1 == req("POC_V1_PKG"), V1.take(12), req("POC_V1_PKG").take(12))
+check("v1VettedOnBoth", vetted(stA).contains(V1) && vetted(stB).contains(V1),
+  s"A=${vetted(stA).contains(V1)} B=${vetted(stB).contains(V1)}", "A=true B=true")
+
+// ---- contracts on each synchronizer -----------------------------------------------------------
+val alice = sandbox.parties.enable("Alice", synchronizer = Some(aliasA))
+sandbox.parties.enable("Alice", synchronizer = Some(aliasB))
+def tid(pkg: String) = Identifier(pkg, "Mirrors", "Mirror")
+def create(pkg: String, value: Value, sync: Option[com.digitalasset.canton.topology.SynchronizerId]) =
+  sandbox.ledger_api.commands.submit(Seq(alice), Seq(Command(Command.Command.Create(CreateCommand(
+    templateId = Some(tid(pkg)),
+    createArguments = Some(Record(fields = Seq(
+      RecordField("owner", Some(Value(Value.Sum.Party(alice.toProtoPrimitive)))),
+      RecordField("value", Some(value))))))))), synchronizerId = sync)
+def archive(pkg: String, cid: String) =
+  sandbox.ledger_api.commands.submit(Seq(alice), Seq(Command(Command.Command.Exercise(ExerciseCommand(
+    templateId = Some(tid(pkg)), contractId = cid, choice = "Archive",
+    choiceArgument = Some(Value(Value.Sum.Record(Record()))))))))
+def cid(tx: com.daml.ledger.api.v2.transaction.Transaction) = tx.events.head.getCreated.contractId
+def on(tx: com.daml.ledger.api.v2.transaction.Transaction) =
+  if (tx.synchronizerId == A.toProtoPrimitive) "A" else if (tx.synchronizerId == B.toProtoPrimitive) "B" else "?"
+def activeOn(pkg: String): Seq[String] =
+  sandbox.ledger_api.state.acs.of_party(alice).filter(_.templateId.packageId == pkg).map(_.contractId)
+val TXT = Value(Value.Sum.Text("old")); val INT = Value(Value.Sum.Int64(42))
+
+val c1 = create(V1, TXT, Some(A)); val c2 = create(V1, TXT, Some(B))
+val c3 = create(V1, TXT, Some(A)) // left mid-reassignment: the hazard
+val c4 = create(V1, TXT, Some(A)) // reassignment completed before archival: the remedy
+check("contractsPlaced", Seq(on(c1), on(c2), on(c3), on(c4)) == Seq("A", "B", "A", "A"),
+  Seq(on(c1), on(c2), on(c3), on(c4)).mkString(","), "A,B,A,A")
+
+// ---- Q5/Q6 setup: unassign c3 and c4 from A towards B ------------------------------------------
+def lf(c: String) = LfContractId.assertFromString(c)
+val u3 = sandbox.ledger_api.commands.submit_unassign(alice, Seq(lf(cid(c3))), A, B)
+val u4 = sandbox.ledger_api.commands.submit_unassign(alice, Seq(lf(cid(c4))), A, B)
+val inFlight = sandbox.ledger_api.state.acs.incomplete_unassigned_of_party(alice).size
+check("q5InFlightListed", inFlight == 2, inFlight.toString, "2")
+check("q5InFlightInAcs", activeOn(V1).contains(cid(c3)), activeOn(V1).contains(cid(c3)).toString, "true")
+
+// Remedy (what Fred does): complete c4's reassignment, then archive it where it landed.
+val a4 = attempt(sandbox.ledger_api.commands.submit_assign(alice, u4.reassignmentId, A, B))
+check("q6AssignBeforeArchive", a4.isRight, ok(a4), "succeed")
+
+// ---- archive the old contracts --------------------------------------------------------------
+Seq(c1, c2, c4).foreach(tx => archive(V1, cid(tx)))
+val q5Archive = attempt(archive(V1, cid(c3)))
+check("q5InFlightArchiveFails", q5Archive.isLeft, ok(q5Archive), "fail")
+expectCode("q5archive", "UNKNOWN_CONTRACT_SYNCHRONIZERS")
+check("onlyInFlightRemains", activeOn(V1) == Seq(cid(c3)), activeOn(V1).size.toString, "1 (c3)")
+
+// ---- Q2: upload v2 unvetted, swap on A only ---------------------------------------------------
+val V2 = sandbox.dars.upload(req("POC_V2_DAR"), vetAllPackages = false)
+check("v2PackageId", V2 == req("POC_V2_PKG"), V2.take(12), req("POC_V2_PKG").take(12))
+val (preA, preB) = (serial(stA), serial(stB))
+val q2 = attempt(swap(stA, V2, V1))
+check("q2SwapAUnforced", q2.isRight, ok(q2), "succeed")
+check("q2SerialA", serial(stA) - preA == 1, (serial(stA) - preA).toString, "1")
+check("q2SerialBUnchanged", serial(stB) == preB, (serial(stB) - preB).toString, "0")
+check("q2VettedA", !vetted(stA).contains(V1) && vetted(stA).contains(V2),
+  s"v1=${vetted(stA).contains(V1)} v2=${vetted(stA).contains(V2)}", "v1=false v2=true")
+check("q2VettedBUntouched", vetted(stB).contains(V1) && !vetted(stB).contains(V2),
+  s"v1=${vetted(stB).contains(V1)} v2=${vetted(stB).contains(V2)}", "v1=true v2=false")
+
+// ---- Q3: the mixed state -------------------------------------------------------------------
+val q3new = attempt(on(create(V2, INT, None)))
+check("q3NewRoutesToA", q3new == Right("A"), q3new.fold(_ => "fail", identity), "A")
+val q3newB = attempt(create(V2, INT, Some(B)))
+check("q3NewRejectedOnB", q3newB.isLeft, ok(q3newB), "fail")
+expectCode("q3newB", "INVALID_PRESCRIBED_SYNCHRONIZER_ID")
+val q3old = attempt(create(V1, TXT, None))
+check("q3OldStillUsable", q3old.map(on) == Right("B"), q3old.fold(_ => "fail", on), "B")
+// Fred's repeated no-old-contracts check before the next swap catches the new old-package contract.
+val stray = q3old.toOption.map(cid).toSeq
+check("q3CheckCatchesStray", stray.nonEmpty && stray.forall(activeOn(V1).contains),
+  stray.forall(activeOn(V1).contains).toString, "true")
+stray.foreach(archive(V1, _))
+
+// ---- Q4: swap on B --------------------------------------------------------------------------
+val preB2 = serial(stB)
+val q4 = attempt(swap(stB, V2, V1))
+check("q4SwapBUnforced", q4.isRight, ok(q4), "succeed")
+check("q4SerialB", serial(stB) - preB2 == 1, (serial(stB) - preB2).toString, "1")
+check("q4OnlyV2OnBoth", Seq(stA, stB).forall(st => !vetted(st).contains(V1) && vetted(st).contains(V2)),
+  s"A=${vetted(stA).contains(V2)} B=${vetted(stB).contains(V2)}", "v2 only on both")
+val q4newB = attempt(create(V2, INT, Some(B)))
+check("q4NewUsableOnB", q4newB.isRight, ok(q4newB), "succeed")
+val q4old = attempt(create(V1, TXT, None))
+check("q4OldRejected", q4old.isLeft, ok(q4old), "fail")
+expectCode("q4old", "NO_SYNCHRONIZER_FOR_SUBMISSION")
+
+// ---- Q5: the in-flight contract lands after the swap and is stranded -------------------------
+val a3 = attempt(sandbox.ledger_api.commands.submit_assign(alice, u3.reassignmentId, A, B))
+check("q5LateAssignSucceeds", a3.isRight, ok(a3), "succeed")
+val a3Archive = attempt(archive(V1, cid(c3)))
+check("q5StrandedNoArchive", a3Archive.isLeft, ok(a3Archive), "fail")
+expectCode("q5stranded", "INVALID_PRESCRIBED_SYNCHRONIZER_ID")
+check("q5StrandedOnUnvetted", activeOn(V1) == Seq(cid(c3)), activeOn(V1).size.toString, "1 (c3)")
+check("q6RemedyNotStranded", !activeOn(V1).contains(cid(c4)), activeOn(V1).contains(cid(c4)).toString, "false")
+
+if (failures.nonEmpty) {
+  println(s"VERDICT FAIL (${failures.size}): ${failures.mkString("; ")}")
+  throw new RuntimeException(s"assertion contract failed: ${failures.mkString("; ")}")
+} else {
+  println("VERDICT PASS")
+}
