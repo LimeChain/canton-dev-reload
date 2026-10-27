@@ -2,7 +2,7 @@
 
 **Organization:** [LimeChain](https://limechain.tech)<br>
 **Authors / Primary Contacts:** Georgi Radev ([georgi.radev@limechain.tech](mailto:georgi.radev@limechain.tech)), Ivaylo Bakalov, Veselin Mihaylov<br>
-**Status:** Draft<br>
+**Status:** Submitted<br>
 **Created:** 2026-09-14<br>
 **Proposal Type:** RFP-aligned<br>
 **RFP / Roadmap Area:** Developer Experience, Tooling & Education. RFP 19 (DPM Components and Extension Ecosystem), secondary RFP 18 (Integration into SDLCs)<br>
