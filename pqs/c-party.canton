@@ -1,0 +1,10 @@
+// Allocate a NEW party and create one Items contract as that party (PQS should not know it yet).
+val name = env("PARTY_NAME"); val items = env("ITEMS")
+val p = sandbox.parties.enable(name)
+val args = Record(fields = Seq(
+  RecordField("owner", Some(Value(Value.Sum.Party(p.toProtoPrimitive)))),
+  RecordField("label", Some(Value(Value.Sum.Text(s"from-$name"))))))
+val create = CreateCommand(templateId = Some(Identifier(items, "Items", "Item")), createArguments = Some(args))
+val tx = sandbox.ledger_api.commands.submit(Seq(p), Seq(Command(Command.Command.Create(create))))
+println(s"T PARTY=${p.toProtoPrimitive}"); println(s"T CID=${tx.events.head.getCreated.contractId}")
+println(s"T LASTTX=${tx.offset}"); println(s"T END=${end()}")

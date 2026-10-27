@@ -1,0 +1,64 @@
+// FRED reload steps against a CN QuickStart participant (run inside QuickStart's console container).
+// Env: P (participant name: app-provider | app-user), PARTY (full party id PQS reads as), PHASE,
+// plus per phase: DAR / PKG / OLD / NEW_DAR / TY.
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.canton.topology.PartyId
+def env(k: String) = sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+val p = participants.remote.find(_.name == env("P")).getOrElse(throw new RuntimeException(s"no participant ${env("P")}"))
+val party = PartyId.tryFromProtoPrimitive(env("PARTY"))
+val conns = p.synchronizers.list_connected()
+println(s"T SYNCS=${conns.map(_.synchronizerAlias.unwrap).mkString(",")}")
+val store = TopologyStoreId.Synchronizer(conns.head.physicalSynchronizerId)
+def vetted(): Set[String] = p.topology.vetted_packages.list(store = Some(store))
+  .filter(_.item.participantId == p.id).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def end(): Long = p.ledger_api.state.end()
+var lastTx = 0L
+// The token is only valid for its own ledger user (its `sub`), not the console's default user id.
+// The console's synchronous submit then reads the transaction back for every party it knows,
+// which a single-party token may not; so submit async and take the offset from the completion.
+def submit(cmd: Command.Command): Unit = {
+  val before = end()
+  p.ledger_api.commands.submit_async(Seq(party), Seq(Command(cmd)), userId = env("LEDGER_USER"))
+  val c = p.ledger_api.completions.list(party, atLeastNumCompletions = 1, beginOffsetExclusive = before,
+    userId = env("LEDGER_USER")).head
+  if (c.status.exists(_.code != 0)) throw new RuntimeException(s"command failed: ${c.status}")
+  lastTx = c.offset
+}
+def mirrorValue(ty: String, i: Int): Value = ty match {
+  case "Text" => Value(Value.Sum.Text(s"text-$i")); case "Int" => Value(Value.Sum.Int64(40L + i))
+}
+def create(pkg: String, ty: String, i: Int) = submit(Command.Command.Create(CreateCommand(
+  templateId = Some(Identifier(pkg, "Mirrors", "Mirror")),
+  createArguments = Some(Record(fields = Seq(
+    RecordField("owner", Some(Value(Value.Sum.Party(party.toProtoPrimitive)))),
+    RecordField("value", Some(mirrorValue(ty, i)))))))))
+def activeOf(pkg: String) = p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == pkg)
+
+env("PHASE") match {
+  case "init" =>
+    // g1, uploaded and vetted the normal way (one synchronizer), two contracts.
+    val g1 = p.dars.upload(env("DAR"))
+    if (!vetted().contains(g1)) throw new RuntimeException("g1 not vetted")
+    (1 to 2).foreach(i => create(g1, "Text", i))
+    println(s"T G1=$g1"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+  case "archive" =>
+    val pkg = env("PKG")
+    activeOf(pkg).foreach(c => submit(Command.Command.Exercise(ExerciseCommand(
+      templateId = Some(Identifier(pkg, "Mirrors", "Mirror")), contractId = c.contractId,
+      choice = "Archive", choiceArgument = Some(Value(Value.Sum.Record(Record())))))))
+    if (activeOf(pkg).nonEmpty) throw new RuntimeException("old contracts still active")
+    println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+  case "swap" =>
+    // Upload unvetted, swap old -> new in one topology transaction, two new contracts.
+    val oldId = env("OLD")
+    val newId = p.dars.upload(env("NEW_DAR"), vetAllPackages = false)
+    p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(newId, None, None)),
+      removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(oldId)), store = store)
+    val v = vetted()
+    if (v.contains(oldId) || !v.contains(newId)) throw new RuntimeException("swap did not take effect")
+    (1 to 2).foreach(i => create(newId, env("TY"), i))
+    println(s"T NEW=$newId"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+}

@@ -47,6 +47,7 @@ kept below because the narrative of how the evidence was corrected depends on it
 | `harness-v23` | **Documentation only.** Corrects the design note: removing the old DAR does **not** make its history unreadable, so no DAR retention is required when PQS is attached. The earlier claim was reasoning, not a result. Carries no committed log, like the `repair.purge` claim below. Harness byte-identical to `harness-v5`. |
 | `harness-v24` | **Harness addition.** Adds the multi-synchronizer row: `scripts/72-multisync.sh` and `console/multisync.canton`. No existing script or console file changes, so the v5 logs remain current. The `MS1` log was produced at this tag. |
 | `harness-v25` | **Documentation only.** Commits the `MS1` log and indexes it below. Harness byte-identical to `harness-v24`. |
+| `harness-v26` | **Harness addition.** Adds the PQS rows: `pqs/` (suite, console scripts, fixtures and their sources) and `scripts/73-pqs.sh`. No existing script or console file changes, so the v5 and `MS1` logs remain current. The PQS logs were produced at this tag. |
 
 ## Force-flag matrix
 

@@ -1,0 +1,7 @@
+module LabelledApi where
+
+data LView = LView with
+    owner : Party
+
+interface Labelled where
+  viewtype LView

@@ -1,0 +1,15 @@
+// Like c-init.canton, but every init transaction's own offset goes into manifest lines:
+// T C=<contract id>,<create offset>,<label>,<expected state>.
+sandbox.parties.enable("Alice")
+val items = sandbox.dars.upload(env("ITEMS_DAR"))
+def mkItem(label: String) = submit(Command.Command.Create(CreateCommand(templateId = Some(Identifier(items, "Items", "Item")),
+  createArguments = Some(Record(fields = Seq(RecordField("owner", Some(party)), RecordField("label", Some(Value(Value.Sum.Text(label))))))))))
+val a = mkItem("anchor"); val anchor = a.events.head.getCreated.contractId
+val c = mkItem("collateral"); val collateral = c.events.head.getCreated.contractId
+val arch = archiveC(items, "Items", "Item", collateral)
+val g1 = sandbox.dars.upload(env("G1_DAR"))
+if (!vetted().contains(g1)) throw new RuntimeException("g1 not vetted after upload")
+println(s"T C=$anchor,${a.offset},init-anchor,active")
+println(s"T C=$collateral,${c.offset},init-collateral,archived@${arch.offset}")
+println(s"T ITEMS=$items"); println(s"T G1=$g1"); println(s"T NS=${alice.toProtoPrimitive.split("::")(1)}")
+println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

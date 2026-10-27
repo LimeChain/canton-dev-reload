@@ -1,0 +1,10 @@
+// Upload NEW_DAR unvetted, then swap OLD -> NEW in one topology transaction; verify the serial moved.
+val oldId = env("OLD")
+val newId = sandbox.dars.upload(env("NEW_DAR"), vetAllPackages = false)
+val pre = serial()
+sandbox.topology.vetted_packages.propose_delta(sandbox.id, adds = Seq(VettedPackage(newId, None, None)),
+  removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(oldId)), store = store)
+val v = vetted()
+if (serial() - pre != 1 || v.contains(oldId) || !v.contains(newId))
+  throw new RuntimeException(s"swap did not take effect: delta=${serial() - pre} old=${v.contains(oldId)} new=${v.contains(newId)}")
+println(s"T NEW=$newId"); println(s"T END=${end()}")

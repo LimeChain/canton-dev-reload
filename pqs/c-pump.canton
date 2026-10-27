@@ -1,0 +1,8 @@
+// Create COUNT Items for Alice labelled LABEL-<i>; one manifest line per create with its own offset.
+val items = env("ITEMS"); val label = env("LABEL"); val from = sys.env.getOrElse("FROM", "1").toInt
+(from until from + env("COUNT").toInt).foreach { i =>
+  val tx = submit(Command.Command.Create(CreateCommand(templateId = Some(Identifier(items, "Items", "Item")),
+    createArguments = Some(Record(fields = Seq(RecordField("owner", Some(party)), RecordField("label", Some(Value(Value.Sum.Text(s"$label-$i"))))))))))
+  println(s"T C=${tx.events.head.getCreated.contractId},${tx.offset},$label-$i,active")
+}
+println(s"T NS=${alice.toProtoPrimitive.split("::")(1)}"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

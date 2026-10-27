@@ -1,0 +1,106 @@
+// Multi-synchronizer phases for runM.sh (`dpm sandbox --multi-sync`: one participant, two
+// synchronizers A and B). PHASE selects the step; ids from earlier phases come in through env.
+import com.digitalasset.canton.protocol.LfContractId
+val sorted = sandbox.synchronizers.list_connected().sortBy(_.synchronizerAlias.unwrap)
+if (sorted.size != 2) throw new RuntimeException(s"expected 2 synchronizers, got ${sorted.size}")
+val (psA, psB) = (sorted(0).physicalSynchronizerId, sorted(1).physicalSynchronizerId)
+val (aliasA, aliasB) = (sorted(0).synchronizerAlias.unwrap, sorted(1).synchronizerAlias.unwrap)
+val SA = psA.logical; val SB = psB.logical
+val stA = TopologyStoreId.Synchronizer(psA); val stB = TopologyStoreId.Synchronizer(psB)
+def vettedOn(st: TopologyStoreId): Set[String] = sandbox.topology.vetted_packages.list(store = Some(st))
+  .filter(_.item.participantId == sandbox.id).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def vetBoth(pkg: String) = Seq(stA, stB).foreach(st => sandbox.topology.vetted_packages.propose_delta(
+  sandbox.id, adds = Seq(VettedPackage(pkg, None, None)), store = st))
+def swapOn(st: TopologyStoreId, add: String, remove: String) =
+  sandbox.topology.vetted_packages.propose_delta(sandbox.id, adds = Seq(VettedPackage(add, None, None)),
+    removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(remove)), store = st)
+def createOn(sync: com.digitalasset.canton.topology.SynchronizerId, pkg: String, mod: String, ent: String,
+             fields: Seq[(String, Value)]) = {
+  val tx = sandbox.ledger_api.commands.submit(Seq(alice), Seq(Command(Command.Command.Create(CreateCommand(
+    templateId = Some(Identifier(pkg, mod, ent)),
+    createArguments = Some(Record(fields = fields.map { case (k, v) => RecordField(k, Some(v)) })))))),
+    synchronizerId = Some(sync))
+  if (tx.synchronizerId != sync.toProtoPrimitive) throw new RuntimeException(s"create landed on ${tx.synchronizerId}")
+  lastTx = tx.offset; tx.events.head.getCreated.contractId
+}
+def onSync(cid: String): String = {
+  val s = sandbox.ledger_api.state.acs.of_party(alice).find(_.contractId == cid).flatMap(_.synchronizerId)
+  s match { case Some(x) if x == SA => "A"; case Some(x) if x == SB => "B"
+            case Some(x) => x.toString; case None => "none" }
+}
+def lf(c: String) = LfContractId.assertFromString(c)
+def mirror(pkg: String, ty: String, i: Int) = Seq("owner" -> party, "value" -> mirrorValue(ty, i))
+println(s"T SYNC_A=$aliasA"); println(s"T SYNC_B=$aliasB")
+
+env("PHASE") match {
+  case "init" =>
+    // Alice on both; items and g1 uploaded unvetted, then vetted on each synchronizer explicitly
+    // (an upload that vets fails with two synchronizers connected, see harness row MS1).
+    sandbox.parties.enable("Alice", synchronizer = Some(aliasA))
+    sandbox.parties.enable("Alice", synchronizer = Some(aliasB))
+    val items = sandbox.dars.upload(env("ITEMS_DAR"), vetAllPackages = false); vetBoth(items)
+    val g1 = sandbox.dars.upload(env("G1_DAR"), vetAllPackages = false); vetBoth(g1)
+    val anchor = createOn(SA, items, "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text("anchor"))))
+    val collateral = createOn(SB, items, "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text("collateral"))))
+    archiveC(items, "Items", "Item", collateral)
+    val m1 = createOn(SA, g1, "Mirrors", "Mirror", mirror(g1, "Text", 1))
+    val m2 = createOn(SB, g1, "Mirrors", "Mirror", mirror(g1, "Text", 2))
+    val m3 = createOn(SA, g1, "Mirrors", "Mirror", mirror(g1, "Text", 3))  // moved A->B, completed
+    val m4 = createOn(SA, g1, "Mirrors", "Mirror", mirror(g1, "Text", 4))  // left mid-move for a while
+    println(s"T ITEMS=$items"); println(s"T G1=$g1"); println(s"T ANCHOR=$anchor"); println(s"T COLLATERAL=$collateral")
+    println(s"T M1=$m1"); println(s"T M2=$m2"); println(s"T M3=$m3"); println(s"T M4=$m4")
+    println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+
+  case "reassign" =>
+    // m3: unassign A->B and assign on B. m4: unassign only, left in flight.
+    val u3 = sandbox.ledger_api.commands.submit_unassign(alice, Seq(lf(env("M3"))), SA, SB)
+    sandbox.ledger_api.commands.submit_assign(alice, u3.reassignmentId, SA, SB)
+    val u4 = sandbox.ledger_api.commands.submit_unassign(alice, Seq(lf(env("M4"))), SA, SB)
+    val inFlight = sandbox.ledger_api.state.acs.incomplete_unassigned_of_party(alice).map(_.contractId)
+    if (!inFlight.contains(env("M4"))) throw new RuntimeException("m4 not in flight")
+    println(s"T M3_ON=${onSync(env("M3"))}"); println(s"T M4_INFLIGHT=${inFlight.contains(env("M4"))}")
+    println(s"T U4=${u4.reassignmentId}"); println(s"T END=${end()}")
+
+  case "other-party" =>
+    // A party PQS is not restricted to (NAME), hosted on A only (BOTH=1: on both), with one Items contract.
+    val p = sandbox.parties.enable(env("NAME"), synchronizer = Some(aliasA))
+    if (sys.env.get("BOTH").contains("1")) sandbox.parties.enable(env("NAME"), synchronizer = Some(aliasB))
+    val tx = sandbox.ledger_api.commands.submit(Seq(p), Seq(Command(Command.Command.Create(CreateCommand(
+      templateId = Some(Identifier(env("ITEMS"), "Items", "Item")),
+      createArguments = Some(Record(fields = Seq(
+        RecordField("owner", Some(Value(Value.Sum.Party(p.toProtoPrimitive)))),
+        RecordField("label", Some(Value(Value.Sum.Text(env("NAME")))))))))))), synchronizerId = Some(SA))
+    println(s"T OTHER_ITEM=${tx.events.head.getCreated.contractId}"); println(s"T OTHER_TX=${tx.offset}")
+    println(s"T END=${end()}")
+
+  case "marker" =>
+    // One plain transaction, so PQS has something to checkpoint after the reassignments.
+    createOn(SA, env("ITEMS"), "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text(env("LABEL")))))
+    println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+
+  case "complete" =>
+    // FRED's remedy before archival: complete every in-flight move.
+    sandbox.ledger_api.commands.submit_assign(alice, env("U4"), SA, SB)
+    val left = sandbox.ledger_api.state.acs.incomplete_unassigned_of_party(alice).size
+    if (left != 0) throw new RuntimeException(s"$left still in flight")
+    println(s"T M4_ON=${onSync(env("M4"))}"); println(s"T END=${end()}")
+
+  case "archive" =>
+    val pkg = env("PKG")
+    val on = activeOf(pkg).map(c => onSync(c.contractId)).sorted.mkString(",")
+    activeOf(pkg).foreach(c => archiveC(pkg, "Mirrors", "Mirror", c.contractId))
+    if (activeOf(pkg).nonEmpty) throw new RuntimeException("old contracts still active")
+    println(s"T ARCHIVED_ON=$on"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+
+  case "swap" =>
+    // One swap per synchronizer, then one new contract on each.
+    val oldId = env("OLD")
+    val newId = sandbox.dars.upload(env("NEW_DAR"), vetAllPackages = false)
+    swapOn(stA, newId, oldId); swapOn(stB, newId, oldId)
+    for (st <- Seq(stA, stB)) if (vettedOn(st).contains(oldId) || !vettedOn(st).contains(newId))
+      throw new RuntimeException(s"swap incomplete on $st")
+    val nA = createOn(SA, newId, "Mirrors", "Mirror", mirror(newId, env("TY"), 1))
+    val nB = createOn(SB, newId, "Mirrors", "Mirror", mirror(newId, env("TY"), 2))
+    println(s"T NEW=$newId"); println(s"T NA=$nA"); println(s"T NB=$nB")
+    println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")
+}

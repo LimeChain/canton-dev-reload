@@ -1,0 +1,34 @@
+// Bulk load for runS.sh. BATCH creates (or archives) per transaction, one multi-command submit each.
+//   PHASE=items : COUNT active Items (label bulk-<i>), kept through the prune.
+//   PHASE=churn : COUNT Text mirrors on G1, then archive all of them; asserts none left in the ACS.
+//   PHASE=g2    : COUNT Int mirrors on G2; asserts exactly COUNT active (ACS read with an explicit limit).
+import com.digitalasset.canton.config.RequireTypes.PositiveInt
+val batch = env("BATCH").toInt; val count = env("COUNT").toInt
+var txs = 0
+def submitAll(cmds: Seq[Command.Command]) = cmds.grouped(batch).flatMap { g =>
+  val tx = sandbox.ledger_api.commands.submit(Seq(alice), g.map(c => Command(c))); lastTx = tx.offset; txs += 1
+  tx.events.filter(_.event.isCreated).map(_.getCreated.contractId)
+}.toVector
+def mk(pkg: String, mod: String, ent: String, fields: Seq[(String, Value)]) = Command.Command.Create(CreateCommand(
+  templateId = Some(Identifier(pkg, mod, ent)), createArguments = Some(Record(fields = fields.map { case (k, v) => RecordField(k, Some(v)) }))))
+def arch(pkg: String, mod: String, ent: String, cid: String) = Command.Command.Exercise(ExerciseCommand(
+  templateId = Some(Identifier(pkg, mod, ent)), contractId = cid, choice = "Archive", choiceArgument = Some(Value(Value.Sum.Record(Record())))))
+def activeCount(pkg: String) = sandbox.ledger_api.state.acs.of_party(alice, limit = PositiveInt.tryCreate(1000000))
+  .count(_.templateId.packageId == pkg)
+env("PHASE") match {
+  case "items" =>
+    val items = env("ITEMS")
+    val ids = submitAll((1 to count).map(i => mk(items, "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text(s"bulk-$i"))))))
+    if (ids.size != count) throw new RuntimeException(s"created ${ids.size} != $count")
+  case "churn" =>
+    val g1 = env("G1")
+    val ids = submitAll((1 to count).map(i => mk(g1, "Mirrors", "Mirror", Seq("owner" -> party, "value" -> Value(Value.Sum.Text(s"churn-$i"))))))
+    if (ids.size != count) throw new RuntimeException(s"created ${ids.size} != $count")
+    submitAll(ids.map(c => arch(g1, "Mirrors", "Mirror", c)))
+    val left = activeCount(g1); if (left != 0) throw new RuntimeException(s"$left g1 mirrors still active")
+  case "g2" =>  // COUNT Int mirrors on G2 (the later transaction after the reload)
+    val g2 = env("G2")
+    submitAll((1 to count).map(i => mk(g2, "Mirrors", "Mirror", Seq("owner" -> party, "value" -> Value(Value.Sum.Int64(40L + i))))))
+    val n = activeCount(g2); if (n != count) throw new RuntimeException(s"expected $count active on g2, got $n")
+}
+println(s"T TXS=$txs"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

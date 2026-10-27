@@ -1,0 +1,8 @@
+// Create COUNT Mirror contracts of PKG with field type TY; print each new id and check each one is
+// active (ACS read with an explicit limit), not the total active count.
+import com.digitalasset.canton.config.RequireTypes.PositiveInt
+val pkg = env("PKG"); val ty = env("TY"); val from = sys.env.getOrElse("FROM", "1").toInt
+val ids = (from until from + env("COUNT").toInt).map(i => createC(pkg, "Mirrors", "Mirror", Seq("owner" -> party, "value" -> mirrorValue(ty, i))))
+val acs = sandbox.ledger_api.state.acs.of_party(alice, limit = PositiveInt.tryCreate(100000)).map(_.contractId).toSet
+ids.foreach(c => if (!acs.contains(c)) throw new RuntimeException(s"new contract $c not active"))
+ids.foreach(c => println(s"T C=$c")); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

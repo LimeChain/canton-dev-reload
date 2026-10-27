@@ -1,0 +1,11 @@
+// Allocate Alice, upload items (vetted) and g1 (vetted), create the Items anchor (stays active)
+// and collateral (archived at once). Prints the offsets around it.
+sandbox.parties.enable("Alice")
+val items = sandbox.dars.upload(env("ITEMS_DAR"))
+val anchor = createC(items, "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text("anchor"))))
+val collateral = createC(items, "Items", "Item", Seq("owner" -> party, "label" -> Value(Value.Sum.Text("collateral"))))
+archiveC(items, "Items", "Item", collateral)
+val g1 = sandbox.dars.upload(env("G1_DAR"))
+if (!vetted().contains(g1)) throw new RuntimeException("g1 not vetted after upload")
+println(s"T ITEMS=$items"); println(s"T ANCHOR=$anchor"); println(s"T COLLATERAL=$collateral")
+println(s"T G1=$g1"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

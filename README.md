@@ -93,6 +93,21 @@ Two lines are worth understanding:
 - **`assert_clean` / `assert_committed`** anchor the run to a `harness-*` tag. If the working tree
   has any change outside `evidence/`, the run voids itself rather than producing a citable result.
 
+### PQS
+
+`pqs/` holds the Participant Query Store rows: how a reload affects PQS, and which clean-up works.
+They need Docker (a throwaway `postgres:16` on port 5499) and the PQS 3.5.7 jar that `dpm pqs`
+caches; `pqs/lib.sh` says how to point at another jar or JDK.
+
+```bash
+bash scripts/73-pqs.sh               # every PQS row, about 1.5 hours (most of it the 50,000 scale run)
+ROWS="A B" bash scripts/73-pqs.sh    # only some rows: A B X D V C M E I R S L
+```
+
+Logs go to `evidence/pqs/<stamp>/`, one directory per run, with numbered step logs, `steps.tsv`,
+`measures.tsv` and a `summary.tsv` for the whole pass. `evidence/pqs/README.md` states what each row
+shows. The CN QuickStart row (`pqs/quickstart/run.sh`) needs a running LocalNet and is run on its own.
+
 ## The demo
 
 ```bash

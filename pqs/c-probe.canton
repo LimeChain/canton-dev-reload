@@ -1,0 +1,11 @@
+// Ingest probe: signal READY, wait for GO, then submit COUNT single-create Items transactions,
+// printing each one's offset and wall-clock ms.
+val dir = env("PROBE_DIR"); val items = env("ITEMS")
+new java.io.File(s"$dir/READY").createNewFile()
+while (!new java.io.File(s"$dir/GO").exists) Thread.sleep(20)
+(1 to env("COUNT").toInt).foreach { i =>
+  val tx = submit(Command.Command.Create(CreateCommand(templateId = Some(Identifier(items, "Items", "Item")),
+    createArguments = Some(Record(fields = Seq(RecordField("owner", Some(party)), RecordField("label", Some(Value(Value.Sum.Text(s"probe-$i"))))))))))
+  println(s"T P=${tx.offset},${System.currentTimeMillis}")
+}
+println(s"T LASTTX=$lastTx")

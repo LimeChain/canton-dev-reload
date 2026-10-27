@@ -16,3 +16,6 @@ logs/
 
 # evidence logs ARE tracked: they are the proposal's citations
 !evidence/
+
+# the PQS fixtures are tracked: their package ids are pinned in pqs/fixtures/fixtures.tsv
+!pqs/fixtures/*.dar

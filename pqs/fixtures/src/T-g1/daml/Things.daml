@@ -1,0 +1,12 @@
+module Things where
+
+import LabelledApi
+
+template Thing
+  with
+    owner : Party
+    value : Text
+  where
+    signatory owner
+    interface instance Labelled for Thing where
+      view = LView with owner

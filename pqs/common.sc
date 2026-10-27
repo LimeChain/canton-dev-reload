@@ -1,0 +1,34 @@
+// Shared helpers. Every script throws on failure so the console exits non-zero.
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+def env(k: String) = sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+def alice = sandbox.parties.list().map(_.party).find(_.uid.identifier.unwrap == "Alice")
+  .getOrElse(throw new RuntimeException("Alice not allocated"))
+def end(): Long = sandbox.ledger_api.state.end()
+def store = TopologyStoreId.Synchronizer(sandbox.synchronizers.list_connected().head.physicalSynchronizerId)
+def vetted(): Set[String] = sandbox.topology.vetted_packages.list(store = Some(store))
+  .filter(_.item.participantId == sandbox.id).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(): Long = sandbox.topology.vetted_packages.list(store = Some(store))
+  .filter(_.item.participantId == sandbox.id).map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+// Offset of the last transaction this script submitted: PQS checkpoints only advance on
+// transactions it ingests, not on DAR uploads or topology changes that also move the ledger end.
+var lastTx = 0L
+def submit(cmd: Command.Command) = { val tx = sandbox.ledger_api.commands.submit(Seq(alice), Seq(Command(cmd))); lastTx = tx.offset; tx }
+def createC(pkg: String, mod: String, ent: String, fields: Seq[(String, Value)]) =
+  submit(Command.Command.Create(CreateCommand(templateId = Some(Identifier(pkg, mod, ent)),
+    createArguments = Some(Record(fields = fields.map { case (k, v) => RecordField(k, Some(v)) })))))
+    .events.head.getCreated.contractId
+def archiveC(pkg: String, mod: String, ent: String, cid: String) =
+  submit(Command.Command.Exercise(ExerciseCommand(templateId = Some(Identifier(pkg, mod, ent)),
+    contractId = cid, choice = "Archive", choiceArgument = Some(Value(Value.Sum.Record(Record()))))))
+def party = Value(Value.Sum.Party(alice.toProtoPrimitive))
+def mirrorValue(ty: String, i: Int): Value = ty match {
+  case "Text"    => Value(Value.Sum.Text(s"text-$i"))
+  case "Int"     => Value(Value.Sum.Int64(40L + i))
+  case "Bool"    => Value(Value.Sum.Bool(i % 2 == 0))
+  case "Decimal" => Value(Value.Sum.Numeric(s"$i.5"))
+  case other     => throw new IllegalArgumentException(s"unknown type $other")
+}
+def activeOf(pkg: String) = sandbox.ledger_api.state.acs.of_party(alice).filter(_.templateId.packageId == pkg)

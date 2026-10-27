@@ -1,0 +1,10 @@
+sdk-version: 3.5.5
+name: mirrors
+source: daml
+version: 1.0.0
+# NOTE: no daml-script dependency on purpose. The seed script lives in ../seed so that
+# the DAR we upload/vet/unvet contains ONLY the model. Bundling daml-script would drag
+# extra packages into the vetting set and confound the measurement.
+dependencies:
+  - daml-prim
+  - daml-stdlib

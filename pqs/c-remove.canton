@@ -1,0 +1,7 @@
+// Remove the OLD DAR (already unvetted by the swap) and confirm its package is gone from the store.
+val old = env("OLD")
+if (vetted().contains(old)) throw new RuntimeException(s"${old.take(12)} is still vetted")
+sandbox.dars.remove(old)
+val present = sandbox.packages.list().exists(_.packageId.toString == old)
+if (present) throw new RuntimeException(s"${old.take(12)} still in the package store after removal")
+println(s"T REMOVED=$old"); println(s"T END=${end()}")

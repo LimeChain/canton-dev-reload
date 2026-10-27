@@ -1,0 +1,3 @@
+// Ledger end and every party namespace this participant knows (for the stale-party signal).
+println(s"T END=${end()}")
+println(s"T NSLIST=${sandbox.parties.list().map(_.party.toProtoPrimitive.split("::")(1)).distinct.mkString(",")}")

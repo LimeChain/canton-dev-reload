@@ -1,0 +1,6 @@
+// Archive every active Mirror on PKG and confirm in the ACS that none remain.
+val pkg = env("PKG")
+activeOf(pkg).foreach(c => archiveC(pkg, sys.env.getOrElse("MOD","Mirrors"), sys.env.getOrElse("ENT","Mirror"), c.contractId))
+val left = activeOf(pkg).size
+if (left != 0) throw new RuntimeException(s"$left contracts still active on ${pkg.take(12)}")
+println(s"T REMAINING=$left"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

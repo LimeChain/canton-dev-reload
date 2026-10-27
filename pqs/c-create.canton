@@ -1,0 +1,5 @@
+// Create two Mirror contracts of PKG with field type TY.
+val pkg = env("PKG"); val ty = env("TY")
+val cids = (1 to 2).map(i => createC(pkg, sys.env.getOrElse("MOD","Mirrors"), sys.env.getOrElse("ENT","Mirror"), Seq("owner" -> party, "value" -> mirrorValue(ty, i))))
+if (activeOf(pkg).size != 2) throw new RuntimeException(s"expected 2 active on ${pkg.take(12)}, got ${activeOf(pkg).size}")
+println(s"T CREATED=${cids.size}"); println(s"T LASTTX=$lastTx"); println(s"T END=${end()}")

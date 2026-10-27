@@ -1,0 +1,9 @@
+sdk-version: 3.5.5
+name: things
+source: daml
+version: 1.0.0
+dependencies:
+  - daml-prim
+  - daml-stdlib
+data-dependencies:
+  - ../../iface-api.dar
