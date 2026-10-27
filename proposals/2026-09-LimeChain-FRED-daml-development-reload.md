@@ -7,7 +7,7 @@
 **Proposal Type:** RFP-aligned<br>
 **RFP / Roadmap Area:** Developer Experience, Tooling & Education. RFP 19 (DPM Components and Extension Ecosystem), secondary RFP 18 (Integration into SDLCs)<br>
 **Champion:** Curtis Hrischuk, Digital Asset ([hrischuk-da](https://github.com/hrischuk-da))<br>
-**Total Funding Request:** 2,990,000 Canton Coin (CC)<br>
+**Total Funding Request:** 3,310,000 Canton Coin (CC)<br>
 **Project Duration:** ~29 weeks of development, a six-month adoption window after M4 and a 12-month maintenance term starting at M4 acceptance<br>
 **Label:** daml-tooling<br>
 
@@ -197,7 +197,7 @@ Fred runs for the length of a session, so the developer runs one thing in one te
 - The supervisor runs against a sandbox connected to two synchronizers.
 - Fred reports the configuration it is using at startup.
 - A reset warns that party IDs will be discarded before it discards them.
-- A reload is at least 40% faster than a restart, measured by the Milestone 1 protocol.
+- A reload is at least 30% faster than a restart, measured by the Milestone 1 protocol.
 - Each reload is logged automatically. `fred report` summarises the log and `fred report --merge` combines developers’ summaries. Logging can be disabled.
 
 ### Milestone 3: PQS
@@ -327,33 +327,33 @@ The Tech & Ops Committee will evaluate completion on ecosystem outcomes rather t
 
 ## Funding
 
-**Total Funding Request:** 2,990,000 CC
+**Total Funding Request:** 3,310,000 CC
 
-LimeChain allocation: 2,590,000 CC
+LimeChain allocation: 2,855,000 CC
 
-Digital Asset allocation: 400,000 CC
+Digital Asset allocation: 455,000 CC
 
 ### Payment Breakdown by Milestone
 
 | Milestone | Funding (CC) | LimeChain / Digital Asset split (CC) |
 |---|---|---|
-| M1: The Reload Command | 235,000 | 195,000 LC / 40,000 DA |
-| M2: The Live Sandbox | 160,000 | 130,000 LC / 30,000 DA |
-| M3: PQS | 270,000 | 225,000 LC / 45,000 DA |
-| M4: LocalNet | 385,000 | 320,000 LC / 65,000 DA |
-| M5: Adoption | 1,320,000 | 1,100,000 LC / 220,000 DA |
-| M6: Maintenance | 620,000 | 620,000 LC / 0 DA |
-| **TOTAL** | **2,990,000** | **2,590,000 LC / 400,000 DA** |
+| M1: The Reload Command | 260,000 | 215,000 LC / 45,000 DA |
+| M2: The Live Sandbox | 185,000 | 145,000 LC / 40,000 DA |
+| M3: PQS | 300,000 | 250,000 LC / 50,000 DA |
+| M4: LocalNet | 425,000 | 355,000 LC / 70,000 DA |
+| M5: Adoption | 1,460,000 | 1,210,000 LC / 250,000 DA |
+| M6: Maintenance | 680,000 | 680,000 LC / 0 DA |
+| **TOTAL** | **3,310,000** | **2,855,000 LC / 455,000 DA** |
 
 Payments are released on Tech & Ops Committee acceptance of the relevant milestone deliverables. DA’s share is included in each M1–M5 payment, not added on top; M6 is entirely payable to LimeChain. DA provides technical interactions, help and reviews.
 
 M5: Adoption is paid at 20% per verified team (up to five teams) to allow partial payouts and balance risk.
 
-M6: Four equal quarterly payments of 155,000 CC to LimeChain after Committee acceptance of the maintenance report. The twelve-month term starts at M4 acceptance, alongside adoption.
+M6: Four equal quarterly payments of 170,000 CC to LimeChain after Committee acceptance of the maintenance report. The twelve-month term starts at M4 acceptance, alongside adoption.
 
 ### Volatility Stipulation
 
-If Committee-requested scope changes extend the agreed delivery schedule, the remaining un-minted CC allocations for affected, unstarted work will be renegotiated to reflect significant USD/CC volatility. Either party may also request renegotiation if the 30-day average CC/USD price moves 25% or more from USD 0.105/CC (Coinmarketcap, 21.10.2026). A review also takes place six months after project start, including unpaid maintenance instalments. M1 remains fixed; changes apply only to unstarted work or future maintenance quarters and require written agreement of the affected parties and Tech & Ops Committee approval. There is no automatic repricing; paid or earned amounts remain unchanged.
+If Committee-requested scope changes extend the agreed delivery schedule, the remaining un-minted CC allocations for affected, unstarted work will be renegotiated to reflect significant USD/CC volatility. Either party may also request renegotiation if the 30-day average CC/USD price moves 25% or more from USD 0.095/CC (Coinmarketcap, 27.10.2026). A review also takes place six months after project start, including unpaid maintenance instalments. M1 remains fixed; changes apply only to unstarted work or future maintenance quarters and require written agreement of the affected parties and Tech & Ops Committee approval. There is no automatic repricing; paid or earned amounts remain unchanged.
 
 ## Co-Marketing
 
