@@ -302,7 +302,7 @@ Adoption programme:
 
 ### Milestone 6: Maintenance
 
-**Estimated Delivery:** 12 months (5 engineer-weeks per quarter)
+**Estimated Delivery:** 12 months (5 weeks per quarter)
 
 New dpm-sdk and Canton releases may change APIs Fred depends on. This milestone covers compatibility work, defect triage and ongoing ownership for the first year after Milestone 4, running alongside the adoption window.
 
