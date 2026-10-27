@@ -1,0 +1,11 @@
+probe_txs=20
+probe_first_submitted_ms_after_prune_start=784
+probe_last_submitted_ms_after_prune_start=7925
+prune_duration_ms=492
+pqs_ingested_first_probe_tx_ms_after_prune_start=1253
+pqs_ingested_first_probe_tx_during_prune=no
+pqs_ingested_last_probe_tx_ms_after_prune_end=7743
+reader_baseline=n=124 p50=2.8ms max=6.7ms
+reader_during_prune=n=5 p50=0.9ms max=1.4ms
+reader_after=n=167 p50=2.0ms max=11.9ms
+reader_overlapping_prune=n=5 p50=0.9ms max=1.4ms

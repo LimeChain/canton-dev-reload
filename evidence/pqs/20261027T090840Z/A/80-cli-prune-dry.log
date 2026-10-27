@@ -1,0 +1,7 @@
+Dry-run result:
+  Pruning boundary offset: 65
+  Deleted contracts: 7
+  Deleted choices: 0
+  Deleted events: 14
+  Deleted transactions: 14
+Re-run with --prune-mode Force to execute the pruning operation.

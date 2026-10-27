@@ -1,0 +1,3 @@
+NOTICE:  DRY-RUN: pruning to offset: 127
+132 | 5 | 0 | 10 | 10
+NOTICE:  DRY-RUN: pruning 5 contracts, 0 exercises, 10 events and 10 transactions

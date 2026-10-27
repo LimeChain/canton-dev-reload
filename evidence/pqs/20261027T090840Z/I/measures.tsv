@@ -1,0 +1,15 @@
+pqs	filter_log	Contract filter inclusive of 8 templates and 1 interfaces
+g1	template_retired	2
+g1	template_current	2
+g1	iface_active	2
+g1	iface_creates	2
+before-prune	template_retired	2
+before-prune	template_current	2
+before-prune	iface_active	2
+before-prune	iface_creates	4
+after-prune	template_retired	0
+after-prune	template_current	2
+after-prune	iface_active	2
+after-prune	iface_creates	2
+pqs	filter_log_end	Contract filter inclusive of 9 templates and 1 interfaces
+pqs	running_after	yes

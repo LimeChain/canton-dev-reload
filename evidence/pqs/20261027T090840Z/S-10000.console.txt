@@ -1,0 +1,4 @@
+pqs/runS.sh: line 84: 72648 Terminated: 15          ( while :; do
+    printf '%s\t%s\n' "$(ms)" "$(_sql $DB "select (latest_checkpoint()).offset" 2>/dev/null | tail -1)"; sleep 0.5;
+done ) > "$LOGDIR/ingest-checkpoints.tsv"
+RUN S-10000 COMPLETE

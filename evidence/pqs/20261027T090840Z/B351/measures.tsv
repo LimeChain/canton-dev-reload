@@ -1,0 +1,23 @@
+g1	retired_active	0
+g1	retired_creates	0
+g1	current_rows	2
+g1	anchor	1
+g1	collateral	1
+g2-before-cleanup	retired_active	0
+g2-before-cleanup	retired_creates	2
+g2-before-cleanup	current_rows	2
+g2-before-cleanup	anchor	1
+g2-before-cleanup	collateral	1
+g2	reader_sessions_before	1
+g2	reader_existing_session	FATAL: terminating connection due to administrator command server closed the connection unexpectedly 	This probably means the server terminated abnormally 	befo
+g2	reader_fresh_connection	psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  permission denied for database "bdb"
+g2-pre-reset	oldest_checkpoint	12
+g2-pre-reset	latest_checkpoint	40
+g2-pre-reset	pruned_offset	none
+g2	reset_requested	22
+g2	validate_reset_result	18 | 6 
+g2	reset_result	18 | 6 
+g2-post-reset	oldest_checkpoint	12
+g2-post-reset	latest_checkpoint	18
+g2-post-reset	pruned_offset	none
+g2	reader_unavailable_seconds	1.997

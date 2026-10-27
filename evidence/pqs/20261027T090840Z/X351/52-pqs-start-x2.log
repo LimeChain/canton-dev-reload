@@ -1,0 +1,480 @@
+Picked up JAVA_TOOL_OPTIONS: -javaagent:/open-telemetry.jar -Djdk.attach.allowAttachSelf
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[otel.javaagent 2026-10-27 09:20:57:351 +0000] [main] INFO io.opentelemetry.javaagent.tooling.VersionLogger - opentelemetry-javaagent - version: 2.6.0
+[diagnostics] Initialising diagnostics server with configuration:
+[33mConfig[39m(
+  enabled = [32mtrue[39m,
+  host = [32m"127.0.0.1"[39m,
+  port = [32m9091[39m,
+  dumpPath = [32mNone[39m,
+  metrics = [33mMetricsConfig[39m(interval = PT10S, bufferSize = [32m360[39m, tags = [33mArraySeq[39m(([32m"job"[39m, [32m"scribe"[39m))),
+  threads = [33mThreadsConfig[39m(interval = PT1M, bufferSize = [32m60[39m)
+)
+[diagnostics] Initialising OpenMetrics storage: samples = 360, labels = Set((job,scribe))
+[diagnostics] Starting Micrometer to OpenMetrics bridge: interval = PT10S
+[diagnostics] Starting thread dumps collector: interval = PT1M, samples = 60
+[diagnostics] Server socket listening on /127.0.0.1:9091
+OpenTelemetry Java Agent initialized.
+09:20:58.969 [36mI[0m [zio-fiber-1920446893] com.digitalasset.scribe.configuration.package:52 [36mApplied configuration:
+health {
+    address="127.0.0.1"
+    port="18080"
+}
+logger {
+    format=Plain
+    level=Info
+    mappings {}
+    pattern=Plain
+}
+pipeline {
+    datasource=TransactionStream
+    filter {
+        contracts="*"
+        metadata="!*"
+        parties="*"
+    }
+    ledger {
+        start=Oldest
+        stop=Never
+    }
+    oauth {
+        accessToken=null
+        cafile=null
+        clientId=null
+        clientSecret=null
+        endpoint=null
+        issuer=null
+        parameters {}
+        preemptExpiry=PT1M
+        proxy {
+            password=null
+            url=null
+            user=null
+        }
+        scope=Default
+    }
+}
+retry {
+    backoff {
+        base=PT1S
+        cap=PT1M
+        factor="2.0"
+    }
+    counter {
+        attempts=null
+        duration=null
+        reset=PT10M
+    }
+}
+source {
+    ledger {
+        auth=NoAuth
+        bufferSize="128"
+        cacheDir="/tmp/scribe"
+        host="host.docker.internal"
+        keepAlive {
+            time=PT40S
+            timeout=PT20S
+        }
+        port="6865"
+        tls {
+            cafile=null
+            cert=null
+            key=null
+        }
+    }
+}
+target {
+    encoding {
+        excludeNulls="false"
+        int64AsString="true"
+        numericAsString="true"
+    }
+    postgres {
+        appName=scribe
+        bufferSize="128"
+        database=x2
+        host="host.docker.internal"
+        keepAlive="true"
+        maxConnections="16"
+        password="********"
+        port="5499"
+        probeInterval=PT30S
+        schema=public
+        tls {
+            cafile=null
+            cert=null
+            key=null
+            mode=Disable
+        }
+        username=postgres
+    }
+    schema {
+        autoApply="true"
+        baseline="false"
+    }
+}
+[0m [36m[0m application=scribe
+09:20:58.984 [36mI[0m [zio-fiber-1920446893] com.digitalasset.scribe.appversion.package:17 [36mscribe, version: v3.5.1 (daml-sdk.version: 3.5.1, postgres-document.schema: 041)[0m [36m[0m application=scribe
+09:20:59.280 [36mI[0m [zio-fiber-2083916103] zio.jdbc.shims.postgres:138 [36mDatabase probe (select 1) successful[0m [36m[0m application=scribe
+Oct 27, 2026 9:20:59 AM io.grpc.netty.TcpMetrics loadEpollInfo
+INFO: Epoll available during static init of TcpMetrics:false
+09:20:59.636 [36mI[0m [zio-fiber-324246408] com.digitalasset.zio.daml.Channel:48 [36mKeep-alive (get ledger version) successful[0m [36m[0m application=scribe
+09:20:59.670 [36mI[0m [zio-fiber-738327867] com.digitalasset.zio.daml.ledgerapi.PackageService:26 [36mListed 37 packages[0m [36m[0m application=scribe
+09:20:59.675 [36mI[0m [zio-fiber-738327867] com.digitalasset.zio.daml.DamlSchema:89 [36mFetching schema descriptors from ledger[0m [36m[0m application=scribe
+09:21:00.124 [36mI[0m [zio-fiber-1227637231] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:22 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+09:21:00.124 [36mI[0m [zio-fiber-326033939] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:22 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+09:21:00.124 [36mI[0m [zio-fiber-1922755029] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:22 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+09:21:00.228 [36mI[0m [zio-fiber-510212341] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:22 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+09:21:00.239 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:44 [36mApplying schema[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.385 [36mI[0m [zio-fiber-165538577] org.flywaydb.core.FlywayExecutor: [36mDatabase: jdbc:postgresql://host.docker.internal:5499/x2?currentSchema=public (PostgreSQL 16.15)[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.559 [36mI[0m [zio-fiber-84182135] org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory: [36mSchema history table "public"."flyway_schema_history" does not exist yet[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.562 [36mI[0m [zio-fiber-2088425154] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 42 migrations (execution time 00:00.127s)[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.575 [36mI[0m [zio-fiber-2022275738] org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory: [36mCreating Schema History table "public"."flyway_schema_history" ...[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.606 [36mI[0m [zio-fiber-1239076705] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": << Empty Schema >>[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.626 [36mI[0m [zio-fiber-1308600145] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "001 - Create initial schema"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.667 [36mI[0m [zio-fiber-2119072399] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__insert_archive_trg" for relation "__archives" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.670 [36mI[0m [zio-fiber-367325383] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__update_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.671 [36mI[0m [zio-fiber-1287084855] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__insert_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.672 [36mI[0m [zio-fiber-11357721] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.673 [36mI[0m [zio-fiber-1789246809] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.674 [36mI[0m [zio-fiber-925785609] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.674 [36mI[0m [zio-fiber-314599478] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.679 [36mI[0m [zio-fiber-1272184117] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.679 [36mI[0m [zio-fiber-1094571233] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.680 [36mI[0m [zio-fiber-1638998676] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.681 [36mI[0m [zio-fiber-27316499] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.682 [36mI[0m [zio-fiber-570863005] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.683 [36mI[0m [zio-fiber-536243512] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.684 [36mI[0m [zio-fiber-158949738] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.685 [36mI[0m [zio-fiber-2018751423] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.690 [36mI[0m [zio-fiber-1095960258] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.691 [36mI[0m [zio-fiber-352380945] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.691 [36mI[0m [zio-fiber-1390458526] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.693 [36mI[0m [zio-fiber-2055275858] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.693 [36mI[0m [zio-fiber-1164128344] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.694 [36mI[0m [zio-fiber-693508748] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.696 [36mI[0m [zio-fiber-1469982386] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.697 [36mI[0m [zio-fiber-72599405] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.697 [36mI[0m [zio-fiber-217622872] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.699 [36mI[0m [zio-fiber-1247497389] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.699 [36mI[0m [zio-fiber-484433268] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.701 [36mI[0m [zio-fiber-898791609] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.701 [36mI[0m [zio-fiber-321578239] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.702 [36mI[0m [zio-fiber-1115452676] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.702 [36mI[0m [zio-fiber-248966737] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.703 [36mI[0m [zio-fiber-1445182020] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.704 [36mI[0m [zio-fiber-289885225] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.705 [36mI[0m [zio-fiber-1554372707] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.706 [36mI[0m [zio-fiber-1786076138] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.707 [36mI[0m [zio-fiber-1414142353] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.707 [36mI[0m [zio-fiber-510085244] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.707 [36mI[0m [zio-fiber-539240969] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.724 [36mI[0m [zio-fiber-1736954409] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "002 - Make initializecontractimplements function idempotent"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.734 [36mI[0m [zio-fiber-77307867] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "003 - Fix create index for contract"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.743 [36mI[0m [zio-fiber-601791425] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "004 - Add tmp to tx references cascade constraint"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.752 [36mI[0m [zio-fiber-60752249] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "005 - Make watermark progression safer"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.756 [36mI[0m [zio-fiber-1889905639] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.757 [36mI[0m [zio-fiber-1138739559] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __watermark.instance_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.766 [36mI[0m [zio-fiber-1892181107] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "006 - Make checkpoint functions stable"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.776 [36mI[0m [zio-fiber-50008536] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "007 - Expose effective at"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.787 [36mI[0m [zio-fiber-1903155717] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "008 - Add redaction functions"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.792 [36mI[0m [zio-fiber-1650208114] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.793 [36mI[0m [zio-fiber-1300337210] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.794 [36mI[0m [zio-fiber-926067810] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.794 [36mI[0m [zio-fiber-1226884325] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.794 [36mI[0m [zio-fiber-818954232] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.796 [36mI[0m [zio-fiber-60190844] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.803 [36mI[0m [zio-fiber-989214963] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "009 - Remove soft redactions"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.815 [36mI[0m [zio-fiber-119322130] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "010 - Add package name support"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.849 [36mI[0m [zio-fiber-1229822813] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "011 - Remove witnesses add stakeholders"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.862 [36mI[0m [zio-fiber-1759457443] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "012 - Update initialization routines"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.872 [36mI[0m [zio-fiber-165510617] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "013 - Drop packages name version key constraint"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.880 [36mI[0m [zio-fiber-1795663103] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "015 - Include template entity name in choice type"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.885 [36mI[0m [zio-fiber-762477565] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: function __make_aliases(text,text,text,text) does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.889 [36mI[0m [zio-fiber-960623699] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36m+-------------+-----------------+
+| description | exercise_tpe_pk |
++-------------+-----------------+
+| No rows returned              |
++-------------+-----------------+
+[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.899 [36mI[0m [zio-fiber-558778646] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "016 - Store trace context of daml transaction"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.908 [36mI[0m [zio-fiber-525637855] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "017 - Fix exercises join"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.915 [36mI[0m [zio-fiber-1035616435] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "018 - Add reference index"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.924 [36mI[0m [zio-fiber-1934960071] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "019 - Baseline initialization routines"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.934 [36mI[0m [zio-fiber-1377919843] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "020 - Remove cascading operations"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.942 [36mI[0m [zio-fiber-1249268378] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.943 [36mI[0m [zio-fiber-136806869] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.953 [36mI[0m [zio-fiber-304862314] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "021 - Optimize watermark cleanup"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.965 [36mI[0m [zio-fiber-860801654] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "022 - Events identifier updated and offset num added"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.966 [36mI[0m [zio-fiber-615528255] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.967 [36mI[0m [zio-fiber-434438409] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.967 [36mI[0m [zio-fiber-333747267] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.968 [36mI[0m [zio-fiber-2054310359] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.968 [36mI[0m [zio-fiber-1623430834] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.969 [36mI[0m [zio-fiber-1408760981] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.970 [36mI[0m [zio-fiber-2076981912] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.970 [36mI[0m [zio-fiber-364127793] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.971 [36mI[0m [zio-fiber-1612688218] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.972 [36mI[0m [zio-fiber-1378120705] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.974 [36mI[0m [zio-fiber-504017144] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.974 [36mI[0m [zio-fiber-1506717565] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.975 [36mI[0m [zio-fiber-152155381] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.976 [36mI[0m [zio-fiber-1545979022] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.976 [36mI[0m [zio-fiber-721191056] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.976 [36mI[0m [zio-fiber-311170036] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.977 [36mI[0m [zio-fiber-1983489878] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.977 [36mI[0m [zio-fiber-665289329] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.977 [36mI[0m [zio-fiber-672253884] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.978 [36mI[0m [zio-fiber-806749112] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.978 [36mI[0m [zio-fiber-234798735] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.979 [36mI[0m [zio-fiber-754383454] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.979 [36mI[0m [zio-fiber-1774765482] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.980 [36mI[0m [zio-fiber-1353288939] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.980 [36mI[0m [zio-fiber-365848806] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.980 [36mI[0m [zio-fiber-143251760] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.980 [36mI[0m [zio-fiber-1107363646] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.981 [36mI[0m [zio-fiber-323663034] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.981 [36mI[0m [zio-fiber-407470080] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:00.992 [36mI[0m [zio-fiber-615983652] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.tx_ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.003 [36mI[0m [zio-fiber-1387862727] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.tx_ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.007 [36mI[0m [zio-fiber-550453141] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.008 [36mI[0m [zio-fiber-222902705] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.008 [36mI[0m [zio-fiber-885992634] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.009 [36mI[0m [zio-fiber-807283064] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.009 [36mI[0m [zio-fiber-857452472] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.018 [36mI[0m [zio-fiber-759701782] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.018 [36mI[0m [zio-fiber-1979945754] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.018 [36mI[0m [zio-fiber-1055849285] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.019 [36mI[0m [zio-fiber-695038013] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.019 [36mI[0m [zio-fiber-236855410] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.020 [36mI[0m [zio-fiber-1661993547] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.020 [36mI[0m [zio-fiber-1146574885] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.021 [36mI[0m [zio-fiber-396697346] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.021 [36mI[0m [zio-fiber-1535978012] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.022 [36mI[0m [zio-fiber-1529895735] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.023 [36mI[0m [zio-fiber-2066133078] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.023 [36mI[0m [zio-fiber-1817349251] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.024 [36mI[0m [zio-fiber-430841155] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.025 [36mI[0m [zio-fiber-1827709010] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.025 [36mI[0m [zio-fiber-209892420] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.026 [36mI[0m [zio-fiber-1290665609] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.026 [36mI[0m [zio-fiber-1906955307] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.027 [36mI[0m [zio-fiber-1003065936] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.028 [36mI[0m [zio-fiber-1181846633] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.029 [36mI[0m [zio-fiber-1721192505] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.030 [36mI[0m [zio-fiber-1293624416] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.030 [36mI[0m [zio-fiber-986077062] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.031 [36mI[0m [zio-fiber-1191482185] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.032 [36mI[0m [zio-fiber-1196020546] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.033 [36mI[0m [zio-fiber-1555001798] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.033 [36mI[0m [zio-fiber-378591283] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.034 [36mI[0m [zio-fiber-1186704489] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.034 [36mI[0m [zio-fiber-1055938795] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.034 [36mI[0m [zio-fiber-766481364] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.034 [36mI[0m [zio-fiber-1498608323] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.035 [36mI[0m [zio-fiber-2128311197] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.035 [36mI[0m [zio-fiber-839660898] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.035 [36mI[0m [zio-fiber-436562231] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.035 [36mI[0m [zio-fiber-1419066713] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.036 [36mI[0m [zio-fiber-1392720880] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.036 [36mI[0m [zio-fiber-1444038502] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.037 [36mI[0m [zio-fiber-1195421851] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.037 [36mI[0m [zio-fiber-1286018033] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.037 [36mI[0m [zio-fiber-1390025852] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.037 [36mI[0m [zio-fiber-1490609958] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.038 [36mI[0m [zio-fiber-2002483501] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.038 [36mI[0m [zio-fiber-1074602989] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.039 [36mI[0m [zio-fiber-645575804] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.039 [36mI[0m [zio-fiber-330565104] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.039 [36mI[0m [zio-fiber-359191664] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.039 [36mI[0m [zio-fiber-1870925632] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.040 [36mI[0m [zio-fiber-1917192544] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.040 [36mI[0m [zio-fiber-84087113] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.041 [36mI[0m [zio-fiber-173426009] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.041 [36mI[0m [zio-fiber-2021544432] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.042 [36mI[0m [zio-fiber-1518946370] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.042 [36mI[0m [zio-fiber-804046134] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.042 [36mI[0m [zio-fiber-1930974588] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.042 [36mI[0m [zio-fiber-996483457] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.043 [36mI[0m [zio-fiber-168589244] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.043 [36mI[0m [zio-fiber-907771134] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.044 [36mI[0m [zio-fiber-309948187] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.044 [36mI[0m [zio-fiber-371415559] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.044 [36mI[0m [zio-fiber-2051285783] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.044 [36mI[0m [zio-fiber-332480644] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.052 [36mI[0m [zio-fiber-805550606] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "023 - Remove referential constraints"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.053 [36mI[0m [zio-fiber-1221085915] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.054 [36mI[0m [zio-fiber-566787877] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.062 [36mI[0m [zio-fiber-1718045855] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "024 - No hardcoded public schema"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.064 [36mI[0m [zio-fiber-1244186433] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.064 [36mI[0m [zio-fiber-2054014699] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.065 [36mI[0m [zio-fiber-1165366973] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.065 [36mI[0m [zio-fiber-1332512740] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.065 [36mI[0m [zio-fiber-205798761] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.066 [36mI[0m [zio-fiber-377195304] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.066 [36mI[0m [zio-fiber-4391000] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.068 [36mI[0m [zio-fiber-400495490] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.074 [36mI[0m [zio-fiber-147022081] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "025 - Expose controllers in exercises"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.082 [36mI[0m [zio-fiber-594963370] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "026 - Resolve contract type from exercise name"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.084 [36mI[0m [zio-fiber-902734928] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.089 [36mI[0m [zio-fiber-1386871633] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "027 - Avoid inspecting redundant contract partitions on exercises query"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.096 [36mI[0m [zio-fiber-309086215] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "028 - Rectify parent child relationship on daml versions schema split"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.098 [36mI[0m [zio-fiber-1865898638] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.105 [36mI[0m [zio-fiber-1390801333] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "029 - Expose last descendant node id in exercises"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.112 [36mI[0m [zio-fiber-1836251534] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "030 - Store external transaction hash"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.120 [36mI[0m [zio-fiber-1801386515] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "031 - Add transactions view"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.127 [36mI[0m [zio-fiber-1563935902] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "032 - Use of partition index in partition tables"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.143 [36mI[0m [zio-fiber-1767021357] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "033 - Implement contracts divulgence"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.145 [36mI[0m [zio-fiber-1400881290] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.145 [36mI[0m [zio-fiber-1729753542] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.146 [36mI[0m [zio-fiber-158358685] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.146 [36mI[0m [zio-fiber-237620516] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.147 [36mI[0m [zio-fiber-2089060322] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.147 [36mI[0m [zio-fiber-635392347] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.155 [36mI[0m [zio-fiber-339412449] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.156 [36mI[0m [zio-fiber-705513947] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.157 [36mI[0m [zio-fiber-743987274] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.158 [36mI[0m [zio-fiber-110206495] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.159 [36mI[0m [zio-fiber-1028591812] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.159 [36mI[0m [zio-fiber-1011218389] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.161 [36mI[0m [zio-fiber-2074847442] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.168 [36mI[0m [zio-fiber-1878278925] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "034 - Nearest offset fix"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.169 [36mI[0m [zio-fiber-1478424097] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.176 [36mI[0m [zio-fiber-769518833] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "035 - Add prune archived to offset"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.177 [36mI[0m [zio-fiber-930775332] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.178 [36mI[0m [zio-fiber-1657614855] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.179 [36mI[0m [zio-fiber-1582731142] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.179 [36mI[0m [zio-fiber-106587803] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.180 [36mI[0m [zio-fiber-1401570128] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.181 [36mI[0m [zio-fiber-716138421] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.182 [36mI[0m [zio-fiber-1547582950] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.183 [36mI[0m [zio-fiber-1225225079] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.191 [36mI[0m [zio-fiber-1418626166] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "036 - Extract functions to repeatable"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.221 [36mI[0m [zio-fiber-2015566426] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "037 - Add creation package id"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.228 [36mI[0m [zio-fiber-1859138797] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "038 - Add pruning metadata"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.236 [36mI[0m [zio-fiber-376982047] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "039 - Store paid traffic cost"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.242 [36mI[0m [zio-fiber-713782115] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "040 - Init watermark"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.248 [36mI[0m [zio-fiber-2089560070] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "041 - Store contract key hash"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.258 [36mI[0m [zio-fiber-1962922310] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" with repeatable migration "functions"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.259 [36mI[0m [zio-fiber-677899383] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.260 [36mI[0m [zio-fiber-523747224] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.260 [36mI[0m [zio-fiber-1177617231] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.261 [36mI[0m [zio-fiber-1745160437] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.261 [36mI[0m [zio-fiber-1261626261] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.261 [36mI[0m [zio-fiber-1309523077] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.261 [36mI[0m [zio-fiber-1742290179] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.267 [36mI[0m [zio-fiber-304629242] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.267 [36mI[0m [zio-fiber-986618926] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.267 [36mI[0m [zio-fiber-820489991] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.268 [36mI[0m [zio-fiber-1062064795] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.268 [36mI[0m [zio-fiber-1598369451] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.269 [36mI[0m [zio-fiber-1659791829] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.269 [36mI[0m [zio-fiber-1582383341] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.269 [36mI[0m [zio-fiber-1228539457] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.270 [36mI[0m [zio-fiber-1844477290] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.270 [36mI[0m [zio-fiber-287098903] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.271 [36mI[0m [zio-fiber-582581137] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.272 [36mI[0m [zio-fiber-1706381951] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.274 [36mI[0m [zio-fiber-317203897] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.276 [36mI[0m [zio-fiber-2042474481] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.276 [36mI[0m [zio-fiber-634466579] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.277 [36mI[0m [zio-fiber-189567814] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.278 [36mI[0m [zio-fiber-1520619511] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.279 [36mI[0m [zio-fiber-2067046872] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.279 [36mI[0m [zio-fiber-1393036531] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.280 [36mI[0m [zio-fiber-1440971623] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.281 [36mI[0m [zio-fiber-1936041802] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.282 [36mI[0m [zio-fiber-790639365] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.283 [36mI[0m [zio-fiber-1465531185] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.284 [36mI[0m [zio-fiber-1526949848] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.284 [36mI[0m [zio-fiber-854922128] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.285 [36mI[0m [zio-fiber-972264663] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.285 [36mI[0m [zio-fiber-652064741] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.286 [36mI[0m [zio-fiber-1492895797] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.286 [36mI[0m [zio-fiber-2045457879] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.287 [36mI[0m [zio-fiber-641288838] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.287 [36mI[0m [zio-fiber-2032817254] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.287 [36mI[0m [zio-fiber-1957729700] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.288 [36mI[0m [zio-fiber-83670007] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.288 [36mI[0m [zio-fiber-772995696] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.289 [36mI[0m [zio-fiber-2003523174] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.290 [36mI[0m [zio-fiber-1863834987] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.290 [36mI[0m [zio-fiber-237376620] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.292 [36mI[0m [zio-fiber-2075983030] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.292 [36mI[0m [zio-fiber-1171430022] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.293 [36mI[0m [zio-fiber-181213826] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.293 [36mI[0m [zio-fiber-1771882850] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.294 [36mI[0m [zio-fiber-1983411831] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.294 [36mI[0m [zio-fiber-1657431822] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.294 [36mI[0m [zio-fiber-1507392980] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.294 [36mI[0m [zio-fiber-602895706] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.295 [36mI[0m [zio-fiber-1292396549] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.295 [36mI[0m [zio-fiber-718993124] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.295 [36mI[0m [zio-fiber-594689669] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.295 [36mI[0m [zio-fiber-1079828572] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.296 [36mI[0m [zio-fiber-259125100] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.296 [36mI[0m [zio-fiber-1135359632] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.296 [36mI[0m [zio-fiber-820655664] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.296 [36mI[0m [zio-fiber-493344298] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.297 [36mI[0m [zio-fiber-584112485] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.297 [36mI[0m [zio-fiber-316547024] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.298 [36mI[0m [zio-fiber-1620833272] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.299 [36mI[0m [zio-fiber-1925243181] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.300 [36mI[0m [zio-fiber-1898761315] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.300 [36mI[0m [zio-fiber-1288646885] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.301 [36mI[0m [zio-fiber-1591563969] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.301 [36mI[0m [zio-fiber-836134806] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.302 [36mI[0m [zio-fiber-1252032372] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.302 [36mI[0m [zio-fiber-78621957] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.302 [36mI[0m [zio-fiber-1161801226] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.302 [36mI[0m [zio-fiber-569959904] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.303 [36mI[0m [zio-fiber-234533328] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.303 [36mI[0m [zio-fiber-1154406012] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.304 [36mI[0m [zio-fiber-93890389] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.304 [36mI[0m [zio-fiber-654884731] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.306 [36mI[0m [zio-fiber-1834538866] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.307 [36mI[0m [zio-fiber-1373389008] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __exercises.contract_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.309 [36mI[0m [zio-fiber-152495515] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: function __nearest_ix(pg_catalog.int8) does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.316 [36mI[0m [zio-fiber-755749267] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" with repeatable migration "views and triggers"[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.318 [36mI[0m [zio-fiber-1184861980] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: type reference __watermark.instance_id%TYPE converted to text[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.319 [36mI[0m [zio-fiber-1273781656] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__update_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.320 [36mI[0m [zio-fiber-294739771] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__insert_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.322 [36mI[0m [zio-fiber-1308564474] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36mDB: trigger "__insert_archive_trg" for relation "__archives" does not exist, skipping[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.330 [36mI[0m [zio-fiber-2017874132] org.flywaydb.core.internal.command.DbMigrate: [36mSuccessfully applied 42 migrations to schema "public", now at version v041 (execution time 00:00.424s)[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.337 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:92 [36mApplying mappings[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.443 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:97 [36mSchema and mappings applied[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.449 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:119 [36mInitialised 11 entity types[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.455 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:134 [36mInitialised 23 exercise types[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.459 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:144 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.464 [36mI[0m [zio-fiber-64973764] com.digitalasset.scribe.postgres.document.DocumentPostgres:153 [36mInitialised 6 packages[0m [36m[0m trace_id=b52b6a7f9661e0715de7aeee20c27464 application=scribe
+09:21:01.476 [36mI[0m [zio-fiber-1920446893] com.digitalasset.scribe.pipeline.pipeline.Impl:44 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=014c495db8086fa9cbfc08858936d2b6 application=scribe
+09:21:01.487 [36mI[0m [zio-fiber-1920446893] com.digitalasset.zio.daml.ledgerapi.StateService:61 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=014c495db8086fa9cbfc08858936d2b6 application=scribe
+09:21:01.491 [36mI[0m [zio-fiber-1920446893] com.digitalasset.zio.daml.ledgerapi.StateService:67 [36mRetrieved ledger end offset: 70[0m [36m[0m trace_id=014c495db8086fa9cbfc08858936d2b6 application=scribe
+09:21:01.510 [36mI[0m [zio-fiber-1920446893] com.digitalasset.scribe.pipeline.pipeline.Impl:90 [36mStarting from Genesis[0m [36m[0m trace_id=014c495db8086fa9cbfc08858936d2b6 application=scribe
+09:21:01.510 [36mI[0m [zio-fiber-1920446893] com.digitalasset.scribe.pipeline.pipeline.Impl:101 [36mContinuing from offset 'GENESIS' and index '0' until offset 'INFINITY'[0m [36m[0m trace_id=014c495db8086fa9cbfc08858936d2b6 application=scribe
+09:21:01.565 [36mI[0m [zio-fiber-1945026955] com.digitalasset.zio.daml.ledgerapi.logFilterContents:12 [36mContract filter inclusive of 11 templates and 0 interfaces[0m [36m[0m application=scribe
+09:21:01.613 [36mI[0m [zio-fiber-1958817879] com.digitalasset.zio.daml.ledgerapi.UpdateService:122 [36mReceived transactions responses at offsets: 12, 15[0m [36m[0m application=scribe
+09:21:01.621 [36mI[0m [zio-fiber-1958817879] com.digitalasset.zio.daml.ledgerapi.UpdateService:122 [36mReceived transactions responses at offsets: 18, 23, 26, 29, 32, 37, 40, 43, 46, 51, 54, 57, 60, 65, 68[0m [36m[0m application=scribe
+09:21:01.621 [36mI[0m [zio-fiber-163278077] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 12205b5d581c3677b2e207fba76cd924214c3314a5398e1121854eaec3ecb1d1a0ea (offset: 15, events: 1, remote trace: 3f80104ffe6e4dc22a008c03704e4f8a)[0m [36m[0m trace_id=256bdbdf503629d4992e33948ce95006 correlation_id=3f80104ffe6e4dc22a008c03704e4f8a application=scribe
+09:21:01.621 [36mI[0m [zio-fiber-1797071119] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 12204378823bd2dcf1da2c554b70931453cd5aef5f551264fe00fead977e6fbdb1ff (offset: 12, events: 1, remote trace: a43d4c0ad7ea4bf7621451c52330e194)[0m [36m[0m trace_id=117dc3bd62c4b233c4a49d7a1b879c73 correlation_id=a43d4c0ad7ea4bf7621451c52330e194 application=scribe
+09:21:01.622 [36mI[0m [zio-fiber-210057139] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 12202acc73d46dca4ba61fcef1b6495a1bd727c41135481ee61d423b60a45ecd617a (offset: 18, events: 1, remote trace: 900c11974aecf6fda12925c4c6b7c680)[0m [36m[0m trace_id=6c5a0c0ec22c5ffde0a789a89e9e4c3d correlation_id=900c11974aecf6fda12925c4c6b7c680 application=scribe
+09:21:01.623 [36mI[0m [zio-fiber-7040335] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220514394f4bea5b984c1c5cd4b5d35aa4aca0f7db6af9d70ec04c2eea572812728 (offset: 23, events: 1, remote trace: 96bb3ce70088c48204a8b7da25f76374)[0m [36m[0m trace_id=473e868ff78dc68adc4d444d52ff31eb correlation_id=96bb3ce70088c48204a8b7da25f76374 application=scribe
+09:21:01.624 [36mI[0m [zio-fiber-299030714] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 122090cb25b739941814ca1a668e8babf63053fdb019cdefa4accc028c323506bfc7 (offset: 26, events: 1, remote trace: 42cdbfe85e3c368a700753f8c5513727)[0m [36m[0m trace_id=841c3bb48af8e286ef251fd90899d121 correlation_id=42cdbfe85e3c368a700753f8c5513727 application=scribe
+09:21:01.625 [36mI[0m [zio-fiber-507202613] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220f8f20e597d2a6a93b2db5db58fca4918c9f7c21ccb6a1ccdd3b6a2c222e35c36 (offset: 29, events: 1, remote trace: de20814fa22e10d45e4da7ded7e5b952)[0m [36m[0m trace_id=c92a502b3d971cfc5a4e478e2b52fbbe correlation_id=de20814fa22e10d45e4da7ded7e5b952 application=scribe
+09:21:01.625 [36mI[0m [zio-fiber-703160768] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 122027b25517aa467ad1db4f261c6b939ed89ac3d00f16ba2023e4cc00ea122209f2 (offset: 32, events: 1, remote trace: 05c9ea7fbef3ca797a977539992547e6)[0m [36m[0m trace_id=4dc625ca970d750361e0cdde9e363d15 correlation_id=05c9ea7fbef3ca797a977539992547e6 application=scribe
+09:21:01.626 [36mI[0m [zio-fiber-2090755392] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220658da8651f3e46299e363fee1d1390eab7b30d8c6abfe6b00a9db73bf9ee3cbe (offset: 37, events: 1, remote trace: 85054fe2b7f5559b0001137f33b688fe)[0m [36m[0m trace_id=b60476ac21b68824a0848b336142084c correlation_id=85054fe2b7f5559b0001137f33b688fe application=scribe
+09:21:01.626 [36mI[0m [zio-fiber-2133080345] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 122002617978bf20611f3f65f34627aa247f988cb2c4b9b23b783c6e3fe96055f51d (offset: 40, events: 1, remote trace: ba5cb80d94de3dbbb0016e5f76969f58)[0m [36m[0m trace_id=aea50e61ba56a6277d8e6f42a42b36f2 correlation_id=ba5cb80d94de3dbbb0016e5f76969f58 application=scribe
+09:21:01.628 [36mI[0m [zio-fiber-2102881705] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220ffa4eb7916afdedb4fdebc81e1db4c54a069c29995424033a4efb4b4d1cd0497 (offset: 43, events: 1, remote trace: c8f6a8be20e13e303812d7a01439b5bd)[0m [36m[0m trace_id=86c64f93da4e054227241fec00482136 correlation_id=c8f6a8be20e13e303812d7a01439b5bd application=scribe
+09:21:01.629 [36mI[0m [zio-fiber-1552535672] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 122016b70f6f9a810ac4cbd4d058ff89b0ba60a989ff9ee43c0abcf59e62a19a45c0 (offset: 51, events: 1, remote trace: fd20be2b36a833fe2bd5b4233cb083fd)[0m [36m[0m trace_id=77a05a1444d959c7872f96b39ab7d1d6 correlation_id=fd20be2b36a833fe2bd5b4233cb083fd application=scribe
+09:21:01.629 [36mI[0m [zio-fiber-1780418834] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220674b1717e5e0b076f8084f279bc5d6186fbb4118ebeac99ba939da03eb312190 (offset: 46, events: 1, remote trace: e430edb93d6abb6c94a0ce5be3330301)[0m [36m[0m trace_id=b9dee062bfc10a6bb5f3c8159ee2d12e correlation_id=e430edb93d6abb6c94a0ce5be3330301 application=scribe
+09:21:01.635 [36mI[0m [zio-fiber-2143957374] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220e3d0422b66e9aeb46d489f0514a24c3bd3211c9645787b4bc0566e755fba077f (offset: 54, events: 1, remote trace: 323568b22f3d2bfd86a07cd346584a47)[0m [36m[0m trace_id=f06f45e2090e9a23ab577372f9c0df7c correlation_id=323568b22f3d2bfd86a07cd346584a47 application=scribe
+09:21:01.636 [36mI[0m [zio-fiber-1148289942] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 12209aa72b401179b93dcafe38603f43e192065809f2219cf2d69582040ec0d2c505 (offset: 60, events: 1, remote trace: 5016bda86f473b34911d8036c90ed5ae)[0m [36m[0m trace_id=c7881402feea5da761c3640c9a5a79c2 correlation_id=5016bda86f473b34911d8036c90ed5ae application=scribe
+09:21:01.637 [36mI[0m [zio-fiber-1848429085] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220b1121bcbd142eb762660fecc6b5e8e5bf0116101656ec622b85ec3a1b0d1b9b7 (offset: 57, events: 1, remote trace: c3d0273cd27978b4f68e7b1bc743f8da)[0m [36m[0m trace_id=e7ae85e0d762c0075ac9b8653fa2271f correlation_id=c3d0273cd27978b4f68e7b1bc743f8da application=scribe
+09:21:01.637 [36mI[0m [zio-fiber-960505205] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 12206075541e61702c89f692efb6691f1e589498b57cca1a06272ae54e33b0a2f181 (offset: 65, events: 1, remote trace: 7e4020abc24b8be2e1dbf43cbf133904)[0m [36m[0m trace_id=80ce4c269a25e00f10d884f11b1972a5 correlation_id=7e4020abc24b8be2e1dbf43cbf133904 application=scribe
+09:21:01.638 [36mI[0m [zio-fiber-1120779098] com.digitalasset.zio.daml.ledgerapi.UpdateService:169 [36mConverting transaction (ACS delta) 1220b32b44d9e85ae8f6de8dec82559f40ced2b04f1b737b1ea0cf1364d2653a1f25 (offset: 68, events: 1, remote trace: 27567eaf5e8039e1fbadf9077d96bf9f)[0m [36m[0m trace_id=a8933f4f0531f442acc82eab1b6a9805 correlation_id=27567eaf5e8039e1fbadf9077d96bf9f application=scribe
+09:21:01.810 [36mI[0m [zio-fiber-1111591620] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:401 [36mAdvanced watermark: ix = 17, offset = 68[0m [36m[0m trace_id=0e266b80e79cc0b16a9c866f4b01e51a application=scribe
+[diagnostics] Diagnostics server shutting down now...
+[diagnostics] Shutting down Micrometer to OpenMetrics bridge
+[diagnostics] Shutting down thread dumps collector
+[diagnostics] Detaching from JVM

@@ -1,0 +1,24 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	init	want=ok	got=ok	rc=0	6.667s	02-init.log
+3	createdb-edb	want=ok	got=ok	rc=0	0.130s	03-createdb-edb.log
+4	pqs-start-edb	want=ok	got=started	pid=66868	-	04-pqs-start-edb.log	filter=* image=local-3.5.7 
+4	wait-edb-18	want=ok	got=ok	checkpoint=18	3.489s	-
+5	g1-create	want=ok	got=ok	rc=0	4.587s	05-g1-create.log
+5	wait-edb-26	want=ok	got=ok	checkpoint=26	0.103s	-
+6	g2-archive-g1	want=ok	got=ok	rc=0	4.460s	06-g2-archive-g1.log
+7	g2-swap	want=ok	got=ok	rc=0	4.272s	07-g2-swap.log
+7	wait-edb-32	want=ok	got=ok	checkpoint=32	0.125s	-
+8	empty-latest	want=ok	got=ok	rc=0	0.091s	08-empty-latest.log
+9	empty-prune	want=outcome	got=refused	rc=1	-	09-empty-prune.log
+10	empty-retired	want=ok	got=ok	rc=0	0.290s	10-empty-retired.log
+11	g2-create-later	want=ok	got=ok	rc=0	4.438s	11-g2-create-later.log
+11	wait-edb-40	want=ok	got=ok	checkpoint=40	1.241s	-
+12	later-prune	want=ok	got=ok	rc=0	0.109s	12-later-prune.log
+13	later-retired	want=ok	got=ok	rc=0	0.090s	13-later-retired.log
+14	later-current	want=ok	got=ok	rc=0	0.098s	14-later-current.log
+15	bob-create	want=ok	got=ok	rc=0	4.154s	15-bob-create.log
+15	try-wait-edb-46	want=outcome	got=caught-up	-	0.117s	04-pqs-start-edb.log
+16	bob-norestart	want=ok	got=ok	rc=0	0.083s	16-bob-norestart.log
+17	pqs-start-edb	want=ok	got=started	pid=67135	-	17-pqs-start-edb.log	filter=* image=local-3.5.7 
+17	try-wait-edb-46	want=outcome	got=caught-up	-	0.100s	17-pqs-start-edb.log
+18	bob-restart	want=ok	got=ok	rc=0	0.080s	18-bob-restart.log

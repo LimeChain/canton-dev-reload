@@ -1,0 +1,198 @@
+[diagnostics] Initialising diagnostics server with configuration:
+[33mConfig[39m(
+  enabled = [32mtrue[39m,
+  host = [32m"127.0.0.1"[39m,
+  port = [32m0[39m,
+  dumpPath = [32mNone[39m,
+  metrics = [33mMetricsConfig[39m(interval = PT10S, bufferSize = [32m60[39m, tags = [33mArraySeq[39m()),
+  threads = [33mThreadsConfig[39m(interval = PT1M, bufferSize = [32m10[39m)
+)
+[diagnostics] Initialising OpenMetrics storage: samples = 60, labels = Set()
+[diagnostics] Starting Micrometer to OpenMetrics bridge: interval = PT10S
+[diagnostics] Starting thread dumps collector: interval = PT1M, samples = 10
+[diagnostics] WARN: Could not self-attach to JVM
+[diagnostics] WARN: Falling back to low fidelity thread dump renderer
+[diagnostics] WARN: Resolve this warning by providing `-Djdk.attach.allowAttachSelf` flag to JVM
+[diagnostics] Server socket listening on /127.0.0.1:50770
+ATTN! OpenTelemetry Java Agent is not found.
+Please provide OpenTelemetry Java Agent using environment variable JAVA_TOOL_OPTIONS=-javaagent:/path/to/otel.jar to process observability signals.
+See also https://opentelemetry.io/docs/instrumentation/java/automatic/
+11:11:53.003 [36mI[0m [zio-fiber-1604216353] com.digitalasset.scribe.configuration.package:52 [36mApplied configuration:
+health {
+    address="127.0.0.1"
+    port="18080"
+}
+logger {
+    format=Plain
+    level=Info
+    mappings {}
+    pattern=Plain
+}
+pipeline {
+    datasource=TransactionStream
+    filter {
+        contracts="(* & !mirrors:*) | mirrors@>=1.0.1"
+        metadata="!*"
+        parties="*"
+    }
+    ledger {
+        start=Oldest
+        stop=Never
+    }
+    oauth {
+        accessToken=null
+        cafile=null
+        clientId=null
+        clientSecret=null
+        endpoint=null
+        issuer=null
+        parameters {}
+        preemptExpiry=PT1M
+        proxy {
+            password=null
+            url=null
+            user=null
+        }
+        scope=Default
+    }
+}
+retry {
+    backoff {
+        base=PT1S
+        cap=PT1M
+        factor="2.0"
+    }
+    counter {
+        attempts=null
+        duration=null
+        reset=PT10M
+    }
+}
+source {
+    ledger {
+        auth=NoAuth
+        bufferSize="128"
+        cacheDir="/tmp/scribe"
+        host=localhost
+        keepAlive {
+            time=PT40S
+            timeout=PT20S
+        }
+        port="6865"
+        tls {
+            cafile=null
+            cert=null
+            key=null
+        }
+    }
+}
+target {
+    encoding {
+        excludeNulls="false"
+        int64AsString="true"
+        numericAsString="true"
+    }
+    postgres {
+        appName=scribe
+        bufferSize="128"
+        database=bdb
+        host=localhost
+        keepAlive="true"
+        maxConnections="16"
+        password="********"
+        port="5499"
+        probeInterval=PT30S
+        schema=public
+        tls {
+            cafile=null
+            cert=null
+            key=null
+            mode=Disable
+        }
+        username=postgres
+    }
+    schema {
+        autoApply="true"
+        baseline="false"
+    }
+}
+[0m [36m[0m application=scribe
+11:11:53.016 [36mI[0m [zio-fiber-1604216353] com.digitalasset.scribe.appversion.package:17 [36mscribe, version: v3.5.7 (daml-sdk.version: 3.5.2, postgres-document.schema: 041)[0m [36m[0m application=scribe
+11:11:53.321 [36mI[0m [zio-fiber-393032279] zio.jdbc.shims.postgres:139 [36mDatabase probe (select 1) successful[0m [36m[0m application=scribe
+Oct 27, 2026 11:11:53 AM io.grpc.netty.shaded.io.grpc.netty.TcpMetrics loadEpollInfo
+INFO: Epoll available during static init of TcpMetrics:false
+11:11:53.488 [36mI[0m [zio-fiber-1998065776] com.digitalasset.zio.daml.Channel:49 [36mKeep-alive (get ledger version) successful[0m [36m[0m application=scribe
+11:11:53.651 [36mI[0m [zio-fiber-1138499854] com.digitalasset.zio.daml.ledgerapi.PackageService:27 [36mListed 35 packages[0m [36m[0m application=scribe
+11:11:53.678 [36mI[0m [zio-fiber-153652742] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:11:53.680 [36mI[0m [zio-fiber-1799799058] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:11:53.680 [36mI[0m [zio-fiber-1933391820] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:11:53.751 [36mI[0m [zio-fiber-1855346713] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:11:53.758 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:46 [36mApplying schema[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:53.873 [36mI[0m [zio-fiber-1310577881] org.flywaydb.core.FlywayExecutor: [36mDatabase: jdbc:postgresql://localhost:5499/bdb?currentSchema=public (PostgreSQL 16.15)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.144 [36mI[0m [zio-fiber-1192078325] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 42 migrations (execution time 00:00.122s)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.168 [36mI[0m [zio-fiber-1435427510] org.flywaydb.core.internal.callback.SqlScriptCallbackFactory: [36mExecuting SQL callback: beforeMigrate - [0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.180 [36mI[0m [zio-fiber-489780860] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": 041[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.182 [36mI[0m [zio-fiber-1621077838] org.flywaydb.core.internal.command.DbMigrate: [36mSchema "public" is up to date. No migration necessary.[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.185 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:94 [36mApplying mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.192 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:99 [36mSchema and mappings applied[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.197 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:122 [36mInitialised 9 entity types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.202 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:137 [36mInitialised 21 exercise types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.205 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:147 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.209 [36mI[0m [zio-fiber-1383939020] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 [36mInitialised 4 packages[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.218 [36mI[0m [zio-fiber-1604216353] com.digitalasset.scribe.pipeline.pipeline.Impl:45 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.226 [36mI[0m [zio-fiber-1604216353] com.digitalasset.zio.daml.ledgerapi.StateService:62 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.229 [36mI[0m [zio-fiber-1604216353] com.digitalasset.zio.daml.ledgerapi.StateService:68 [36mRetrieved ledger end offset: 42[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.242 [36mI[0m [zio-fiber-1604216353] com.digitalasset.scribe.pipeline.pipeline.Impl:93 [36mLast known checkpoint is at offset '18' and index '3'[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.243 [36mI[0m [zio-fiber-1604216353] com.digitalasset.scribe.pipeline.pipeline.Impl:102 [36mContinuing from offset '18' and index '3' until offset 'INFINITY'[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:11:54.284 [36mI[0m [zio-fiber-2106117335] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 [36mContract filter inclusive of 8 templates and 0 interfaces[0m [36m[0m application=scribe
+11:11:54.345 [36mI[0m [zio-fiber-1856087129] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 23[0m [36m[0m application=scribe
+11:11:54.351 [36mI[0m [zio-fiber-1856087129] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 26, 29, 32, 37, 40[0m [36m[0m application=scribe
+11:11:54.353 [36mI[0m [zio-fiber-1881675713] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12209b2c86bc7d29177af404688fd06a4882c3d57f72e57e254609bfbcb73c24eea5 (offset: 29, events: 1, remote trace: a49ab882a963199ccc0bcdd87bc46eb4)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=a49ab882a963199ccc0bcdd87bc46eb4 application=scribe
+11:11:54.353 [36mI[0m [zio-fiber-687674871] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122015582d18b4df24b568e56013d555ccb9f6e6a79da804efe9788e845de6b51f0b (offset: 23, events: 1, remote trace: 467f1546ea9e8dc899dd5c8b5032d00f)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=467f1546ea9e8dc899dd5c8b5032d00f application=scribe
+11:11:54.354 [36mI[0m [zio-fiber-1202764661] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220a56a3f4dcc333439f59555338bcaf0316784d52aef772f9d717977246b9d94ce (offset: 26, events: 1, remote trace: 32d48970169822bb3dfe1b4b949369e3)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=32d48970169822bb3dfe1b4b949369e3 application=scribe
+11:11:54.355 [36mI[0m [zio-fiber-1501981314] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12205f532f0b4ab1210d8697e630ee824b06e74b0f0161df4c3ff15101e7998034c9 (offset: 32, events: 1, remote trace: 0ab98bfd9bcbff594c1a9a3b9cee95c3)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=0ab98bfd9bcbff594c1a9a3b9cee95c3 application=scribe
+11:11:54.356 [36mI[0m [zio-fiber-727742119] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122089376d097c21ed7d4afc062c60b3fd1d4fbba096f3a3054e21b7baeb864cd87c (offset: 37, events: 1, remote trace: d26cfa13dc062d7fab014724ae425e21)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=d26cfa13dc062d7fab014724ae425e21 application=scribe
+11:11:54.356 [36mI[0m [zio-fiber-1239392765] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12201d42b1b63e13c0d8f1c4ca280c864241a716c8d49e5aac656345823db929fba3 (offset: 40, events: 1, remote trace: 2df6409542f2f1142d98aa892d883402)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=2df6409542f2f1142d98aa892d883402 application=scribe
+timestamp=2026-10-27T09:11:56.481832Z level=ERROR thread=#zio-fiber-1604216353 message="" cause="java.util.NoSuchElementException: key not found: (9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81,Mirrors,Mirror)
+	at scala.collection.immutable.BitmapIndexedMapNode.apply(HashMap.scala:674)
+	at scala.collection.immutable.HashMap.apply(HashMap.scala:132)
+	at com.digitalasset.transcode.schema.Dictionary.template(Dictionary.scala:13)
+	at com.digitalasset.zio.daml.ledgerapi.specific$.convertCreatedEvent$$anonfun$2$$anonfun$4$$anonfun$3(specific.scala:54)
+	at scala.collection.ArrayOps$.map$extension(ArrayOps.scala:936)
+	at zio.Chunk$Arr.mapChunk(Chunk.scala:1774)
+	at zio.ChunkLike.map(ChunkLike.scala:125)
+	at zio.ChunkLike.map$(ChunkLike.scala:39)
+	at zio.Chunk.map(Chunk.scala:44)
+	at com.digitalasset.zio.daml.ledgerapi.specific$.convertCreatedEvent$$anonfun$2$$anonfun$4(specific.scala:53)
+	at com.digitalasset.zio.daml.ledgerapi.specific.convertCreatedEvent(specific.scala:43)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.getTransactionByShape(UpdateService.scala:136)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.process(UpdateService.scala:191)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.process(UpdateService.scala:192)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:49)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:50)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:51)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.getTransactionByShape(UpdateService.scala:139)
+java.util.NoSuchElementException: key not found: (9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81,Mirrors,Mirror)
+	at scala.collection.immutable.BitmapIndexedMapNode.apply(HashMap.scala:674)
+	at scala.collection.immutable.HashMap.apply(HashMap.scala:132)
+	at com.digitalasset.transcode.schema.Dictionary.template(Dictionary.scala:13)
+	at com.digitalasset.zio.daml.ledgerapi.specific$.convertCreatedEvent$$anonfun$2$$anonfun$4$$anonfun$3(specific.scala:54)
+	at scala.collection.ArrayOps$.map$extension(ArrayOps.scala:936)
+	at zio.Chunk$Arr.mapChunk(Chunk.scala:1774)
+	at zio.ChunkLike.map(ChunkLike.scala:125)
+	at zio.ChunkLike.map$(ChunkLike.scala:39)
+	at zio.Chunk.map(Chunk.scala:44)
+	at com.digitalasset.zio.daml.ledgerapi.specific$.convertCreatedEvent$$anonfun$2$$anonfun$4(specific.scala:53)
+	at com.digitalasset.zio.daml.ledgerapi.specific.convertCreatedEvent(specific.scala:43)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.getTransactionByShape(UpdateService.scala:136)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.process(UpdateService.scala:191)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.process(UpdateService.scala:192)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:49)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:50)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.makeDetachedSpan.$anon.locally(TracingBridge.scala:51)
+	at com.digitalasset.zio.daml.ledgerapi.UpdateService.getTransactionByShape(UpdateService.scala:139)
+" location=com.digitalasset.scribe.app.ComposableApp.printAndLogError file=ComposableApp.scala line=74
+java.util.NoSuchElementException: key not found: (9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81,Mirrors,Mirror)
+[diagnostics] Diagnostics server shutting down now...
+[diagnostics] Shutting down Micrometer to OpenMetrics bridge
+[diagnostics] Shutting down thread dumps collector

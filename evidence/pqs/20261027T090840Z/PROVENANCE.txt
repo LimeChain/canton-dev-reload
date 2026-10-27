@@ -1,0 +1,11 @@
+stamp            20261027T090840Z
+git              harness-v26 (c8a2d9df26fec810387b27ff521d2f4898721f5e)
+git status       0 changed file(s) outside evidence/
+citable          yes
+dpm                 3.5.2 
+java             openjdk version "21.0.12.1" 2026-08-18
+pqs jar          /Users/georgiradev/.dpm/cache/components/scribe/3.5.7/scribe.jar sha256=3d1ca060c2e8e84a091901d0161e1bb0ee0161ffd23ca722d7f52886a9ba9976
+image            europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.5.1 europe-docker.pkg.dev/da-images/public/docker/participant-query-store@sha256:19d3b0c276273c782dc33e6560ad370dd4c0c01e78101f9485bb875e5d065542
+image            europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.6.2 europe-docker.pkg.dev/da-images/public/docker/participant-query-store@sha256:471ee168f56ea833aab24288fa22644dc95b552f9d3ddbcd4d933352a7b8cff4
+image            postgres:16 postgres@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+fixtures         ab8128a3c943f337b1c05aeb9f3180be336474751556175884c971d25e27c17c (sha256 of the DAR hashes)

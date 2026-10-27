@@ -1,0 +1,36 @@
+2026-10-27 11:50:22,152 [main] WARN  org.jline - Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+[34mCompiling /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/Main.sc[39m
+T P=391,1793094624214
+T P=394,1793094624552
+T P=397,1793094624891
+T P=400,1793094625275
+T P=403,1793094625628
+T P=406,1793094625992
+T P=409,1793094626339
+T P=412,1793094626684
+T P=415,1793094627073
+T P=418,1793094627413
+T P=421,1793094627791
+T P=424,1793094628156
+T P=427,1793094628491
+T P=430,1793094628855
+T P=433,1793094629191
+T P=436,1793094629583
+T P=439,1793094629914
+T P=442,1793094630298
+T P=445,1793094630660
+T P=448,1793094630993
+T LASTTX=448
+   _____            _
+  / ____|          | |
+ | |     __ _ _ __ | |_ ___  _ __
+ | |    / _` | '_ \| __/ _ \| '_ \
+ | |___| (_| | | | | || (_) | | | |
+  \_____\__,_|_| |_|\__\___/|_| |_|
+
+  Welcome to Canton!
+  Type `help` to get started. `exit` to leave.
+
+
+@ [34mBye![39m
+probe rc=0

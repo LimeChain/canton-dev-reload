@@ -1,0 +1,39 @@
+load	items_txs	40
+load	churn_txs	80
+load	console_load_seconds	52
+load	seconds_from_load_start_to_pqs_caught_up	64
+before	retired_creates	1000
+before	items_active	1001
+before	g2_active	2
+before	table_rows	2004 contracts, 3005 events, 0 exercises, 125 transactions
+before	db_size	14 MB (15170583)
+assert	items_before	ok (1001)
+prune	dry_run_ms	6.402
+prune	dry_run_wall_ms	108
+prune	prune_ms	9.477
+prune	prune_wall_ms	106
+prune	start_end_ms	1793094623489 1793094623595
+prune	returned	385 | 1001 | 0 | 2002 | 82
+prune	pqs_alive_after	yes
+ingest_reader	probe_txs	20
+ingest_reader	probe_first_submitted_ms_after_prune_start	725
+ingest_reader	probe_last_submitted_ms_after_prune_start	7504
+ingest_reader	prune_duration_ms	106
+ingest_reader	pqs_ingested_first_probe_tx_ms_after_prune_start	621
+ingest_reader	pqs_ingested_first_probe_tx_during_prune	no
+ingest_reader	pqs_ingested_last_probe_tx_ms_after_prune_end	7327
+ingest_reader	reader_baseline	n=116 p50=2.8ms max=4.8ms
+ingest_reader	reader_during_prune	n=1 p50=0.9ms max=0.9ms
+ingest_reader	reader_after	n=165 p50=2.0ms max=4.2ms
+ingest_reader	reader_overlapping_prune	n=1 p50=0.9ms max=0.9ms
+after	retired_creates	0
+after	items_active	1021
+after	g2_active	2
+after	table_rows	1023 contracts, 1023 events, 0 exercises, 63 transactions
+after	db_size	15 MB (15301655)
+assert	retired_after	ok (0)
+assert	items_after	ok (1021)
+assert	g2_after	ok (2)
+after	pruned_offset	382
+assert	pruned_offset	ok (382)
+run	total_seconds	120

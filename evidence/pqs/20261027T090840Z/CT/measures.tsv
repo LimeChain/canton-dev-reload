@@ -1,0 +1,49 @@
+ids	m1_m2_m3	00bdac5152d76bbfc9156197ddc60bb4267577dbdbde572d6f2ebf4c0aa860c7c6ca121220a45aec5ca0471b567a727ab570cfac653d1a73f7153db20e487ec6464eb3569a 00b2e2115e5c6c7b93d5924a6585a33eb3c2a82705412794e59fc3f01869c581d5ca121220bc461b8b3a0d3fbb9bce06650899faed466ff27d39bee8699626e4cc4faac368 0069ddf1bebb9b23dc3d2d07f6b29808d2612ffdfb4c905fabdbfa7d69547804d2ca12122078f30390feb4aa772b9d1d714193c9a5cca1caf5d9d8ade93ae0c59cc95091d9
+g2	topology_transactions	1
+g2	old_active_after_reload	3
+ids	m1_replacement	00dc6fdd0364ca950fa54f9be46e3c6dfb52c51ad441913733b29eff7f50eaa303ca1212207a9497aff8971b0c01c0b38e914d81a9e0e72b363489a4baced76d6a3da77f2a
+pqs	after_g2_error_lines	0
+pqs	after_g2_pid_alive	yes
+pqs	same_process_after_g2	yes
+g2	active_g1	1
+g2	active_g2	3
+g2	active_g3	0
+snap	g2-active-rows	4
+g2	m3_has_note_key	false 9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81
+g2	note_groups	bumped=1,n=2,NULL=1
+snap	g2-bump-m1-rows	2
+snap	g2-m2-rows	2
+g2	m1_m2_active	0
+g2	anchor	1
+g2	collateral	1
+prune	active_g1	1
+prune	active_g2	4
+prune	active_g3	0
+snap	prune-active-rows	5
+prune	m1_m2_creates	0
+prune	m1_m2_exercises	0
+prune	m3_still_g1	1 9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81
+prune	anchor	1
+prune	collateral	0
+prune	pruned_offset	45
+g3	topology_transactions	1
+ids	m3_replacement_c7	00619a294c9ba2388a88d7dbd77c4affbb35a1f6e85693b7963dd68d882e7bc936ca121220f52b6cd3b92ea46c40db78a6fda1334c661ff4e21ffdb2a0f67aefd20b6a77fe 003bc10519dd5c8282ce00cf7556f4e7a4453db6d5065c2656777c7dd48360e637ca121220d3e389fa604b475509aa08a47a0c6d34d02a9a1be539cfe868cfb2dcbfa06737
+pqs	after_g3_error_lines	0
+pqs	after_g3_pid_alive	yes
+pqs	same_process_after_g3	yes
+g3	active_g1	0
+g3	active_g2	4
+g3	active_g3	2
+snap	g3-bump-m3-rows	2
+g3	m3_active	0
+g3	m1_replacement_pkg_tagkey	5598836d60a4f47dbaaacf03790c1da84fc5c2b69a916d845f08c840ce7934ae tagkey=false
+g3	tag_null	5
+g3	tag_7	1
+g3	note_groups	bumped=2,later=1,n=2,NULL=1
+pqs	initialised_packages	3,4,5
+snap	orig-active-rows	6
+q6	original_stopped	yes
+snap	recover-active-rows	6
+q6	recover_all_creates	9
+q6	orig_all_creates	7
+q6	active_sets	identical

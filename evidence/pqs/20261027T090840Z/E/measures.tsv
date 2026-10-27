@@ -1,0 +1,11 @@
+empty	latest_checkpoint	32
+empty	prune_target	34
+empty	prune_with_no_later_tx	refused: ERROR:  Illegal pruning offset 34 is beyond upper bounds of contiguous history
+empty	retired_creates_still	2
+later	retired_creates	0
+later	current_rows	2
+party	pqs_mode	Starting pipeline on behalf of all parties on the participant
+party	checkpoint_reached_without_restart	caught-up
+party	bob_contract_without_restart	1
+party	checkpoint_after_restart	caught-up
+party	bob_contract_after_restart	1

@@ -1,0 +1,517 @@
+[diagnostics] Initialising diagnostics server with configuration:
+[33mConfig[39m(
+  enabled = [32mtrue[39m,
+  host = [32m"127.0.0.1"[39m,
+  port = [32m0[39m,
+  dumpPath = [32mNone[39m,
+  metrics = [33mMetricsConfig[39m(interval = PT10S, bufferSize = [32m60[39m, tags = [33mArraySeq[39m()),
+  threads = [33mThreadsConfig[39m(interval = PT1M, bufferSize = [32m10[39m)
+)
+[diagnostics] Initialising OpenMetrics storage: samples = 60, labels = Set()
+[diagnostics] Starting Micrometer to OpenMetrics bridge: interval = PT10S
+[diagnostics] Starting thread dumps collector: interval = PT1M, samples = 10
+[diagnostics] WARN: Could not self-attach to JVM
+[diagnostics] WARN: Falling back to low fidelity thread dump renderer
+[diagnostics] WARN: Resolve this warning by providing `-Djdk.attach.allowAttachSelf` flag to JVM
+[diagnostics] Server socket listening on /127.0.0.1:53107
+ATTN! OpenTelemetry Java Agent is not found.
+Please provide OpenTelemetry Java Agent using environment variable JAVA_TOOL_OPTIONS=-javaagent:/path/to/otel.jar to process observability signals.
+See also https://opentelemetry.io/docs/instrumentation/java/automatic/
+11:33:08.920 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.configuration.package:52 [36mApplied configuration:
+health {
+    address="127.0.0.1"
+    port="18080"
+}
+logger {
+    format=Plain
+    level=Info
+    mappings {}
+    pattern=Plain
+}
+pipeline {
+    datasource=TransactionStream
+    filter {
+        contracts="*"
+        metadata="!*"
+        parties="*"
+    }
+    ledger {
+        start=Oldest
+        stop=Never
+    }
+    oauth {
+        accessToken=null
+        cafile=null
+        clientId=null
+        clientSecret=null
+        endpoint=null
+        issuer=null
+        parameters {}
+        preemptExpiry=PT1M
+        proxy {
+            password=null
+            url=null
+            user=null
+        }
+        scope=Default
+    }
+}
+retry {
+    backoff {
+        base=PT1S
+        cap=PT1M
+        factor="2.0"
+    }
+    counter {
+        attempts=null
+        duration=null
+        reset=PT10M
+    }
+}
+source {
+    ledger {
+        auth=NoAuth
+        bufferSize="128"
+        cacheDir="/tmp/scribe"
+        host=localhost
+        keepAlive {
+            time=PT40S
+            timeout=PT20S
+        }
+        port="6865"
+        tls {
+            cafile=null
+            cert=null
+            key=null
+        }
+    }
+}
+target {
+    encoding {
+        excludeNulls="false"
+        int64AsString="true"
+        numericAsString="true"
+    }
+    postgres {
+        appName=scribe
+        bufferSize="128"
+        database=edb
+        host=localhost
+        keepAlive="true"
+        maxConnections="16"
+        password="********"
+        port="5499"
+        probeInterval=PT30S
+        schema=public
+        tls {
+            cafile=null
+            cert=null
+            key=null
+            mode=Disable
+        }
+        username=postgres
+    }
+    schema {
+        autoApply="true"
+        baseline="false"
+    }
+}
+[0m [36m[0m application=scribe
+11:33:08.937 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.appversion.package:17 [36mscribe, version: v3.5.7 (daml-sdk.version: 3.5.2, postgres-document.schema: 041)[0m [36m[0m application=scribe
+11:33:09.263 [36mI[0m [zio-fiber-1298767029] zio.jdbc.shims.postgres:139 [36mDatabase probe (select 1) successful[0m [36m[0m application=scribe
+Oct 27, 2026 11:33:09 AM io.grpc.netty.shaded.io.grpc.netty.TcpMetrics loadEpollInfo
+INFO: Epoll available during static init of TcpMetrics:false
+11:33:09.481 [36mI[0m [zio-fiber-431527092] com.digitalasset.zio.daml.Channel:49 [36mKeep-alive (get ledger version) successful[0m [36m[0m application=scribe
+11:33:09.633 [36mI[0m [zio-fiber-245542092] com.digitalasset.zio.daml.ledgerapi.PackageService:27 [36mListed 34 packages[0m [36m[0m application=scribe
+11:33:09.655 [36mI[0m [zio-fiber-1591203539] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:09.655 [36mI[0m [zio-fiber-1351986763] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:09.655 [36mI[0m [zio-fiber-1970736294] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:09.742 [36mI[0m [zio-fiber-1045716497] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:09.749 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:46 [36mApplying schema[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:09.887 [36mI[0m [zio-fiber-1473443145] org.flywaydb.core.FlywayExecutor: [36mDatabase: jdbc:postgresql://localhost:5499/edb?currentSchema=public (PostgreSQL 16.15)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.184 [36mI[0m [zio-fiber-2104559453] org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory: [36mSchema history table "public"."flyway_schema_history" does not exist yet[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.187 [36mI[0m [zio-fiber-1653130255] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 42 migrations (execution time 00:00.185s)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.196 [36mI[0m [zio-fiber-383835980] org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory: [36mCreating Schema History table "public"."flyway_schema_history" ...[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.228 [36mI[0m [zio-fiber-37641346] org.flywaydb.core.internal.callback.SqlScriptCallbackFactory: [36mExecuting SQL callback: beforeMigrate - [0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.241 [36mI[0m [zio-fiber-1281156876] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": << Empty Schema >>[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.257 [36mI[0m [zio-fiber-1487152781] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "001 - Create initial schema"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.287 [36mI[0m [zio-fiber-890833945] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__insert_archive_trg" for relation "__archives" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.289 [36mI[0m [zio-fiber-725641887] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__update_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.290 [36mI[0m [zio-fiber-158044791] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__insert_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.290 [36mI[0m [zio-fiber-56933808] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.291 [36mI[0m [zio-fiber-564856404] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.292 [36mI[0m [zio-fiber-184497283] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.292 [36mI[0m [zio-fiber-1903156471] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.295 [36mI[0m [zio-fiber-1650301957] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.295 [36mI[0m [zio-fiber-1903568093] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.296 [36mI[0m [zio-fiber-891167401] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.296 [36mI[0m [zio-fiber-1921254508] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.297 [36mI[0m [zio-fiber-299691340] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.297 [36mI[0m [zio-fiber-1075355291] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.298 [36mI[0m [zio-fiber-997289748] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.299 [36mI[0m [zio-fiber-43424907] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.301 [36mI[0m [zio-fiber-1767356663] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.302 [36mI[0m [zio-fiber-1000394914] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.302 [36mI[0m [zio-fiber-723991450] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.303 [36mI[0m [zio-fiber-1512276080] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.303 [36mI[0m [zio-fiber-753236235] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.304 [36mI[0m [zio-fiber-538719778] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.305 [36mI[0m [zio-fiber-1774469951] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.305 [36mI[0m [zio-fiber-1233027693] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.306 [36mI[0m [zio-fiber-1599565451] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.306 [36mI[0m [zio-fiber-327598681] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.306 [36mI[0m [zio-fiber-490692491] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.307 [36mI[0m [zio-fiber-1580242075] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.307 [36mI[0m [zio-fiber-1577510417] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.308 [36mI[0m [zio-fiber-498812379] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.309 [36mI[0m [zio-fiber-1619021330] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.309 [36mI[0m [zio-fiber-1279480638] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.309 [36mI[0m [zio-fiber-1082323585] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.310 [36mI[0m [zio-fiber-1421249563] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.311 [36mI[0m [zio-fiber-665398702] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.312 [36mI[0m [zio-fiber-231482075] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.312 [36mI[0m [zio-fiber-972157135] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.312 [36mI[0m [zio-fiber-10693621] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.326 [36mI[0m [zio-fiber-1434509163] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "002 - Make initializecontractimplements function idempotent"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.333 [36mI[0m [zio-fiber-1368648823] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "003 - Fix create index for contract"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.340 [36mI[0m [zio-fiber-1060194599] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "004 - Add tmp to tx references cascade constraint"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.347 [36mI[0m [zio-fiber-1999283964] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "005 - Make watermark progression safer"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.350 [36mI[0m [zio-fiber-725412379] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.350 [36mI[0m [zio-fiber-1594401419] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __watermark.instance_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.358 [36mI[0m [zio-fiber-486176198] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "006 - Make checkpoint functions stable"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.365 [36mI[0m [zio-fiber-2110195620] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "007 - Expose effective at"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.376 [36mI[0m [zio-fiber-1126120062] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "008 - Add redaction functions"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.380 [36mI[0m [zio-fiber-978619038] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.380 [36mI[0m [zio-fiber-1808342211] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.381 [36mI[0m [zio-fiber-483338085] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.382 [36mI[0m [zio-fiber-567115165] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.382 [36mI[0m [zio-fiber-1456927810] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.383 [36mI[0m [zio-fiber-1932094767] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.389 [36mI[0m [zio-fiber-654022122] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "009 - Remove soft redactions"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.399 [36mI[0m [zio-fiber-940953914] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "010 - Add package name support"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.436 [36mI[0m [zio-fiber-748665612] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "011 - Remove witnesses add stakeholders"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.446 [36mI[0m [zio-fiber-1817059263] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "012 - Update initialization routines"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.452 [36mI[0m [zio-fiber-956613970] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "013 - Drop packages name version key constraint"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.459 [36mI[0m [zio-fiber-2142943237] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "015 - Include template entity name in choice type"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.463 [36mI[0m [zio-fiber-887624131] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: function __make_aliases(text,text,text,text) does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.466 [36mI[0m [zio-fiber-185093670] org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor: [36m+-------------+-----------------+
+| description | exercise_tpe_pk |
++-------------+-----------------+
+| No rows returned              |
++-------------+-----------------+
+[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.472 [36mI[0m [zio-fiber-717582558] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "016 - Store trace context of daml transaction"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.477 [36mI[0m [zio-fiber-5304096] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "017 - Fix exercises join"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.481 [36mI[0m [zio-fiber-392060975] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "018 - Add reference index"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.487 [36mI[0m [zio-fiber-832466388] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "019 - Baseline initialization routines"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.494 [36mI[0m [zio-fiber-295995285] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "020 - Remove cascading operations"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.499 [36mI[0m [zio-fiber-1913292856] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.499 [36mI[0m [zio-fiber-521399038] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.504 [36mI[0m [zio-fiber-950478995] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "021 - Optimize watermark cleanup"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.513 [36mI[0m [zio-fiber-1069784534] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "022 - Events identifier updated and offset num added"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.514 [36mI[0m [zio-fiber-1711717202] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.515 [36mI[0m [zio-fiber-2077039734] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.515 [36mI[0m [zio-fiber-1124976859] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.515 [36mI[0m [zio-fiber-1406749702] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.516 [36mI[0m [zio-fiber-1215849965] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.516 [36mI[0m [zio-fiber-1905101189] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.517 [36mI[0m [zio-fiber-2099030896] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.517 [36mI[0m [zio-fiber-43755269] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.518 [36mI[0m [zio-fiber-1362785746] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.518 [36mI[0m [zio-fiber-568870086] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.519 [36mI[0m [zio-fiber-1175526673] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.519 [36mI[0m [zio-fiber-804073395] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.520 [36mI[0m [zio-fiber-2083849280] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.520 [36mI[0m [zio-fiber-1033930102] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.520 [36mI[0m [zio-fiber-2041046279] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.521 [36mI[0m [zio-fiber-32475771] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.521 [36mI[0m [zio-fiber-136974330] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.521 [36mI[0m [zio-fiber-1000214384] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.521 [36mI[0m [zio-fiber-437543980] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.522 [36mI[0m [zio-fiber-277396803] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.522 [36mI[0m [zio-fiber-384222254] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.522 [36mI[0m [zio-fiber-1487143974] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.523 [36mI[0m [zio-fiber-1322882349] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.523 [36mI[0m [zio-fiber-1566166477] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.523 [36mI[0m [zio-fiber-1538336795] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.523 [36mI[0m [zio-fiber-1914779895] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.524 [36mI[0m [zio-fiber-1544622600] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.524 [36mI[0m [zio-fiber-779180376] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.524 [36mI[0m [zio-fiber-1721924576] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.532 [36mI[0m [zio-fiber-1200885759] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.tx_ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.540 [36mI[0m [zio-fiber-795543622] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.tx_ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.543 [36mI[0m [zio-fiber-943988326] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.544 [36mI[0m [zio-fiber-1205353480] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.544 [36mI[0m [zio-fiber-80092148] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.544 [36mI[0m [zio-fiber-1311162547] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.544 [36mI[0m [zio-fiber-1339375457] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.551 [36mI[0m [zio-fiber-1382148748] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.551 [36mI[0m [zio-fiber-910814168] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.551 [36mI[0m [zio-fiber-1566708675] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.552 [36mI[0m [zio-fiber-1006374953] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.552 [36mI[0m [zio-fiber-1501268441] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.552 [36mI[0m [zio-fiber-280703176] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.553 [36mI[0m [zio-fiber-1687504309] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.553 [36mI[0m [zio-fiber-1696394347] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.553 [36mI[0m [zio-fiber-379829725] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.554 [36mI[0m [zio-fiber-1206029981] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.554 [36mI[0m [zio-fiber-1786441868] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.555 [36mI[0m [zio-fiber-1883554808] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.555 [36mI[0m [zio-fiber-641804735] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.555 [36mI[0m [zio-fiber-83901869] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.556 [36mI[0m [zio-fiber-191891449] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.556 [36mI[0m [zio-fiber-804835992] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.556 [36mI[0m [zio-fiber-1111255146] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.557 [36mI[0m [zio-fiber-1046581678] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.558 [36mI[0m [zio-fiber-1833845142] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.559 [36mI[0m [zio-fiber-472211469] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.559 [36mI[0m [zio-fiber-1168077449] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.560 [36mI[0m [zio-fiber-609997769] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.560 [36mI[0m [zio-fiber-73819174] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.560 [36mI[0m [zio-fiber-414407642] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.561 [36mI[0m [zio-fiber-475103366] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.561 [36mI[0m [zio-fiber-1165565771] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.562 [36mI[0m [zio-fiber-1400571512] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.562 [36mI[0m [zio-fiber-306295559] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.563 [36mI[0m [zio-fiber-1836075242] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.563 [36mI[0m [zio-fiber-107079148] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.564 [36mI[0m [zio-fiber-78635145] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.564 [36mI[0m [zio-fiber-1569872648] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.564 [36mI[0m [zio-fiber-1195019534] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.564 [36mI[0m [zio-fiber-572786187] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.564 [36mI[0m [zio-fiber-914848670] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.565 [36mI[0m [zio-fiber-1505493291] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.565 [36mI[0m [zio-fiber-774667506] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.565 [36mI[0m [zio-fiber-894472374] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.566 [36mI[0m [zio-fiber-497313425] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.566 [36mI[0m [zio-fiber-1059705737] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.566 [36mI[0m [zio-fiber-1589016818] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.566 [36mI[0m [zio-fiber-359250352] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.567 [36mI[0m [zio-fiber-1044658859] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.567 [36mI[0m [zio-fiber-1411925907] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.567 [36mI[0m [zio-fiber-1495892263] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.567 [36mI[0m [zio-fiber-1532208846] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.568 [36mI[0m [zio-fiber-394957349] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.568 [36mI[0m [zio-fiber-1298478714] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.568 [36mI[0m [zio-fiber-1334639147] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.568 [36mI[0m [zio-fiber-767922024] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.569 [36mI[0m [zio-fiber-979269184] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.569 [36mI[0m [zio-fiber-1155949097] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.569 [36mI[0m [zio-fiber-455567899] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.569 [36mI[0m [zio-fiber-1854615241] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.570 [36mI[0m [zio-fiber-1757372349] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.570 [36mI[0m [zio-fiber-596477660] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.571 [36mI[0m [zio-fiber-343034872] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.571 [36mI[0m [zio-fiber-1177231342] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.571 [36mI[0m [zio-fiber-104694142] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.571 [36mI[0m [zio-fiber-633669563] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.577 [36mI[0m [zio-fiber-1350246825] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "023 - Remove referential constraints"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.578 [36mI[0m [zio-fiber-114992477] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.579 [36mI[0m [zio-fiber-1667587943] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.584 [36mI[0m [zio-fiber-1375881489] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "024 - No hardcoded public schema"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.585 [36mI[0m [zio-fiber-2018134163] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.585 [36mI[0m [zio-fiber-228466438] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.586 [36mI[0m [zio-fiber-8880868] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.586 [36mI[0m [zio-fiber-900743558] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.586 [36mI[0m [zio-fiber-1619204513] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.587 [36mI[0m [zio-fiber-1833374652] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.587 [36mI[0m [zio-fiber-1927327634] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.588 [36mI[0m [zio-fiber-1396569671] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.592 [36mI[0m [zio-fiber-1344306359] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "025 - Expose controllers in exercises"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.597 [36mI[0m [zio-fiber-303011264] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "026 - Resolve contract type from exercise name"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.597 [36mI[0m [zio-fiber-764296318] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.601 [36mI[0m [zio-fiber-1644674304] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "027 - Avoid inspecting redundant contract partitions on exercises query"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.607 [36mI[0m [zio-fiber-675378245] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "028 - Rectify parent child relationship on daml versions schema split"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.608 [36mI[0m [zio-fiber-121551546] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.613 [36mI[0m [zio-fiber-98171077] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "029 - Expose last descendant node id in exercises"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.618 [36mI[0m [zio-fiber-830651201] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "030 - Store external transaction hash"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.625 [36mI[0m [zio-fiber-1522095967] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "031 - Add transactions view"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.631 [36mI[0m [zio-fiber-1435803050] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "032 - Use of partition index in partition tables"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.645 [36mI[0m [zio-fiber-1389679431] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "033 - Implement contracts divulgence"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.646 [36mI[0m [zio-fiber-46434412] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.647 [36mI[0m [zio-fiber-319591862] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.647 [36mI[0m [zio-fiber-1036196850] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.647 [36mI[0m [zio-fiber-1290578261] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.648 [36mI[0m [zio-fiber-309577097] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.648 [36mI[0m [zio-fiber-1712835272] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.653 [36mI[0m [zio-fiber-1814054960] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.653 [36mI[0m [zio-fiber-783218789] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.654 [36mI[0m [zio-fiber-905547057] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.654 [36mI[0m [zio-fiber-745889463] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.655 [36mI[0m [zio-fiber-502574054] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.655 [36mI[0m [zio-fiber-409421807] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.656 [36mI[0m [zio-fiber-474180564] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.660 [36mI[0m [zio-fiber-980231727] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "034 - Nearest offset fix"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.662 [36mI[0m [zio-fiber-1162362612] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.667 [36mI[0m [zio-fiber-1005433791] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "035 - Add prune archived to offset"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.668 [36mI[0m [zio-fiber-1785325575] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.669 [36mI[0m [zio-fiber-793291850] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.669 [36mI[0m [zio-fiber-418631150] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.670 [36mI[0m [zio-fiber-1709719110] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.670 [36mI[0m [zio-fiber-454595023] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.671 [36mI[0m [zio-fiber-910174603] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.671 [36mI[0m [zio-fiber-107862033] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.672 [36mI[0m [zio-fiber-756115466] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.677 [36mI[0m [zio-fiber-375930901] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "036 - Extract functions to repeatable"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.696 [36mI[0m [zio-fiber-1147198647] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "037 - Add creation package id"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.700 [36mI[0m [zio-fiber-1623032716] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "038 - Add pruning metadata"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.706 [36mI[0m [zio-fiber-1112500044] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "039 - Store paid traffic cost"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.711 [36mI[0m [zio-fiber-372815631] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "040 - Init watermark"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.716 [36mI[0m [zio-fiber-2105013138] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" to version "041 - Store contract key hash"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.726 [36mI[0m [zio-fiber-1246564207] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" with repeatable migration "functions"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.727 [36mI[0m [zio-fiber-1486033378] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.727 [36mI[0m [zio-fiber-258505877] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.728 [36mI[0m [zio-fiber-1162508266] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contract_tpe.pk%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.728 [36mI[0m [zio-fiber-2086453081] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.728 [36mI[0m [zio-fiber-1512948680] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.729 [36mI[0m [zio-fiber-499384021] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.729 [36mI[0m [zio-fiber-853669075] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.733 [36mI[0m [zio-fiber-124946318] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.733 [36mI[0m [zio-fiber-298034274] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.733 [36mI[0m [zio-fiber-673000823] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.734 [36mI[0m [zio-fiber-2008387150] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.734 [36mI[0m [zio-fiber-516890619] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.734 [36mI[0m [zio-fiber-830080208] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.735 [36mI[0m [zio-fiber-497852954] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.735 [36mI[0m [zio-fiber-869282204] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.735 [36mI[0m [zio-fiber-127205392] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.736 [36mI[0m [zio-fiber-1201628816] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.736 [36mI[0m [zio-fiber-1974674013] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.737 [36mI[0m [zio-fiber-508840376] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.738 [36mI[0m [zio-fiber-1271497354] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.739 [36mI[0m [zio-fiber-1770762586] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.740 [36mI[0m [zio-fiber-1394625695] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.740 [36mI[0m [zio-fiber-213938174] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.741 [36mI[0m [zio-fiber-1561141932] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.741 [36mI[0m [zio-fiber-60914495] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.741 [36mI[0m [zio-fiber-1820595979] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.742 [36mI[0m [zio-fiber-1801378191] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.742 [36mI[0m [zio-fiber-2091683938] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.743 [36mI[0m [zio-fiber-1480082428] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.743 [36mI[0m [zio-fiber-1771466514] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.744 [36mI[0m [zio-fiber-1115846197] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.744 [36mI[0m [zio-fiber-627168481] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.744 [36mI[0m [zio-fiber-1245393128] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.745 [36mI[0m [zio-fiber-1058627728] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.745 [36mI[0m [zio-fiber-237797919] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.745 [36mI[0m [zio-fiber-812155877] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.746 [36mI[0m [zio-fiber-1772687614] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __events.event_id%TYPE converted to event_id[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.746 [36mI[0m [zio-fiber-2120495178] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.redaction_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.746 [36mI[0m [zio-fiber-1921831767] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.747 [36mI[0m [zio-fiber-614335177] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.747 [36mI[0m [zio-fiber-1969595119] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.748 [36mI[0m [zio-fiber-1908433772] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.748 [36mI[0m [zio-fiber-1861357325] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.749 [36mI[0m [zio-fiber-1607045721] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference checkpoint.ix%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.750 [36mI[0m [zio-fiber-1454792770] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.750 [36mI[0m [zio-fiber-373698619] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.750 [36mI[0m [zio-fiber-1827195882] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.750 [36mI[0m [zio-fiber-1137734804] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.751 [36mI[0m [zio-fiber-1011231787] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.751 [36mI[0m [zio-fiber-1655841975] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.751 [36mI[0m [zio-fiber-1630422614] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.751 [36mI[0m [zio-fiber-386278476] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.752 [36mI[0m [zio-fiber-1344103029] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.752 [36mI[0m [zio-fiber-1828774220] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.752 [36mI[0m [zio-fiber-1466474129] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.753 [36mI[0m [zio-fiber-521507531] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.753 [36mI[0m [zio-fiber-1421209245] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.753 [36mI[0m [zio-fiber-541277375] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.753 [36mI[0m [zio-fiber-1483711062] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.template_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.753 [36mI[0m [zio-fiber-593135238] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercise_tpe.choice_fqn%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.754 [36mI[0m [zio-fiber-283432171] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.754 [36mI[0m [zio-fiber-332983438] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.754 [36mI[0m [zio-fiber-382344285] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.755 [36mI[0m [zio-fiber-1601922528] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.756 [36mI[0m [zio-fiber-360082079] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.756 [36mI[0m [zio-fiber-1845670130] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.756 [36mI[0m [zio-fiber-1953790959] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.756 [36mI[0m [zio-fiber-570709254] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.757 [36mI[0m [zio-fiber-1161352651] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.757 [36mI[0m [zio-fiber-1392395609] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.757 [36mI[0m [zio-fiber-1866468542] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.757 [36mI[0m [zio-fiber-1921271597] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.758 [36mI[0m [zio-fiber-211287283] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.758 [36mI[0m [zio-fiber-1639725168] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.758 [36mI[0m [zio-fiber-1025410934] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.758 [36mI[0m [zio-fiber-1308607495] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __transactions.offset%TYPE converted to bigint[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.760 [36mI[0m [zio-fiber-1517459791] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __contracts.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.761 [36mI[0m [zio-fiber-1454645861] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __exercises.contract_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.761 [36mI[0m [zio-fiber-1408238995] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: function __nearest_ix(pg_catalog.int8) does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.767 [36mI[0m [zio-fiber-1923386707] org.flywaydb.core.internal.command.DbMigrate: [36mMigrating schema "public" with repeatable migration "views and triggers"[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.768 [36mI[0m [zio-fiber-1961497593] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: type reference __watermark.instance_id%TYPE converted to text[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.769 [36mI[0m [zio-fiber-615221389] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__update_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.770 [36mI[0m [zio-fiber-1034488973] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__insert_watermark_trg" for relation "__watermark" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.771 [36mI[0m [zio-fiber-922612112] org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub: [36mDB: trigger "__insert_archive_trg" for relation "__archives" does not exist, skipping[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.777 [36mI[0m [zio-fiber-309388983] org.flywaydb.core.internal.command.DbMigrate: [36mSuccessfully applied 42 migrations to schema "public", now at version v041 (execution time 00:00.302s)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.781 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:94 [36mApplying mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.914 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:99 [36mSchema and mappings applied[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.919 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:122 [36mInitialised 8 entity types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.924 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:137 [36mInitialised 20 exercise types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.928 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:147 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.933 [36mI[0m [zio-fiber-678619386] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 [36mInitialised 3 packages[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.942 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:45 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.959 [36mI[0m [zio-fiber-1204930604] com.digitalasset.zio.daml.ledgerapi.StateService:62 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.962 [36mI[0m [zio-fiber-1204930604] com.digitalasset.zio.daml.ledgerapi.StateService:68 [36mRetrieved ledger end offset: 22[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.977 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:91 [36mStarting from Genesis[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:10.978 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:102 [36mContinuing from offset 'GENESIS' and index '0' until offset 'INFINITY'[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:11.019 [36mI[0m [zio-fiber-1889913165] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 [36mContract filter inclusive of 8 templates and 0 interfaces[0m [36m[0m application=scribe
+11:33:11.053 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 12, 15[0m [36m[0m application=scribe
+11:33:11.059 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 18[0m [36m[0m application=scribe
+11:33:11.060 [36mI[0m [zio-fiber-208684211] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220be977bd8ec489a111bc655b7ad54a1810ebe20568f05e90f6e0248c452c03de9 (offset: 15, events: 1, remote trace: 3eb624a07f4bb8475cd694052ecda09c)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=3eb624a07f4bb8475cd694052ecda09c application=scribe
+11:33:11.060 [36mI[0m [zio-fiber-1575261441] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220272a8d82bc7c0ba5ee5c7a80cdd2c62c91f459ed123dcd09dc4dd8fa7ef21023 (offset: 12, events: 1, remote trace: ac18f5d90f0160cae6f46c2ca5442e5e)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=ac18f5d90f0160cae6f46c2ca5442e5e application=scribe
+11:33:11.060 [36mI[0m [zio-fiber-832716282] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220a12a9feec7c32e53a420bff06a6b5bc482637d97583a29e0a073472964b46923 (offset: 18, events: 1, remote trace: 326b0ae85faf7b4ad729c3636beab2e2)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=326b0ae85faf7b4ad729c3636beab2e2 application=scribe
+11:33:11.264 [36mI[0m [zio-fiber-354762315] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 3, offset = 18[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:14.912 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 23[0m [36m[0m application=scribe
+11:33:14.913 [36mI[0m [zio-fiber-2025131564] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122018a993712ae8b92eb33fa5f7b359b55e683b11078c1acd5450f1db583877f267 (offset: 23, events: 1, remote trace: 68de244adb2bf1fdef898afd3df41efa)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=68de244adb2bf1fdef898afd3df41efa application=scribe
+11:33:14.938 [36mI[0m [zio-fiber-354762315] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 4, offset = 23[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:15.390 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 26[0m [36m[0m application=scribe
+11:33:15.391 [36mI[0m [zio-fiber-1776408003] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12209eacceda17a8f4d60976df0656ac2b2168f5a0e7565baa52c5d3eb46dc0b8788 (offset: 26, events: 1, remote trace: a32270dbd083e6e34b7afb80fe8f90d1)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=a32270dbd083e6e34b7afb80fe8f90d1 application=scribe
+11:33:15.414 [36mI[0m [zio-fiber-354762315] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 5, offset = 26[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:19.579 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 29[0m [36m[0m application=scribe
+11:33:19.580 [36mI[0m [zio-fiber-1867910298] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122056f3ac87c3bdc4f224b311c92cd1a68db344fc1fe16d21fd8572842bb1b838fd (offset: 29, events: 1, remote trace: fd4620f0b8250c824ba3102e4ebcb839)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=fd4620f0b8250c824ba3102e4ebcb839 application=scribe
+11:33:19.598 [36mI[0m [zio-fiber-354762315] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 6, offset = 29[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:20.072 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 32[0m [36m[0m application=scribe
+11:33:20.073 [36mI[0m [zio-fiber-287328511] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12202958fafc88234fc9d1fab19fa68fbb21d01bf0095adce0b8daf14f9472a79934 (offset: 32, events: 1, remote trace: 00e75a82f1cff1f42dedc574fb249fc6)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=00e75a82f1cff1f42dedc574fb249fc6 application=scribe
+11:33:20.097 [36mI[0m [zio-fiber-354762315] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 7, offset = 32[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:24.385 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: [0m [36m[0m application=scribe
+11:33:29.123 [36mI[0m [zio-fiber-1506480339] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 37[0m [36m[0m application=scribe
+11:33:29.128 [36mI[0m [zio-fiber-89795746] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220fbf405b3c68a6418a39af92ee9ace786b268fcdebd3ef01e6c8c7fd1ef31327b (offset: 37, events: 1, remote trace: 4128060d305f5301050c604f98836c81)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=4128060d305f5301050c604f98836c81 application=scribe
+11:33:29.140 [37mF[0m [zio-fiber-1889913165] com.digitalasset.zio.daml.ledgerapi.getTransactionStream:38 [37mNo retry of fatal exception com.digitalasset.zio.daml.ledgerapi.UnknownDamlPackageException: No package for 99ffeed8f34d79b66233dc93f1d28e418a515f03a677008a72d4e6823e29e767:Mirrors:Mirror was seen on initialization. Retrying to discover new packages.[0m [37m[0m application=scribe
+11:33:29.159 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.Retry.retryRecoverable:62 [36mRecoverable: unknown Daml package detected. Attempt 1, unstable for 0 seconds.[0m [36mjava.lang.Throwable: Recoverable: unknown Daml package detected.
+	Suppressed: com.digitalasset.zio.daml.ledgerapi.UnknownDamlPackageException: No package for 99ffeed8f34d79b66233dc93f1d28e418a515f03a677008a72d4e6823e29e767:Mirrors:Mirror was seen on initialization. Retrying to discover new packages.
+[0m application=scribe
+11:33:30.172 [36mI[0m [zio-fiber-865792768] com.digitalasset.zio.daml.ledgerapi.PackageService:27 [36mListed 35 packages[0m [36m[0m application=scribe
+11:33:30.175 [36mI[0m [zio-fiber-487242877] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:30.175 [36mI[0m [zio-fiber-1412317282] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:30.176 [36mI[0m [zio-fiber-635546025] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:30.177 [36mI[0m [zio-fiber-1754746890] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:33:30.178 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:46 [36mApplying schema[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.196 [36mI[0m [zio-fiber-899013260] org.flywaydb.core.FlywayExecutor: [36mDatabase: jdbc:postgresql://localhost:5499/edb?currentSchema=public (PostgreSQL 16.15)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.331 [36mI[0m [zio-fiber-569383734] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 42 migrations (execution time 00:00.072s)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.346 [36mI[0m [zio-fiber-2036330116] org.flywaydb.core.internal.callback.SqlScriptCallbackFactory: [36mExecuting SQL callback: beforeMigrate - [0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.356 [36mI[0m [zio-fiber-1912639579] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": 041[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.357 [36mI[0m [zio-fiber-1176975012] org.flywaydb.core.internal.command.DbMigrate: [36mSchema "public" is up to date. No migration necessary.[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.359 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:94 [36mApplying mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.365 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:99 [36mSchema and mappings applied[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.370 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:122 [36mInitialised 9 entity types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.373 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:137 [36mInitialised 21 exercise types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.375 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:147 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.379 [36mI[0m [zio-fiber-1830817052] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 [36mInitialised 4 packages[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.383 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:45 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.385 [36mI[0m [zio-fiber-1204930604] com.digitalasset.zio.daml.ledgerapi.StateService:62 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.387 [36mI[0m [zio-fiber-1204930604] com.digitalasset.zio.daml.ledgerapi.StateService:68 [36mRetrieved ledger end offset: 42[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.397 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:93 [36mLast known checkpoint is at offset '32' and index '7'[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.397 [36mI[0m [zio-fiber-1204930604] com.digitalasset.scribe.pipeline.pipeline.Impl:102 [36mContinuing from offset '32' and index '7' until offset 'INFINITY'[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:30.403 [36mI[0m [zio-fiber-599287174] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 [36mContract filter inclusive of 9 templates and 0 interfaces[0m [36m[0m application=scribe
+11:33:30.409 [36mI[0m [zio-fiber-104644265] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: [0m [36m[0m application=scribe
+11:33:30.409 [36mI[0m [zio-fiber-104644265] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 37, 40[0m [36m[0m application=scribe
+11:33:30.410 [36mI[0m [zio-fiber-414619190] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220fbf405b3c68a6418a39af92ee9ace786b268fcdebd3ef01e6c8c7fd1ef31327b (offset: 37, events: 1, remote trace: 4128060d305f5301050c604f98836c81)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=4128060d305f5301050c604f98836c81 application=scribe
+11:33:30.410 [36mI[0m [zio-fiber-314312990] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122026bdf9a1e9c174dba9c0a4d33f1dca92ff9a285fd20772dd56b0d754b3a8cd0f (offset: 40, events: 1, remote trace: 4e71663c1be174bc3d7fb09781588ba5)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=4e71663c1be174bc3d7fb09781588ba5 application=scribe
+11:33:30.627 [36mI[0m [zio-fiber-68924546] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 9, offset = 40[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:33:35.467 [36mI[0m [zio-fiber-104644265] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 46[0m [36m[0m application=scribe
+11:33:35.468 [36mI[0m [zio-fiber-1695112400] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122065d30d733473a872366f9b8176c5aca6a65a929bb8ca5f7a10ce13783d189cee (offset: 46, events: 1, remote trace: 2dadedd5a6dfd265963efe6955ed523e)[0m [36m[0m trace_id=00000000000000000000000000000000 correlation_id=2dadedd5a6dfd265963efe6955ed523e application=scribe
+11:33:35.496 [36mI[0m [zio-fiber-68924546] com.digitalasset.scribe.postgres.document.DocumentPostgres.Service:404 [36mAdvanced watermark: ix = 10, offset = 46[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+[diagnostics] Diagnostics server shutting down now...
+[diagnostics] Shutting down Micrometer to OpenMetrics bridge
+[diagnostics] Shutting down thread dumps collector

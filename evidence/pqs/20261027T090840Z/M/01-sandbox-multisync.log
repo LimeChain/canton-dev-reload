@@ -1,0 +1,4 @@
+sandbox listening at ports: 6865(gRPC) and 6864(HTTP)
+sidebox listening at ports: 8865(gRPC) and 8864(HTTP)
+pebblebox listening at ports: 7865(gRPC) and 7864(HTTP)
+Canton sandbox is ready.

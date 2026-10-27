@@ -1,0 +1,5 @@
+NOTICE:  DRY-RUN: pruning to offset: 34
+ERROR:  Illegal pruning offset 34 is beyond upper bounds of contiguous history
+CONTEXT:  PL/pgSQL function __validate_max_pruned_offset(bigint) line 26 at RAISE
+SQL statement "select validation.pruning_boundary_offset                                  from __validate_max_pruned_offset(max_pruned_offset) as validation"
+PL/pgSQL function prune_archived_to_offset_dry_run(bigint) line 10 at SQL statement

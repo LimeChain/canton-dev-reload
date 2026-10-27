@@ -1,0 +1,5 @@
+NOTICE:  Reset to offset: 11
+ERROR:  Illegal reset offset 11 is outside lower bounds of contiguous history
+CONTEXT:  PL/pgSQL function validate_reset_offset(bigint) line 11 at RAISE
+SQL statement "select validation.new_latest                 from validate_reset_offset(max_offset) as validation"
+PL/pgSQL function reset_to_offset(bigint) line 16 at SQL statement

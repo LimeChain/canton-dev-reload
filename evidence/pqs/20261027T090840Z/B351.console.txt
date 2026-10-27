@@ -1,0 +1,1 @@
+STOP [B351] PQS died while waiting for offset 40, see /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/evidence/pqs/20261027T090840Z/B351/39-pqs-start-bdb.log

@@ -1,0 +1,6 @@
+12:27:19.325 I [zio-fiber-1141564664] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 Initialised 4 packages  trace_id=00000000000000000000000000000000 application=scribe
+12:27:19.391 I [zio-fiber-1599063822] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 Contract filter inclusive of 9 templates and 0 interfaces  application=scribe
+12:27:46.412 F [zio-fiber-1599063822] com.digitalasset.zio.daml.ledgerapi.getTransactionStream:38 No retry of fatal exception com.digitalasset.zio.daml.ledgerapi.UnknownDamlPackageException: No package for 3764036138b74eacecdd1b50fb652b18e17e3c7cbc6e5804db6bc9c2d4c22ff5:Mirrors:Mirror was seen on in
+	Suppressed: com.digitalasset.zio.daml.ledgerapi.UnknownDamlPackageException: No package for 3764036138b74eacecdd1b50fb652b18e17e3c7cbc6e5804db6bc9c2d4c22ff5:Mirrors:Mirror was seen on initialization. Retrying to discover new packages.
+12:27:47.644 I [zio-fiber-316508535] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 Initialised 5 packages  trace_id=00000000000000000000000000000000 application=scribe
+12:27:47.663 I [zio-fiber-1746915602] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 Contract filter inclusive of 10 templates and 0 interfaces  application=scribe

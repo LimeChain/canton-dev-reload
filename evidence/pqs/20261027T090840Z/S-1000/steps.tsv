@@ -1,0 +1,27 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	init	want=ok	got=ok	rc=0	5.950s	02-init.log
+3	createdb-sdb_1000	want=ok	got=ok	rc=0	0.137s	03-createdb-sdb_1000.log
+4	pqs-start-sdb_1000	want=ok	got=started	pid=71598	-	04-pqs-start-sdb_1000.log	filter=* image=local-3.5.7 
+4	wait-sdb_1000-18	want=ok	got=ok	checkpoint=18	3.436s	-
+5	items	want=ok	got=ok	rc=0	18.830s	05-items.log
+6	churn	want=ok	got=ok	rc=0	33.101s	06-churn.log
+7	o-after	want=ok	got=ok	rc=0	3.129s	07-o-after.log
+8	swap	want=ok	got=ok	rc=0	3.615s	08-swap.log
+9	g2-create	want=ok	got=ok	rc=0	4.232s	09-g2-create.log
+9	wait-sdb_1000-388	want=ok	got=ok	checkpoint=388	1.323s	-
+10	before-retired	want=ok	got=ok	rc=0	0.086s	10-before-retired.log
+11	before-items	want=ok	got=ok	rc=0	0.093s	11-before-items.log
+12	before-g2	want=ok	got=ok	rc=0	0.092s	12-before-g2.log
+13	before-tables	want=ok	got=ok	rc=0	0.095s	13-before-tables.log
+14	before-dbsize	want=ok	got=ok	rc=0	0.089s	14-before-dbsize.log
+15	before-relsizes	want=ok	got=ok	rc=0	0.088s	15-before-relsizes.log
+16	prune-dry	want=ok	got=rc0	-	108ms	16-prune-dry.log
+18	prune	want=ok	got=rc0	-	106ms	18-prune.log
+18	wait-sdb_1000-448	want=ok	got=ok	checkpoint=448	0.086s	-
+19	after-retired	want=ok	got=ok	rc=0	0.085s	19-after-retired.log
+20	after-items	want=ok	got=ok	rc=0	0.086s	20-after-items.log
+21	after-g2	want=ok	got=ok	rc=0	0.079s	21-after-g2.log
+22	after-tables	want=ok	got=ok	rc=0	0.073s	22-after-tables.log
+23	after-dbsize	want=ok	got=ok	rc=0	0.087s	23-after-dbsize.log
+24	after-relsizes	want=ok	got=ok	rc=0	0.084s	24-after-relsizes.log
+25	after-pruned	want=ok	got=ok	rc=0	0.078s	25-after-pruned.log

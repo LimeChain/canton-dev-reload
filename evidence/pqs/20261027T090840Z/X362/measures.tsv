@@ -1,0 +1,54 @@
+recover	filter_applied	contracts="(* & !mirrors:*) | mirrors@>=1.0.3"
+recover	outcome	pqs-crashed
+recover	crash_cause	java.util.NoSuchElementException: key not found: (3412d562f9f5ca3d52ea8f4773536c1590071d0d77744a94cf3bd7feda17eefd,Mirrors,Mirror)
+x1-ingested	g1_rows	2
+x1-ingested	retired_creates	6
+x1-ingested	current_rows	2
+x1-ingested	anchor	1
+x1-ingested	collateral	1
+x1-after-prune	oldest_checkpoint	12
+x1-after-prune	latest_checkpoint	68
+x1-after-prune	pruned_offset	34
+x1-after-prune	g1_rows	0
+x1-after-prune	retired_creates	4
+x1-after-prune	current_rows	2
+x1-after-prune	anchor	1
+x1-after-prune	collateral	0
+x1	target_vs_bounds	oldest=12 target=22 pruned=34
+x1	validate	accepted: 12 | 10 
+x1	reset	accepted: NOTICE: Reset to offset: 22 12 | 10 
+x1-after-reset	oldest_checkpoint	12
+x1-after-reset	latest_checkpoint	12
+x1-after-reset	pruned_offset	12
+x1-after-reset-before-replay	g1_rows	0
+x1-after-reset-before-replay	retired_creates	0
+x1-after-reset-before-replay	current_rows	0
+x1-after-reset-before-replay	anchor	1
+x1-after-reset-before-replay	collateral	0
+x1	unfiltered_replay	caught-up
+x1-after-replay	g1_rows	2
+x1-after-replay	retired_creates	6
+x1-after-replay	current_rows	2
+x1-after-replay	anchor	1
+x1-after-replay	collateral	1
+x2-after-prune	oldest_checkpoint	12
+x2-after-prune	latest_checkpoint	68
+x2-after-prune	pruned_offset	48
+x2	target_vs_bounds	target=11 oldest=12
+x2	validate	refused: ERROR: Illegal reset offset 11 is outside lower bounds of contiguous history 
+x2	reset	refused: NOTICE: Reset to offset: 11 ERROR: Illegal reset offset 11 is outside lower bounds of contiguous history 
+x2-after-reset	oldest_checkpoint	12
+x2-after-reset	latest_checkpoint	68
+x2-after-reset	pruned_offset	48
+x3-after-A	g1_rows	0
+x3-after-A	retired_creates	0
+x3-after-A	current_rows	2
+x3-after-A	anchor	1
+x3-after-A	collateral	0
+x3	validate	accepted: 12 | 2 
+x3	reset	accepted: NOTICE: Reset to offset: 50 12 | 2 
+x3-after-reset	oldest_checkpoint	12
+x3-after-reset	latest_checkpoint	12
+x3-after-reset	pruned_offset	12
+x3	filtered_replay	pqs-crashed
+x3	crash_cause	java.util.NoSuchElementException: key not found: (9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81,Mirrors,Mirror)

@@ -1,0 +1,145 @@
+#### PQS rows
+stamp            20261027T090840Z
+git              harness-v26 (c8a2d9df26fec810387b27ff521d2f4898721f5e)
+git status       0 changed file(s) outside evidence/
+citable          yes
+dpm                 3.5.2 
+java             openjdk version "21.0.12.1" 2026-08-18
+pqs jar          /Users/georgiradev/.dpm/cache/components/scribe/3.5.7/scribe.jar sha256=3d1ca060c2e8e84a091901d0161e1bb0ee0161ffd23ca722d7f52886a9ba9976
+image            europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.5.1 europe-docker.pkg.dev/da-images/public/docker/participant-query-store@sha256:19d3b0c276273c782dc33e6560ad370dd4c0c01e78101f9485bb875e5d065542
+image            europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.6.2 europe-docker.pkg.dev/da-images/public/docker/participant-query-store@sha256:471ee168f56ea833aab24288fa22644dc95b552f9d3ddbcd4d933352a7b8cff4
+image            postgres:16 postgres@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+fixtures         ab8128a3c943f337b1c05aeb9f3180be336474751556175884c971d25e27c17c (sha256 of the DAR hashes)
+
+==== PQS-A  A  (09:08:44)
+PQS-A	A	PASS	expect=complete	rc=0	116s
+RUN A COMPLETE
+
+==== PQS-B  B  (09:10:45)
+PQS-B	B	PASS	expect=crash	rc=1	67s
+STOP [B] PQS died while waiting for offset 40, see /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/evidence/pqs/20261027T090840Z/B/39-pqs-start-bdb.log
+
+==== PQS-X  X  (09:11:57)
+PQS-X	X	PASS	expect=complete	rc=0	115s
+RUN X COMPLETE
+
+==== PQS-D  D  (09:13:56)
+PQS-D	D	PASS	expect=complete	rc=0	116s
+RUN D COMPLETE
+
+==== PQS-V  A351  (09:15:55)
+PQS-V	A351	PASS	expect=complete	rc=0	121s
+RUN A COMPLETE
+
+==== PQS-V  B351  (09:17:59)
+PQS-V	B351	PASS	expect=crash	rc=1	64s
+STOP [B351] PQS died while waiting for offset 40, see /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/evidence/pqs/20261027T090840Z/B351/39-pqs-start-bdb.log
+
+==== PQS-V  X351  (09:19:07)
+PQS-V	X351	PASS	expect=complete	rc=0	131s
+RUN X COMPLETE
+
+==== PQS-V  A362  (09:21:22)
+PQS-V	A362	PASS	expect=complete	rc=0	130s
+RUN A COMPLETE
+
+==== PQS-V  B362  (09:23:36)
+PQS-V	B362	PASS	expect=crash	rc=1	65s
+STOP [B362] PQS died while waiting for offset 40, see /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/evidence/pqs/20261027T090840Z/B362/39-pqs-start-bdb.log
+
+==== PQS-V  X362  (09:24:45)
+PQS-V	X362	PASS	expect=complete	rc=0	131s
+RUN X COMPLETE
+
+==== PQS-C  C  (09:27:00)
+PQS-C	C	PASS	expect=complete	rc=0	70s
+RUN C COMPLETE
+
+==== PQS-C  CT  (09:28:13)
+PQS-C	CT	PASS	expect=complete	rc=0	68s
+RUN C COMPLETE
+
+==== PQS-M  M  (09:29:25)
+PQS-M	M	PASS	expect=complete	rc=0	86s
+RUN M COMPLETE
+
+==== PQS-M  MP  (09:30:55)
+PQS-M	MP	PASS	expect=complete	rc=0	102s
+RUN M COMPLETE
+
+==== PQS-E  E  (09:32:41)
+PQS-E	E	PASS	expect=complete	rc=0	54s
+RUN E COMPLETE
+
+==== PQS-I  I  (09:33:39)
+PQS-I	I	PASS	expect=complete	rc=0	49s
+RUN I COMPLETE
+
+==== PQS-R  R-live  (09:34:32)
+PQS-R	R-live	PASS	expect=complete	rc=0	213s
+RUN R-live COMPLETE
+
+==== PQS-R  R-restart  (09:38:09)
+PQS-R	R-restart	PASS	expect=complete	rc=0	207s
+RUN R-restart COMPLETE
+
+==== PQS-R  R-late  (09:41:40)
+PQS-R	R-late	PASS	expect=complete	rc=0	206s
+RUN R-late COMPLETE
+
+==== PQS-R  R-fresh  (09:45:09)
+PQS-R	R-fresh	PASS	expect=complete	rc=0	207s
+RUN R-fresh COMPLETE
+
+==== PQS-S  S-1000  (09:48:40)
+PQS-S	S-1000	PASS	expect=complete	rc=0	121s
+done ) > "$LOGDIR/ingest-checkpoints.tsv"
+RUN S-1000 COMPLETE
+
+==== PQS-S  S-10000  (09:50:45)
+PQS-S	S-10000	PASS	expect=complete	rc=0	384s
+done ) > "$LOGDIR/ingest-checkpoints.tsv"
+RUN S-10000 COMPLETE
+
+==== PQS-S  S-50000  (09:57:12)
+PQS-S	S-50000	PASS	expect=complete	rc=0	1661s
+done ) > "$LOGDIR/ingest-checkpoints.tsv"
+RUN S-50000 COMPLETE
+
+==== PQS-L  L-filter  (10:24:57)
+PQS-L	L-filter	PASS	expect=complete	rc=0	87s
+RUN L-filter COMPLETE
+
+==== PQS-L  L-nofilter  (10:26:28)
+PQS-L	L-nofilter	PASS	expect=complete	rc=0	81s
+RUN L-nofilter COMPLETE
+L-filter vs L-nofilter measures (ids masked, filter rows excluded):
+IDENTICAL
+
+#### summary
+PQS-A	A	PASS	expect=complete	rc=0	116s
+PQS-B	B	PASS	expect=crash	rc=1	67s
+PQS-X	X	PASS	expect=complete	rc=0	115s
+PQS-D	D	PASS	expect=complete	rc=0	116s
+PQS-V	A351	PASS	expect=complete	rc=0	121s
+PQS-V	B351	PASS	expect=crash	rc=1	64s
+PQS-V	X351	PASS	expect=complete	rc=0	131s
+PQS-V	A362	PASS	expect=complete	rc=0	130s
+PQS-V	B362	PASS	expect=crash	rc=1	65s
+PQS-V	X362	PASS	expect=complete	rc=0	131s
+PQS-C	C	PASS	expect=complete	rc=0	70s
+PQS-C	CT	PASS	expect=complete	rc=0	68s
+PQS-M	M	PASS	expect=complete	rc=0	86s
+PQS-M	MP	PASS	expect=complete	rc=0	102s
+PQS-E	E	PASS	expect=complete	rc=0	54s
+PQS-I	I	PASS	expect=complete	rc=0	49s
+PQS-R	R-live	PASS	expect=complete	rc=0	213s
+PQS-R	R-restart	PASS	expect=complete	rc=0	207s
+PQS-R	R-late	PASS	expect=complete	rc=0	206s
+PQS-R	R-fresh	PASS	expect=complete	rc=0	207s
+PQS-S	S-1000	PASS	expect=complete	rc=0	121s
+PQS-S	S-10000	PASS	expect=complete	rc=0	384s
+PQS-S	S-50000	PASS	expect=complete	rc=0	1661s
+PQS-L	L-filter	PASS	expect=complete	rc=0	87s
+PQS-L	L-nofilter	PASS	expect=complete	rc=0	81s
+ALL PQS ROWS AS EXPECTED

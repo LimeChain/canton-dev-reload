@@ -1,0 +1,42 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	init	want=ok	got=ok	rc=0	6.668s	02-init.log
+3	createdb-bdb	want=ok	got=ok	rc=0	0.135s	03-createdb-bdb.log
+4	pqs-start-bdb	want=ok	got=started	pid=61099	-	04-pqs-start-bdb.log	filter=* image=europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.6.2 
+4	wait-bdb-18	want=ok	got=ok	checkpoint=18	5.685s	-
+5	reader-role	want=ok	got=ok	rc=0	0.109s	05-reader-role.log
+6	reader-grants	want=ok	got=ok	rc=0	0.093s	06-reader-grants.log
+7	reader-probe	want=ok	got=ok	rc=0	0.078s	07-reader-probe.log
+8	g1-before	want=ok	got=ok	rc=0	3.474s	08-g1-before.log
+9	g1-create	want=ok	got=ok	rc=0	4.499s	09-g1-create.log
+9	wait-bdb-26	want=ok	got=ok	checkpoint=26	0.117s	-
+10	g1-retired-active	want=ok	got=ok	rc=0	0.096s	10-g1-retired-active.log
+11	g1-retired-creates	want=ok	got=ok	rc=0	0.097s	11-g1-retired-creates.log
+12	g1-current	want=ok	got=ok	rc=0	0.099s	12-g1-current.log
+13	g1-anchor	want=ok	got=ok	rc=0	0.109s	13-g1-anchor.log
+14	g1-collateral	want=ok	got=ok	rc=0	0.090s	14-g1-collateral.log
+15	g2-archive-g1	want=ok	got=ok	rc=0	4.492s	15-g2-archive-g1.log
+16	g2-swap	want=ok	got=ok	rc=0	4.049s	16-g2-swap.log
+17	g2-before	want=ok	got=ok	rc=0	3.455s	17-g2-before.log
+18	g2-create	want=ok	got=ok	rc=0	4.486s	18-g2-create.log
+18	wait-bdb-40	want=ok	got=ok	checkpoint=40	1.248s	-
+19	g2-before-cleanup-retired-active	want=ok	got=ok	rc=0	0.096s	19-g2-before-cleanup-retired-active.log
+20	g2-before-cleanup-retired-creates	want=ok	got=ok	rc=0	0.090s	20-g2-before-cleanup-retired-creates.log
+21	g2-before-cleanup-current	want=ok	got=ok	rc=0	0.099s	21-g2-before-cleanup-current.log
+22	g2-before-cleanup-anchor	want=ok	got=ok	rc=0	0.094s	22-g2-before-cleanup-anchor.log
+23	g2-before-cleanup-collateral	want=ok	got=ok	rc=0	0.080s	23-g2-before-cleanup-collateral.log
+25	g2-reader-before	want=ok	got=ok	rc=0	0.085s	25-g2-reader-before.log
+26	g2-revoke	want=ok	got=ok	rc=0	0.093s	26-g2-revoke.log
+27	g2-terminate	want=ok	got=ok	rc=0	0.084s	27-g2-terminate.log
+28	g2-reader-refused	want=fail	got=fail	rc=2	0.089s	28-g2-reader-refused.log
+29	g2-pre-reset-oldest	want=ok	got=ok	rc=0	0.086s	29-g2-pre-reset-oldest.log
+30	g2-pre-reset-latest	want=ok	got=ok	rc=0	0.079s	30-g2-pre-reset-latest.log
+31	g2-pre-reset-pruned	want=ok	got=ok	rc=0	0.089s	31-g2-pre-reset-pruned.log
+32	g2-validate-reset	want=ok	got=ok	rc=0	0.083s	32-g2-validate-reset.log
+33	g2-reset	want=ok	got=ok	rc=0	0.090s	33-g2-reset.log
+34	g2-post-reset-oldest	want=ok	got=ok	rc=0	0.085s	34-g2-post-reset-oldest.log
+35	g2-post-reset-latest	want=ok	got=ok	rc=0	0.108s	35-g2-post-reset-latest.log
+36	g2-post-reset-pruned	want=ok	got=ok	rc=0	0.093s	36-g2-post-reset-pruned.log
+37	g2-grant	want=ok	got=ok	rc=0	0.101s	37-g2-grant.log
+38	g2-reader-reconnect	want=ok	got=ok	rc=0	0.092s	38-g2-reader-reconnect.log
+39	pqs-start-bdb	want=ok	got=started	pid=61617	-	39-pqs-start-bdb.log	filter=(* & !mirrors:*) | mirrors@>=1.0.1 image=europe-docker.pkg.dev/da-images/public/docker/participant-query-store:3.6.2 
+STOP [B362] PQS died while waiting for offset 40, see /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/evidence/pqs/20261027T090840Z/B362/39-pqs-start-bdb.log

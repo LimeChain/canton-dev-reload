@@ -1,0 +1,20 @@
+2026-10-27 11:23:55,156 [main] WARN  org.jline - Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+[34mCompiling /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/Main.sc[39m
+T ITEMS=f598c7e1de1b6066e3d248927eb7a104fac5a37f37e1c9b8aca9184e1c756de0
+T ANCHOR=00d27664904e2ea0dd33883da3b8ca1f73cf2851a0e59f8421286dfac023e0e41aca1212200cb6c9e674ba5390c849a1b0bf27436854c2bfc6314cf027a92c8d71d2a9e98d
+T COLLATERAL=00f576b20fe5cf23cc507af43973f5568426f81a1e1ec79cddb0218644732034e3ca121220f4e306184d7797036c1dce25e8ce9c4fc63d7b285785088ccf75ec7f4fb64dc2
+T G1=9644ffb5813127136ba57ad69e38dbabf275dbf387aa0744c4e5f51c83f6dc81
+T LASTTX=18
+T END=22
+   _____            _
+  / ____|          | |
+ | |     __ _ _ __ | |_ ___  _ __
+ | |    / _` | '_ \| __/ _ \| '_ \
+ | |___| (_| | | | | || (_) | | | |
+  \_____\__,_|_| |_|\__\___/|_| |_|
+
+  Welcome to Canton!
+  Type `help` to get started. `exit` to leave.
+
+
+@ [34mBye![39m

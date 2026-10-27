@@ -101,24 +101,26 @@ COMMIT  (destructive; from here, resume rather than restart)
   7. propose_delta    <- assert the serial advanced from (5)
   8. setup
   9. verify, then advance the baseline
- 10. dars.remove(old) <- optional
+ 10. dars.remove(old) <- only when no PQS is attached
 ```
 
-**Step 10 is unconditional. An earlier version of this note was wrong here.** It claimed that
-removing the old DAR leaves its history unreadable and so breaks a PQS re-ingest, and that the old
-DARs therefore had to be retained while PQS was configured. That was reasoning, not a result, and the
-result goes the other way.
+**Step 10 is conditional on PQS: keep the old DARs while PQS is attached.** This note has changed
+its answer twice, and the history matters. The first version said removal breaks a PQS re-ingest;
+that was reasoning, not a result. `harness-v23` reversed it on a by-hand check that read the
+participant's transaction stream after removal and found the historical events intact, with no
+committed log. The participant does still serve them. But PQS itself cannot ingest them: row `PQS-D`
+(`scripts/73-pqs.sh`, `pqs/runD.sh`) re-ingests the same ledger into two fresh PQS databases, and with
+the old DAR kept PQS catches up with the full history, while after removal it loops on
+`UnknownDamlPackageException: No package for <old id>` and ingests nothing. So removal is safe only
+when no PQS is attached, and Fred keeps old DARs otherwise.
 
-A by-hand check on a 3.5.12 sandbox unvetted a package, removed its DAR, confirmed the package was
-absent from `packages.list()` (30 packages remained, none of them the target), and then read the
-transaction stream from the beginning: both the historical create and the archive came back with
-payloads intact. So the history a re-ingest depends on survives removal, and no DAR retention is
-required. **No committed log** — the check is not wired into the harness, so it carries the same
-status as the `repair.purge` claim in `evidence/INDEX.md`.
-
-Two caveats. PQS itself was not run; the check read the participant's transaction stream, which is
-the stream PQS consumes. And pruning is a separate matter, still untested: a pruned participant
-cannot serve the preceding events regardless of what happens to the DAR.
+**PQS after a breaking reload.** PQS records the archived contracts as history, and Fred removes that
+history with PQS's own `prune_archived_to_offset`, while PQS keeps running: it records the offset of
+the last archive transaction, waits until PQS has passed it (a prune cannot target PQS's latest
+checkpoint, so one later transaction must exist), dry-runs, then prunes. The prune follows the archive
+confirmation policy, because it removes all archived history up to that offset, and a retry is a
+no-op. A compatible (SCU) reload archives nothing and needs no clean-up. A Fred reset recreates the
+PQS database. The evidence for each of these is indexed under the PQS rows in `evidence/INDEX.md`.
 
 Two details in that sequence are load-bearing, and both are evidenced:
 

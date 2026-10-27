@@ -1,0 +1,26 @@
+11:35:19.369 E [zio-fiber-1261073687] com.digitalasset.scribe.grpc.ZManagedChannel.apply.$anon.serverStreamingCall:97 Exception in grpc method com.daml.ledger.api.v2.UpdateService/GetUpdates io.grpc.StatusException: CANCELLED: RST_STREAM closed stream. HTTP/2 error code: CANCEL
+	at io.grpc.Status.asException(Status.java:547)
+11:35:19.384 F [zio-fiber-1829417374] com.digitalasset.zio.daml.ledgerapi.getTransactionStream:38 No retry of fatal exception io.grpc.StatusException: CANCELLED: RST_STREAM closed stream. HTTP/2 error code: CANCEL  application=scribe
+	Suppressed: io.grpc.StatusException: CANCELLED: RST_STREAM closed stream. HTTP/2 error code: CANCEL
+11:35:20.431 E [zio-fiber-10247862] com.digitalasset.scribe.grpc.ZManagedChannel.apply.$anon.unaryCall.listener.$anon:55 Exception in grpc method com.daml.ledger.api.v2.PackageService/ListPackages io.grpc.StatusException: UNAVAILABLE: io exception
+	at io.grpc.Status.asException(Status.java:547)
+	Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+		Suppressed: java.net.ConnectException: Connection refused
+	Suppressed: io.grpc.StatusException: UNAVAILABLE: io exception
+		Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+			Suppressed: java.net.ConnectException: Connection refused
+11:35:22.458 E [zio-fiber-1720093097] com.digitalasset.scribe.grpc.ZManagedChannel.apply.$anon.unaryCall.listener.$anon:55 Exception in grpc method com.daml.ledger.api.v2.PackageService/ListPackages io.grpc.StatusException: UNAVAILABLE: io exception
+	at io.grpc.Status.asException(Status.java:547)
+	Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+		Suppressed: java.net.ConnectException: Connection refused
+	Suppressed: io.grpc.StatusException: UNAVAILABLE: io exception
+		Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+			Suppressed: java.net.ConnectException: Connection refused
+11:35:26.473 E [zio-fiber-20295685] com.digitalasset.scribe.grpc.ZManagedChannel.apply.$anon.unaryCall.listener.$anon:55 Exception in grpc method com.daml.ledger.api.v2.PackageService/ListPackages io.grpc.StatusException: UNAVAILABLE: io exception
+	at io.grpc.Status.asException(Status.java:547)
+	Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+		Suppressed: java.net.ConnectException: Connection refused
+	Suppressed: io.grpc.StatusException: UNAVAILABLE: io exception
+		Suppressed: io.grpc.netty.shaded.io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/[0:0:0:0:0:0:0:1]:6865
+			Suppressed: java.net.ConnectException: Connection refused
+timestamp=2026-10-27T09:35:36.933144Z level=ERROR thread=#zio-fiber-586488411 message="" cause="java.lang.Throwable: Requested start '110' is outside of ledger history 'GENESIS...6'.

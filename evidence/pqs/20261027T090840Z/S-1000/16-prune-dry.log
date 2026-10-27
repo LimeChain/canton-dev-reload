@@ -1,0 +1,5 @@
+Timing is on.
+NOTICE:  DRY-RUN: pruning to offset: 382
+NOTICE:  DRY-RUN: pruning 1001 contracts, 0 exercises, 2002 events and 82 transactions
+385 | 1001 | 0 | 2002 | 82
+Time: 6.402 ms

@@ -1,0 +1,2 @@
+ERROR:  Illegal reset offset 11 is outside lower bounds of contiguous history
+CONTEXT:  PL/pgSQL function validate_reset_offset(bigint) line 11 at RAISE

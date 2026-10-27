@@ -1,0 +1,2 @@
+12:27:19.325 I [zio-fiber-1141564664] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 Initialised 4 packages  trace_id=00000000000000000000000000000000 application=scribe
+12:27:19.391 I [zio-fiber-1599063822] com.digitalasset.zio.daml.ledgerapi.logFilterContents:13 Contract filter inclusive of 9 templates and 0 interfaces  application=scribe

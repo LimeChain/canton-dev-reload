@@ -1,0 +1,24 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	init	want=ok	got=ok	rc=0	6.596s	02-init.log
+3	createdb-idb	want=ok	got=ok	rc=0	0.131s	03-createdb-idb.log
+4	pqs-start-idb	want=ok	got=started	pid=67264	-	04-pqs-start-idb.log	filter=* image=local-3.5.7 
+4	wait-idb-18	want=ok	got=ok	checkpoint=18	4.500s	-
+5	g1-create	want=ok	got=ok	rc=0	5.003s	05-g1-create.log
+5	wait-idb-26	want=ok	got=ok	checkpoint=26	0.129s	-
+6	g1-t-retired	want=ok	got=ok	rc=0	0.083s	06-g1-t-retired.log
+7	g1-t-current	want=ok	got=ok	rc=0	0.086s	07-g1-t-current.log
+8	g1-i-active	want=ok	got=ok	rc=0	0.073s	08-g1-i-active.log
+9	g1-i-creates	want=ok	got=ok	rc=0	0.083s	09-g1-i-creates.log
+10	g2-archive	want=ok	got=ok	rc=0	4.705s	10-g2-archive.log
+11	g2-swap	want=ok	got=ok	rc=0	4.119s	11-g2-swap.log
+12	g2-create	want=ok	got=ok	rc=0	4.393s	12-g2-create.log
+12	wait-idb-40	want=ok	got=ok	checkpoint=40	1.327s	-
+13	before-prune-t-retired	want=ok	got=ok	rc=0	0.104s	13-before-prune-t-retired.log
+14	before-prune-t-current	want=ok	got=ok	rc=0	0.088s	14-before-prune-t-current.log
+15	before-prune-i-active	want=ok	got=ok	rc=0	0.090s	15-before-prune-i-active.log
+16	before-prune-i-creates	want=ok	got=ok	rc=0	0.098s	16-before-prune-i-creates.log
+17	prune	want=ok	got=ok	rc=0	0.094s	17-prune.log
+18	after-prune-t-retired	want=ok	got=ok	rc=0	0.084s	18-after-prune-t-retired.log
+19	after-prune-t-current	want=ok	got=ok	rc=0	0.100s	19-after-prune-t-current.log
+20	after-prune-i-active	want=ok	got=ok	rc=0	0.090s	20-after-prune-i-active.log
+21	after-prune-i-creates	want=ok	got=ok	rc=0	0.094s	21-after-prune-i-creates.log

@@ -1,0 +1,26 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	l1-init	want=ok	got=ok	rc=0	6.655s	02-l1-init.log
+3	createdb-rdb_fresh	want=ok	got=ok	rc=0	0.126s	03-createdb-rdb_fresh.log
+4	pqs-start-rdb_fresh	want=ok	got=started	pid=70621	-	04-pqs-start-rdb_fresh.log	filter=* image=local-3.5.7 
+5	l1-pump	want=ok	got=ok	rc=0	14.650s	05-l1-pump.log
+5	wait-rdb_fresh-110	want=ok	got=ok	checkpoint=110	0.217s	-
+6	l1-end	want=ok	got=ok	rc=0	3.369s	06-l1-end.log
+7	L1-ledger-state	want=ok	got=ok	rc=0	3.483s	07-L1-ledger-state.log
+8	L1-pqs-rows	want=outcome	got=rc0	-	-	08-L1-pqs-rows.log
+9	sandbox	want=ok	got=ok	-	-	09-sandbox.log
+10	createdb-rdb_fresh	want=ok	got=ok	rc=0	0.288s	10-createdb-rdb_fresh.log
+11	pqs-start-rdb_fresh	want=ok	got=started	pid=70788	-	11-pqs-start-rdb_fresh.log	filter=* image=local-3.5.7 
+12	l2-init	want=ok	got=ok	rc=0	6.458s	12-l2-init.log
+13	l2-below-state	want=ok	got=ok	rc=0	3.681s	13-l2-below-state.log
+14	below-observe-start	want=ok	got=ok	rc=0	3.231s	14-below-observe-start.log
+15	below-observe-end	want=ok	got=ok	rc=0	3.228s	15-below-observe-end.log
+16	below-ledger-state	want=ok	got=ok	rc=0	3.226s	16-below-ledger-state.log
+17	below-pqs-rows	want=outcome	got=rc0	-	-	17-below-pqs-rows.log
+18	l2-pump-1	want=ok	got=ok	rc=0	7.005s	18-l2-pump-1.log
+19	l2-pump-11	want=ok	got=ok	rc=0	7.141s	19-l2-pump-11.log
+20	l2-pump-21	want=ok	got=ok	rc=0	7.029s	20-l2-pump-21.log
+21	l2-pump-31	want=ok	got=ok	rc=0	7.086s	21-l2-pump-31.log
+22	past-observe-start	want=ok	got=ok	rc=0	3.196s	22-past-observe-start.log
+23	past-observe-end	want=ok	got=ok	rc=0	3.552s	23-past-observe-end.log
+24	past-ledger-state	want=ok	got=ok	rc=0	3.292s	24-past-ledger-state.log
+25	past-pqs-rows	want=outcome	got=rc0	-	-	25-past-pqs-rows.log

@@ -1,0 +1,56 @@
+ids	g1	00b75d9d3fa3db7dc6d3386884966fd57f390d8ac3b9330b8bd2f393ee3eddd2fcca121220b0b61453e40ffd6e5917c068a8a4c6eb7c59be64ed4b553e4400b2a6acf8bbf9 0043ea00fb1de8136ff89b7958a045a09ea1a9f1479c8068b20b2839253cfc320eca121220529dc99c44061cdfeeb9c3dfe1eabf0a66382859108623fea2aca0238cb25007
+L1	checkpoint_equals_archive_offset	yes
+L1-i	dry_run_target_32	rc=1 NOTICE:  DRY-RUN: pruning to offset: 32 | 
+L1-i	prune_target_32	rc=1 ERROR:  Illegal pruning offset 32 coincides with latest consistent checkpoint of contiguous history | 
+L1-i	pruned_offset	null
+L1-i	retired_g1_creates	2
+L1-i	g1_ids_present	0043ea00fb1d@32,00b75d9d3fa3@29
+L1-ii	dry_run_target_34	rc=1 NOTICE:  DRY-RUN: pruning to offset: 34 | 
+L1-ii	prune_target_34	rc=1 ERROR:  Illegal pruning offset 34 is beyond upper bounds of contiguous history | 
+L1-ii	pruned_offset	null
+L1-ii	retired_g1_creates	2
+L1-ii	g1_ids_present	0043ea00fb1d@32,00b75d9d3fa3@29
+L1-iii	dry_run_target_31	rc=0 NOTICE:  DRY-RUN: pruning to offset: 31 | 32 | 2 | 0 | 4 | 4
+L1-iii	prune_target_31	rc=0  | 32 | 2 | 0 | 4 | 4
+L1-iii	pruned_offset	31
+L1-iii	retired_g1_creates	1
+L1-iii	g1_ids_present	0043ea00fb1d@32
+ids	g2_seed	00699e7e1176a96299908ead7508c6e926510d57eaa1262264ae44297a2a586df4ca1212206d00f8a4b48a2b086da8d9c991526317a7163836e6bae550f38780ac8ec0eef8 0098e0d3ed8b1231162ab37460afb577c8f29a87538d1f55f4d1201a23dba58910ca1212204eb62d8db3bc757a99553a5bb96602f9bfdc171278a3674b27e91f26a84ce432
+L1-iv	dry_run_target_32	rc=0 NOTICE:  DRY-RUN: pruning to offset: 32 | 37 | 1 | 0 | 2 | 2
+L1-iv	prune_target_32	rc=0  | 37 | 1 | 0 | 2 | 2
+L1-iv	pruned_offset	32
+L1-iv	retired_g1_creates	0
+L1-iv	g1_ids_present	-
+L2	rows_before	3/3/3
+L2-same	dry_run_target_32	rc=0 NOTICE:  DRY-RUN: pruning to offset: 32 |  | 0 | 0 | 0 | 0
+L2-same	prune_target_32	rc=0 WARNING:  Already pruned past offset 32, nothing to do. |  | 0 | 0 | 0 | 0
+L2-same	pruned_offset	32
+L2-same	retired_g1_creates	0
+L2-same	g1_ids_present	-
+L2-lower	dry_run_target_31	rc=0 NOTICE:  DRY-RUN: pruning to offset: 31 |  | 0 | 0 | 0 | 0
+L2-lower	prune_target_31	rc=0 WARNING:  Already pruned past offset 32, nothing to do. |  | 0 | 0 | 0 | 0
+L2-lower	pruned_offset	32
+L2-lower	retired_g1_creates	0
+L2-lower	g1_ids_present	-
+L2	rows_after	3/3/3
+L3	restart_filter	(* & !mirrors:*) | mirrors@>=1.0.1
+L3	pqs_alive_after_restart	yes
+L3	filter_line	Contract filter inclusive of 8 templates and 0 interfaces
+L3	pipeline_filter_config	contracts="(* & !mirrors:*) | mirrors@>=1.0.1"
+ids	l3	008629a9145e60b812a13330482b3ea7e2148274c6c2cca7f28662c101882e9c15ca121220cf88235d169e95fa572945e1ba7b84cb293fae69c0ba0e41ee9de3d80156f9b3 00f047947f7501f97287289e337071ae66d9fcafa8e2cd5d4fd2de5c9016d69555ca121220d22a480ed0131d04dc4e81eec65aec517c48fa7d306864073585f2e6c19f8319 002acebeab930495fc97cbd1c3f58df9f8ea6492a8395583fa954df8ccf4d68c16ca12122027b29958c8d84d839cae0457d2995a1bed3d3787e6f0e4d271a8672dc60b89ef
+L3	catch_up	caught-up
+L3	new_g2_present	2 of 2
+L3	new_item_present	1 of 1
+L3	g2_active	4
+L3	anchor	1
+L3	retired_g1	0
+ids	g3	001c2ea51667f587399176a0d3f93661b273415d9d100d32c29b0c820d35f0f7a5ca121220c088a5c5366e5e294785d88f918f9c96d186d57e9bdbb08807cdaf32dfc0cd0a 0031ab33d085eb471f1d611d275bc35dd1006148e30a3b5414088d560d6f3a049fca121220c855d450f2953d66722db169635398d84498217893a89b7a356707164143063b
+L3b	catch_up	caught-up
+L3b	initialised_packages	4,5
+L3b	g3_present	2 of 2
+L3b	prune	rc=0  | 66 | 4 | 0 | 8 | 8
+L3b	g3_active	2
+L3b	retired_non_g3	0
+L3b	anchor	1
+L3b	items_total	2
+L3b	pqs_alive_end	yes

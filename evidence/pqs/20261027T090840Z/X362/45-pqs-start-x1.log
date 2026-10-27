@@ -1,0 +1,176 @@
+Picked up JAVA_TOOL_OPTIONS: -javaagent:/open-telemetry.jar -Djdk.attach.allowAttachSelf
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[otel.javaagent 2026-10-27 09:26:26:250 +0000] [main] INFO io.opentelemetry.javaagent.tooling.VersionLogger - opentelemetry-javaagent - version: 2.28.1
+[otel.javaagent 2026-10-27 09:26:26:506 +0000] [main] INFO io.opentelemetry.exporter.prometheus.PrometheusHttpServerBuilder - PrometheusHttpServer host not set, defaulting to localhost. Previously defaulted to 0.0.0.0. If you depend on the old behavior, set host to 0.0.0.0 explicitly.
+[otel.javaagent 2026-10-27 09:26:27:059 +0000] [main] WARN io.opentelemetry.javaagent.shaded.instrumentation.runtimetelemetry.internal.Internal - otel.instrumentation.runtime-telemetry.emit-experimental-telemetry is deprecated and will be removed in 3.0. Use otel.instrumentation.runtime-telemetry.emit-experimental-metrics instead.
+[diagnostics] Initialising diagnostics server with configuration:
+[33mConfig[39m(
+  enabled = [32mtrue[39m,
+  host = [32m"127.0.0.1"[39m,
+  port = [32m9091[39m,
+  dumpPath = [32mNone[39m,
+  metrics = [33mMetricsConfig[39m(interval = PT10S, bufferSize = [32m360[39m, tags = [33mArraySeq[39m(([32m"job"[39m, [32m"pqs"[39m))),
+  threads = [33mThreadsConfig[39m(interval = PT1M, bufferSize = [32m60[39m)
+)
+[diagnostics] Initialising OpenMetrics storage: samples = 360, labels = Set((job,pqs))
+[diagnostics] Starting Micrometer to OpenMetrics bridge: interval = PT10S
+[diagnostics] Starting thread dumps collector: interval = PT1M, samples = 60
+[diagnostics] Server socket listening on /127.0.0.1:9091
+timestamp=2026-10-27T09:26:27.666457834Z level=WARN thread=#zio-fiber-2045659046 message="Environment variables with the 'SCRIBE' prefix are deprecated.
+Found 'SCRIBE_PIPELINE_FILTER_CONTRACTS'.
+Please use the 'PQS' prefix instead.
+            " location=com.digitalasset.pqs.configuration.package.warnIfScribePrefixUsed file=package.scala line=103
+OpenTelemetry Java Agent initialized.
+09:26:27.995 [33mW[0m [zio-fiber-2045659046] com.digitalasset.pqs.configuration.package:103 [33mEnvironment variables with the 'SCRIBE' prefix are deprecated.
+Found 'SCRIBE_PIPELINE_FILTER_CONTRACTS'.
+Please use the 'PQS' prefix instead.
+            [0m [33m[0m application=pqs
+09:26:28.120 [36mI[0m [zio-fiber-2045659046] com.digitalasset.pqs.configuration.package:53 [36mApplied configuration:
+health {
+    address="127.0.0.1"
+    port="18080"
+}
+logger {
+    format=Plain
+    level=Info
+    mappings {}
+    pattern=Plain
+}
+pipeline {
+    datasource=TransactionStream
+    filter {
+        contracts="*"
+        metadata="!*"
+        parties="*"
+    }
+    ledger {
+        start=Oldest
+        stop=Never
+    }
+    oauth {
+        accessToken=null
+        cafile=null
+        clientId=null
+        clientSecret=null
+        endpoint=null
+        issuer=null
+        parameters {}
+        preemptExpiry=PT1M
+        proxy {
+            password=null
+            url=null
+            user=null
+        }
+        scope=Default
+    }
+}
+retry {
+    backoff {
+        base=PT1S
+        cap=PT1M
+        factor="2.0"
+    }
+    counter {
+        attempts=null
+        duration=null
+        reset=PT10M
+    }
+}
+source {
+    ledger {
+        auth=NoAuth
+        bufferSize="128"
+        cacheDir="/tmp/pqs"
+        host="host.docker.internal"
+        keepAlive {
+            time=PT40S
+            timeout=PT20S
+        }
+        port="6865"
+        tls {
+            cafile=null
+            cert=null
+            key=null
+        }
+    }
+}
+target {
+    encoding {
+        excludeNulls="false"
+        int64AsString="true"
+        numericAsString="true"
+    }
+    postgres {
+        appName=pqs
+        bufferSize="128"
+        database=x1
+        host="host.docker.internal"
+        keepAlive="true"
+        maxConnections="16"
+        password="********"
+        port="5499"
+        probeInterval=PT30S
+        properties {}
+        schema=public
+        tls {
+            cafile=null
+            cert=null
+            key=null
+            mode=Disable
+        }
+        username=postgres
+    }
+    schema {
+        autoApply="true"
+        baseline="false"
+    }
+}
+[0m [36m[0m application=pqs
+09:26:28.131 [36mI[0m [zio-fiber-2045659046] com.digitalasset.pqs.appversion.package:17 [36mpqs, version: v3.6.2 (daml-sdk.version: 3.6.2, postgres-document.schema: 043)[0m [36m[0m application=pqs
+09:26:28.494 [36mI[0m [zio-fiber-237636222] zio.jdbc.shims.postgres:147 [36mDatabase probe (select 1) successful[0m [36m[0m application=pqs
+Oct 27, 2026 9:26:28 AM io.grpc.netty.shaded.io.grpc.netty.TcpMetrics loadEpollInfo
+INFO: Epoll available during static init of TcpMetrics:false
+09:26:28.786 [36mI[0m [zio-fiber-251238162] com.digitalasset.zio.daml.Channel:49 [36mKeep-alive (get ledger version) successful[0m [36m[0m application=pqs
+09:26:28.976 [36mI[0m [zio-fiber-1256128916] com.digitalasset.zio.daml.ledgerapi.PackageService:25 [36mListed 37 packages[0m [36m[0m application=pqs
+09:26:28.982 [36mI[0m [zio-fiber-1256128916] com.digitalasset.zio.daml.ledgerapi.PackageService:36 [36mFetching schema descriptors from ledger[0m [36m[0m application=pqs
+09:26:29.527 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:448 [36mApplying schema[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.654 [36mI[0m [zio-fiber-641106681] org.flywaydb.core.FlywayExecutor: [36mDatabase: ******** (PostgreSQL 16.15)[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.898 [36mI[0m [zio-fiber-769465531] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 44 migrations (execution time 00:00.128s)[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.926 [36mI[0m [zio-fiber-2109630759] org.flywaydb.core.internal.callback.SqlScriptCallbackFactory: [36mExecuting SQL callback: beforeMigrate - [0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.944 [36mI[0m [zio-fiber-846681368] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": 043[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.947 [36mI[0m [zio-fiber-2034086323] org.flywaydb.core.internal.command.DbMigrate: [36mSchema "public" is up to date. No migration necessary.[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.960 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:496 [36mApplying mappings[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.970 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:501 [36mSchema and mappings applied[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.980 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:530 [36mInitialised 11 entity types[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.987 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:550 [36mInitialised 23 exercise types[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.992 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:560 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:29.997 [36mI[0m [zio-fiber-357707296] com.digitalasset.pqs.postgres.document.DocumentPostgres:569 [36mInitialised 6 packages[0m [36m[0m trace_id=82959e9135669b2f7a41991ea50bd1a4 application=pqs
+09:26:30.008 [36mI[0m [zio-fiber-2045659046] com.digitalasset.pqs.pipeline.pipeline.Impl:45 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=87496c243c1a396644a6c343e9d59be8 application=pqs
+09:26:30.018 [36mI[0m [zio-fiber-2045659046] com.digitalasset.zio.daml.ledgerapi.StateService:62 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=87496c243c1a396644a6c343e9d59be8 application=pqs
+09:26:30.023 [36mI[0m [zio-fiber-2045659046] com.digitalasset.zio.daml.ledgerapi.StateService:68 [36mRetrieved ledger end offset: 70[0m [36m[0m trace_id=87496c243c1a396644a6c343e9d59be8 application=pqs
+09:26:30.043 [36mI[0m [zio-fiber-2045659046] com.digitalasset.pqs.pipeline.pipeline.Impl:93 [36mLast known checkpoint is at offset '12' and index '1'[0m [36m[0m trace_id=87496c243c1a396644a6c343e9d59be8 application=pqs
+09:26:30.044 [36mI[0m [zio-fiber-2045659046] com.digitalasset.pqs.pipeline.pipeline.Impl:102 [36mContinuing from offset '12' and index '1' until offset 'INFINITY'[0m [36m[0m trace_id=87496c243c1a396644a6c343e9d59be8 application=pqs
+09:26:30.089 [36mI[0m [zio-fiber-68743606] com.digitalasset.zio.daml.ledgerapi.logFilterContents:17 [36mContract filter: wildcard (all 11 templates, 0 interfaces)[0m [36m[0m application=pqs
+09:26:30.138 [36mI[0m [zio-fiber-741375720] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 15[0m [36m[0m application=pqs
+09:26:30.144 [36mI[0m [zio-fiber-741375720] com.digitalasset.zio.daml.ledgerapi.UpdateService:123 [36mReceived transactions responses at offsets: 18, 23, 26, 29, 32, 37, 40, 43, 46, 51, 54, 57, 60, 65, 68[0m [36m[0m application=pqs
+09:26:30.146 [36mI[0m [zio-fiber-1782899242] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220e9401d4218081e757632035840921ff821a49eef4942f7fe0e1ad322304ca6e5 (offset: 15, events: 1, remote trace: 31d2394a4cf329a679bf1a1feda8e017)[0m [36m[0m trace_id=9a05481b90fb1910e0c08fbf5e145712 correlation_id=31d2394a4cf329a679bf1a1feda8e017 application=pqs
+09:26:30.146 [36mI[0m [zio-fiber-1000314055] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122029bf64c1af37ca8d99a51e4b97fd762d26a4d6dde9b028b949e2152bf1be6ca2 (offset: 18, events: 1, remote trace: fdf182af29acd9503e05eafe850e172a)[0m [36m[0m trace_id=c0e45e83c8bdf523225a81ab9e52827b correlation_id=fdf182af29acd9503e05eafe850e172a application=pqs
+09:26:30.147 [36mI[0m [zio-fiber-1985919922] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220832ddf40fb58db153e3d89b6c67cde7cfa5f37e8c9d57978e2484e18a956d079 (offset: 23, events: 1, remote trace: 5a3d64b2b97b15406b4c0ab2eb8851fb)[0m [36m[0m trace_id=6770e4f8971945de1585668b0f6973d5 correlation_id=5a3d64b2b97b15406b4c0ab2eb8851fb application=pqs
+09:26:30.148 [36mI[0m [zio-fiber-2087923081] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12200b1a100ed3bf501c9f9b64b875d14ee61eb12f235ca7f25f0edc4fc6ffe13ddb (offset: 26, events: 1, remote trace: 07b917b6c7183550436a425e268457c2)[0m [36m[0m trace_id=53176b4eb5e8e2eb6a0bd947413f3e40 correlation_id=07b917b6c7183550436a425e268457c2 application=pqs
+09:26:30.148 [36mI[0m [zio-fiber-1836811263] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220d56bbf2e839207c162ec9f5203a3df49cd005fa254903d10e9c2a98ca76abb8c (offset: 29, events: 1, remote trace: e2994b9df95a64bac35c072724e96138)[0m [36m[0m trace_id=7466ad6d974316537652ec2f79cf357e correlation_id=e2994b9df95a64bac35c072724e96138 application=pqs
+09:26:30.149 [36mI[0m [zio-fiber-35760613] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220b3a1dbc98accfcec9f4663a08d67aa24b48405b84de2b188fcb1f874654b3575 (offset: 32, events: 1, remote trace: 4d0bfec8a484322510f17cda6b6436a4)[0m [36m[0m trace_id=7d958cf23921f23d961481e6ae3eab10 correlation_id=4d0bfec8a484322510f17cda6b6436a4 application=pqs
+09:26:30.150 [36mI[0m [zio-fiber-1914991198] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 12206b637ab000d43e765d57ff9936f8ef54bca7f26f758b89abc7e5e6ef0efe4ceb (offset: 37, events: 1, remote trace: cb5b32c9b00432a68f149c10743964f4)[0m [36m[0m trace_id=6a1be9e97153541bf607c4a989354e2d correlation_id=cb5b32c9b00432a68f149c10743964f4 application=pqs
+09:26:30.150 [36mI[0m [zio-fiber-122214053] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122086bb63b057705cb9ddeb1d4201110fda6b06f0ea79b8fffb355a33393d420935 (offset: 40, events: 1, remote trace: 314929c9f3ca6f32719ede8bad32a355)[0m [36m[0m trace_id=2402a496a5b86b997508daae5e3c88c5 correlation_id=314929c9f3ca6f32719ede8bad32a355 application=pqs
+09:26:30.152 [36mI[0m [zio-fiber-940832852] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220bbbf04db9b186f620474e7808ee782b4611db81f94ad4f9db78cf4aae3c4058a (offset: 43, events: 1, remote trace: 1ff2b8f5d7b63e970610f84458691fd3)[0m [36m[0m trace_id=0e81043bdb2f5f96853ef95320acf91b correlation_id=1ff2b8f5d7b63e970610f84458691fd3 application=pqs
+09:26:30.152 [36mI[0m [zio-fiber-1960572084] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220e16ea7e1c7186b2c48c7f705e1908da95178312654692c24268d5fda5aa7827f (offset: 46, events: 1, remote trace: 8b89cd9868337f407d3c49ef07773b21)[0m [36m[0m trace_id=b8240dc7d59f9a370779cf80db015b44 correlation_id=8b89cd9868337f407d3c49ef07773b21 application=pqs
+09:26:30.153 [36mI[0m [zio-fiber-1909493728] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122041983642954cc922ca74b9d004f800d8adcd69101d75bfb8c47a73deb53450db (offset: 51, events: 1, remote trace: 562fb0087357c1f09dc85ee5f0699d35)[0m [36m[0m trace_id=685a848138ee096c2033652805852689 correlation_id=562fb0087357c1f09dc85ee5f0699d35 application=pqs
+09:26:30.154 [36mI[0m [zio-fiber-2021029089] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122021066d0609654663603a51e78cf0b0abfc83ff82d185a0d3eedc7ef190b31568 (offset: 54, events: 1, remote trace: 69758f2c52450244939f4dafbf2d5a19)[0m [36m[0m trace_id=a761404330c855247161b056e0439482 correlation_id=69758f2c52450244939f4dafbf2d5a19 application=pqs
+09:26:30.157 [36mI[0m [zio-fiber-202163131] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 122077f1346fd4101b4344256be1a0565c540598b061aa17170826a971f0d64e8be8 (offset: 57, events: 1, remote trace: 07580d41feea7f51c17b98f7f8998601)[0m [36m[0m trace_id=44eb8288a94a0bf76871dc22ee0ce5f0 correlation_id=07580d41feea7f51c17b98f7f8998601 application=pqs
+09:26:30.157 [36mI[0m [zio-fiber-923003713] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220e3735a8c8d7120e1f57779db925437eab08aa31b5633ae6896ad092142c12809 (offset: 60, events: 1, remote trace: dba4024106efe89f6b51f7555ed448b1)[0m [36m[0m trace_id=a842c50786f04ebb20dd0539078280de correlation_id=dba4024106efe89f6b51f7555ed448b1 application=pqs
+09:26:30.158 [36mI[0m [zio-fiber-2015816452] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220ad46fda300dbcd58acb78b18b69c4979082f39045089c90d6b6e112c163da1be (offset: 65, events: 1, remote trace: 376ce2b52e214dc00975ed6629b31e89)[0m [36m[0m trace_id=7a661eec35301839b7e97068c73277ba correlation_id=376ce2b52e214dc00975ed6629b31e89 application=pqs
+09:26:30.159 [36mI[0m [zio-fiber-2050028220] com.digitalasset.zio.daml.ledgerapi.UpdateService:170 [36mConverting transaction (ACS delta) 1220223ad957c2a860253d2ec11da13f71cbe5c32655c693cda95d9b21eda02f921b (offset: 68, events: 1, remote trace: 4ab45a1e1a87d892c42d4e9681191dcc)[0m [36m[0m trace_id=cc5714a460c2a42e504893e08f2f36b5 correlation_id=4ab45a1e1a87d892c42d4e9681191dcc application=pqs
+09:26:30.333 [36mI[0m [zio-fiber-443609989] com.digitalasset.pqs.postgres.document.DocumentPostgres:263 [36mAdvanced watermark: ix = 17, offset = 68[0m [36m[0m trace_id=e7b436c67c46996ea9c148ae0f5683d4 application=pqs
+[diagnostics] Diagnostics server shutting down now...
+[diagnostics] Shutting down Micrometer to OpenMetrics bridge
+[diagnostics] Shutting down thread dumps collector
+[diagnostics] Detaching from JVM

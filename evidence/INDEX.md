@@ -1,7 +1,7 @@
 # Evidence index
 
 Every run here was produced from a clean sandbox by `scripts/70-matrix.sh`, `scripts/71-closure.sh`,
-`scripts/72-multisync.sh`, `scripts/60-story.sh` or `scripts/80-timing.sh`, and carries a provenance header naming the harness
+`scripts/72-multisync.sh`, `scripts/73-pqs.sh`, `scripts/60-story.sh` or `scripts/80-timing.sh`, and carries a provenance header naming the harness
 revision that produced it. A run that cannot assert its own provenance — dirty tree, drifted
 harness, or no reachable tag — voids itself and exits non-zero rather than producing a citable
 result.
@@ -17,7 +17,7 @@ revisions that leave the harness byte-identical, so these logs remain current at
 each row below says what changed, and `git diff --stat harness-v5 <tag> -- scripts console` is empty
 for every one of them. `harness-v24` adds the `MS1` row as two new files and changes no existing one,
 so `git diff --stat harness-v5 harness-v24 -- scripts console` lists only those two additions and the
-v5 logs remain current. `MS1` was produced at `harness-v24` and stands on its own. The tag history is
+v5 logs remain current. `MS1` was produced at `harness-v24` and stands on its own. The PQS rows under `pqs/` were produced at `harness-v26` and stand on their own in the same way. The tag history is
 kept below because the narrative of how the evidence was corrected depends on it.
 
 | Tag | What changed |
@@ -48,6 +48,7 @@ kept below because the narrative of how the evidence was corrected depends on it
 | `harness-v24` | **Harness addition.** Adds the multi-synchronizer row: `scripts/72-multisync.sh` and `console/multisync.canton`. No existing script or console file changes, so the v5 logs remain current. The `MS1` log was produced at this tag. |
 | `harness-v25` | **Documentation only.** Commits the `MS1` log and indexes it below. Harness byte-identical to `harness-v24`. |
 | `harness-v26` | **Harness addition.** Adds the PQS rows: `pqs/` (suite, console scripts, fixtures and their sources) and `scripts/73-pqs.sh`. No existing script or console file changes, so the v5 and `MS1` logs remain current. The PQS logs were produced at this tag. |
+| `harness-v27` | **Documentation only.** Commits the PQS logs (`evidence/pqs/`) and indexes them below, and corrects the design note: the `harness-v23` reversal was wrong for PQS. The participant does serve the old events after the DAR is removed, but PQS cannot ingest them (`PQS-D`), so Fred keeps old DARs while PQS is attached. Harness byte-identical to `harness-v26`. |
 
 ## Force-flag matrix
 
@@ -146,9 +147,31 @@ evidenced separately as a reload-only property.
 - Act 4 (archive first): `RELOAD force=none`, Δ=1, `orphanedContracts=0`, `removeOld=DONE`
 - Both acts: participant PID unchanged, Alice's party ID identical, ledger API still open
 
+## PQS
+
+`scripts/73-pqs.sh` at `harness-v26`, from a clean checkout. Logs: `pqs/20261027T090840Z/`, 25 runs,
+all ending as expected (`summary.tsv`), with a `PROVENANCE.txt` recording tool versions, the PQS jar
+hash and image digests. `pqs/README.md` states what every row shows and cites its logs; in short:
+
+| Row | Claim | Result |
+|---|---|---|
+| `PQS-A` | Pruning archived history cleans PQS after a breaking reload | 3 reloads, 0 retired rows after each prune, PQS running throughout, about 0.3 s per reload |
+| `PQS-B` | A reset with a version filter cleans PQS | **No.** PQS crashes on the replay: `key not found: (9644ff…,Mirrors,Mirror)` |
+| `PQS-X` | Option B's remaining cases | A fresh database with the final filter crashes the same way; a reset after a prune undoes the prune |
+| `PQS-D` | A fresh PQS re-ingest survives removal of the old DAR | **No.** With the DAR kept it catches up; after removal it loops on `No package for 9644ff…` and ingests nothing |
+| `PQS-V` | The A, B and X results hold on PQS 3.5.1 and 3.6.2 | Identical measures; B crashes at the same step |
+| `PQS-C` | A compatible reload needs PQS clean-up | **No.** PQS follows it by itself; old contracts stay under their original version |
+| `PQS-M` | One prune covers a participant on two synchronizers | Yes; moves between synchronizers are not visible in PQS |
+| `PQS-E` | The prune can run straight after the archive | **No.** It needs one later transaction |
+| `PQS-I` | The prune covers interface views | Yes |
+| `PQS-R` | A reset can keep the PQS database | **No.** A late restart on it runs silently with stale and missing rows; recreating it is correct in under a second |
+| `PQS-S` | The prune scales | 50,000 archived contracts in 0.35 s of database time (0.49 s wall clock), readers not slowed |
+| `PQS-L` | The reviewer's notes on Option A | The prune target rules hold; a repeat prune is a no-op; the filter restart changes nothing |
+| `PQS-Q` | The prune works on CN QuickStart | Yes, per PQS database with its own offset. **Run on 2026-10-26, before `harness-v26`** (`pqs/20261026-quickstart/Q/`), because it needs a full LocalNet |
+
 ## What these runs do NOT establish
 
-- **Pruning.** No run here touches it. There is still no pruning script in the repo and
+- **Participant pruning.** No run here touches it (pruning the PQS database is a separate operation, covered by the PQS rows). There is still no pruning script in the repo and
   `UNSAFE_TO_PRUNE` appears nowhere in the participant logs. The honest position remains
   "we did not test pruning", not "pruning did not work".
 - **`repair.purge`.** Not re-run here and it has **no committed log**; the claim rests on a
@@ -157,8 +180,9 @@ evidenced separately as a reload-only property.
 - **Approach 1** (compatible version bump). `console/historical/upgrade-test.canton`, `forcebump.canton` and
   `upg2.canton` still load DARs from `/private/tmp` that do not exist, so that section of
   RESULTS.md is not reproducible and must be labelled historical until those fixtures are restored.
-- **PQS**, multi-participant behaviour, and in-flight submissions during the swap: untested.
-  Multi-synchronizer behaviour is covered for one participant by `MS1`; several participants across
-  several synchronizers, and PQS on a multi-synchronizer participant, are not.
+- **Multi-participant behaviour and in-flight submissions during the swap:** untested.
+  Multi-synchronizer behaviour is covered for one participant by `MS1`, and PQS on that participant
+  by `PQS-M`; several participants across several synchronizers are not. PQS is covered by the PQS
+  rows, apart from the gaps listed in `pqs/README.md`.
 - **Contract identities.** The loop archives and recreates contracts; only the participant process
   and the party IDs survive.

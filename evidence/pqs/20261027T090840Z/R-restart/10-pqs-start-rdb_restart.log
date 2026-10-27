@@ -1,0 +1,167 @@
+[diagnostics] Initialising diagnostics server with configuration:
+[33mConfig[39m(
+  enabled = [32mtrue[39m,
+  host = [32m"127.0.0.1"[39m,
+  port = [32m0[39m,
+  dumpPath = [32mNone[39m,
+  metrics = [33mMetricsConfig[39m(interval = PT10S, bufferSize = [32m60[39m, tags = [33mArraySeq[39m()),
+  threads = [33mThreadsConfig[39m(interval = PT1M, bufferSize = [32m10[39m)
+)
+[diagnostics] Initialising OpenMetrics storage: samples = 60, labels = Set()
+[diagnostics] Starting Micrometer to OpenMetrics bridge: interval = PT10S
+[diagnostics] Starting thread dumps collector: interval = PT1M, samples = 10
+[diagnostics] WARN: Could not self-attach to JVM
+[diagnostics] WARN: Falling back to low fidelity thread dump renderer
+[diagnostics] WARN: Resolve this warning by providing `-Djdk.attach.allowAttachSelf` flag to JVM
+[diagnostics] Server socket listening on /127.0.0.1:53489
+ATTN! OpenTelemetry Java Agent is not found.
+Please provide OpenTelemetry Java Agent using environment variable JAVA_TOOL_OPTIONS=-javaagent:/path/to/otel.jar to process observability signals.
+See also https://opentelemetry.io/docs/instrumentation/java/automatic/
+11:39:09.005 [36mI[0m [zio-fiber-1265005414] com.digitalasset.scribe.configuration.package:52 [36mApplied configuration:
+health {
+    address="127.0.0.1"
+    port="18080"
+}
+logger {
+    format=Plain
+    level=Info
+    mappings {}
+    pattern=Plain
+}
+pipeline {
+    datasource=TransactionStream
+    filter {
+        contracts="*"
+        metadata="!*"
+        parties="*"
+    }
+    ledger {
+        start=Oldest
+        stop=Never
+    }
+    oauth {
+        accessToken=null
+        cafile=null
+        clientId=null
+        clientSecret=null
+        endpoint=null
+        issuer=null
+        parameters {}
+        preemptExpiry=PT1M
+        proxy {
+            password=null
+            url=null
+            user=null
+        }
+        scope=Default
+    }
+}
+retry {
+    backoff {
+        base=PT1S
+        cap=PT1M
+        factor="2.0"
+    }
+    counter {
+        attempts=null
+        duration=null
+        reset=PT10M
+    }
+}
+source {
+    ledger {
+        auth=NoAuth
+        bufferSize="128"
+        cacheDir="/tmp/scribe"
+        host=localhost
+        keepAlive {
+            time=PT40S
+            timeout=PT20S
+        }
+        port="6865"
+        tls {
+            cafile=null
+            cert=null
+            key=null
+        }
+    }
+}
+target {
+    encoding {
+        excludeNulls="false"
+        int64AsString="true"
+        numericAsString="true"
+    }
+    postgres {
+        appName=scribe
+        bufferSize="128"
+        database="rdb_restart"
+        host=localhost
+        keepAlive="true"
+        maxConnections="16"
+        password="********"
+        port="5499"
+        probeInterval=PT30S
+        schema=public
+        tls {
+            cafile=null
+            cert=null
+            key=null
+            mode=Disable
+        }
+        username=postgres
+    }
+    schema {
+        autoApply="true"
+        baseline="false"
+    }
+}
+[0m [36m[0m application=scribe
+11:39:09.016 [36mI[0m [zio-fiber-1265005414] com.digitalasset.scribe.appversion.package:17 [36mscribe, version: v3.5.7 (daml-sdk.version: 3.5.2, postgres-document.schema: 041)[0m [36m[0m application=scribe
+11:39:09.288 [36mI[0m [zio-fiber-1195456264] zio.jdbc.shims.postgres:139 [36mDatabase probe (select 1) successful[0m [36m[0m application=scribe
+Oct 27, 2026 11:39:09 AM io.grpc.netty.shaded.io.grpc.netty.TcpMetrics loadEpollInfo
+INFO: Epoll available during static init of TcpMetrics:false
+11:39:09.448 [36mI[0m [zio-fiber-1382908488] com.digitalasset.zio.daml.Channel:49 [36mKeep-alive (get ledger version) successful[0m [36m[0m application=scribe
+11:39:09.621 [36mI[0m [zio-fiber-817208699] com.digitalasset.zio.daml.ledgerapi.PackageService:27 [36mListed 30 packages[0m [36m[0m application=scribe
+11:39:09.640 [36mI[0m [zio-fiber-1632727304] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:39:09.640 [36mI[0m [zio-fiber-916716745] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:39:09.640 [36mI[0m [zio-fiber-906179312] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:39:09.714 [36mI[0m [zio-fiber-1246562438] com.digitalasset.zio.daml.DamlSchemaDamlVersionSpecific:23 [36mExtending filter to match missing entities. Filter selects []  which need to be included along with [][0m [36m[0m application=scribe
+11:39:09.721 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:46 [36mApplying schema[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:09.868 [36mI[0m [zio-fiber-852196013] org.flywaydb.core.FlywayExecutor: [36mDatabase: jdbc:postgresql://localhost:5499/rdb_restart?currentSchema=public (PostgreSQL 16.15)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.119 [36mI[0m [zio-fiber-531314844] org.flywaydb.core.internal.command.DbValidate: [36mSuccessfully validated 42 migrations (execution time 00:00.131s)[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.140 [36mI[0m [zio-fiber-242018634] org.flywaydb.core.internal.callback.SqlScriptCallbackFactory: [36mExecuting SQL callback: beforeMigrate - [0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.154 [36mI[0m [zio-fiber-1808093484] org.flywaydb.core.internal.command.DbMigrate: [36mCurrent version of schema "public": 041[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.156 [36mI[0m [zio-fiber-214934173] org.flywaydb.core.internal.command.DbMigrate: [36mSchema "public" is up to date. No migration necessary.[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.162 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:94 [36mApplying mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.168 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:99 [36mSchema and mappings applied[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.173 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:122 [36mInitialised 8 entity types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.178 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:137 [36mInitialised 20 exercise types[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.182 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:147 [36mInitialised 0 contract<->interface mappings[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.185 [36mI[0m [zio-fiber-2040109409] com.digitalasset.scribe.postgres.document.DocumentPostgres:156 [36mInitialised 3 packages[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.194 [36mI[0m [zio-fiber-1265005414] com.digitalasset.scribe.pipeline.pipeline.Impl:45 [36mStarting pipeline on behalf of all parties on the participant[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.206 [36mI[0m [zio-fiber-1265005414] com.digitalasset.zio.daml.ledgerapi.StateService:62 [36mRetrieved ledger start offset: GENESIS[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+11:39:10.210 [36mI[0m [zio-fiber-1265005414] com.digitalasset.zio.daml.ledgerapi.StateService:68 [36mRetrieved ledger end offset: 6[0m [36m[0m trace_id=00000000000000000000000000000000 application=scribe
+timestamp=2026-10-27T09:39:12.327106Z level=ERROR thread=#zio-fiber-1265005414 message="" cause="java.lang.Throwable: Requested start '110' is outside of ledger history 'GENESIS...6'.
+	at com.digitalasset.scribe.pipeline.pipeline.OffsetValidator$.verify$$anonfun$1(OffsetValidator.scala:13)
+	at zio.ZIO$.fail$$anonfun$1(ZIO.scala:3251)
+	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3262)
+	at com.digitalasset.scribe.pipeline.pipeline.OffsetValidator.verify(OffsetValidator.scala:13)
+	at com.digitalasset.scribe.pipeline.pipeline.OffsetValidator.validate(OffsetValidator.scala:49)
+	at com.digitalasset.scribe.pipeline.pipeline.Impl.run(Pipeline.scala:75)
+	at com.digitalasset.scribe.pipeline.pipeline.Impl.run(Pipeline.scala:103)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.root(TracingBridge.scala:58)
+	at com.digitalasset.scribe.o11y.opentelemetry.TracingBridge.initialize.$anon.root(TracingBridge.scala:60)
+	at com.digitalasset.scribe.pipeline.pipeline.Impl.run(Pipeline.scala:107)
+	at com.digitalasset.scribe.pipeline.pipeline.Impl.run(Pipeline.scala:111)
+	at com.digitalasset.scribe.pipeline.Main.execute(Main.scala:86)
+	at com.digitalasset.scribe.app.ComposableApp.bootstrap(ComposableApp.scala:68)
+	at com.digitalasset.scribe.app.ComposableApp.printAndLogError(ComposableApp.scala:75)
+	at com.digitalasset.scribe.app.ComposableApp.run(ComposableApp.scala:60)
+	at com.digitalasset.scribe.app.ComposableApp.main(ComposableApp.scala:42)
+	at com.digitalasset.scribe.app.ComposableApp.main(ComposableApp.scala:43)
+" location=com.digitalasset.scribe.app.ComposableApp.printAndLogError file=ComposableApp.scala line=74
+java.lang.Throwable: Requested start '110' is outside of ledger history 'GENESIS...6'.
+[diagnostics] Diagnostics server shutting down now...
+[diagnostics] Shutting down Micrometer to OpenMetrics bridge
+[diagnostics] Shutting down thread dumps collector

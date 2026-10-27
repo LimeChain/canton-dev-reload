@@ -1,0 +1,13 @@
+1	sandbox	want=ok	got=ok	-	-	01-sandbox.log
+2	init	want=ok	got=ok	rc=0	6.666s	02-init.log
+3	g1-create	want=ok	got=ok	rc=0	4.077s	03-g1-create.log
+4	g1-archive	want=ok	got=ok	rc=0	4.374s	04-g1-archive.log
+5	swap	want=ok	got=ok	rc=0	3.633s	05-swap.log
+6	g2-create	want=ok	got=ok	rc=0	4.434s	06-g2-create.log
+7	createdb-ddb_keep	want=ok	got=ok	rc=0	0.113s	07-createdb-ddb_keep.log
+8	pqs-start-ddb_keep	want=ok	got=started	pid=55875	-	08-pqs-start-ddb_keep.log	filter=* image=local-3.5.7 
+8	try-wait-ddb_keep-40	want=outcome	got=caught-up	-	3.338s	08-pqs-start-ddb_keep.log
+9	remove-g1	want=ok	got=ok	rc=0	3.513s	09-remove-g1.log
+10	createdb-ddb_removed	want=ok	got=ok	rc=0	0.111s	10-createdb-ddb_removed.log
+11	pqs-start-ddb_removed	want=ok	got=started	pid=55952	-	11-pqs-start-ddb_removed.log	filter=* image=local-3.5.7 
+11	try-wait-ddb_removed-40	want=outcome	got=timeout	-	67.603s	11-pqs-start-ddb_removed.log

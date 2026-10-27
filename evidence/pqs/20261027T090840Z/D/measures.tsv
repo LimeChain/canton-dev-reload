@@ -1,0 +1,19 @@
+keep	wait_result	caught-up
+keep	pqs_alive	yes
+keep	checkpoint	40
+keep	g1_creates	2
+keep	g2_active	2
+keep	no_package_lines	0
+keep	crash_cause	
+removed	wait_result	timeout
+removed	pqs_alive	yes
+removed	checkpoint	
+removed	g1_creates	0
+removed	g2_active	0
+removed	no_package_lines	14
+removed	crash_cause	
+assert	keep_caught_up	ok (caught-up)
+assert	keep_g1_history	ok (2)
+assert	keep_g2_active	ok (2)
+assert	removed_not_caught_up	ok (timeout)
+assert	removed_g2_active	ok (0)

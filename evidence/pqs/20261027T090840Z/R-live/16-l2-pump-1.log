@@ -1,0 +1,27 @@
+2026-10-27 11:36:31,400 [main] WARN  org.jline - Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+[34mCompiling /private/tmp/claude-501/-Users-georgiradev-Desktop/78c32201-cabf-4903-9d3a-0682b6b8975c/scratchpad/wt-v26/Main.sc[39m
+T C=0083b97ab5858cc91523885941d3e4eb985763083dca1cc9f6315220a79abd83efca12122056b684e40ecf82129918cdd2cad01d1e83843023d0cbdaba43fc624f75789707,23,L2-1,active
+T C=000c0821378387fe89fe6d474f7cfe29a9e324fa21025f72da0f42061f6f631f5dca121220726efc893b0d7fbe84ac043c09a59121d08c5072ef59a77fea882ddf67ea341d,26,L2-2,active
+T C=005c346a6dc11bf79ecc0e759bff9e42bac4fa0e942c3dd2a6f6e467c1833da07eca121220508b751794e64dbda50d80b790d69aefde40b9fdf84682fdf6a6e2b1651bfeb5,29,L2-3,active
+T C=003441a68c9a2d9a90a1bf73f690c43fe770344961f6c917aaa99cf54557387f33ca12122094dee6a4cb692022dd6fbcf4733cc93e6a88077b405484a7d39a2a49362afb0b,32,L2-4,active
+T C=002d83432ae803a34b445065a086ab0aa90c31bf2acde630d6e9a2fe174b802492ca1212203045c5823a74f8a7782287dacb9c068c6858c76acf639095324b82b5cc085ae1,35,L2-5,active
+T C=0038a997dc83e70575f9bdb57eed34245e0058a6b8098c79670bceded3ba7b3c8fca121220414898b566ec42979298ccac2eacd2fbdb3ccef08c27317eefff5d6f9a99c169,38,L2-6,active
+T C=00524191c3f0612de8df340bb71bb1cfffe3b01fd86a259b52c96ecf9192f76281ca121220fc2e6576b0001e056bfbae4edfeee379f6d506f5d01f84238a667434dcb079c3,41,L2-7,active
+T C=005a0f5e07d4e4a914c6e28ba6bd5f8d9c96bb9150306749cd9c127c229b0637beca1212200727ee1e16dc7e986fd86628625d8c8f355f6fa6dde86286617b28273a79b71d,44,L2-8,active
+T C=0024c0fdd2c9ae999fec9093a8d2b576230abb78f074ed65de0ca404c444a95e68ca121220b99a5181d41e6c2f7b7445da4a3b6191606c88d35635094a6233c6620694342f,47,L2-9,active
+T C=00a702bc85c48bad00d37433d18b01ec8ed10c0be29454a7bc662468ae53d82088ca1212206c54306c6135d9be05f57c6bbeddfd26457de602da8e19c651a7f98a3f2f7d7b,50,L2-10,active
+T NS=12205720adaa16cbebea4bab5eb2e54274c8826a42740afe4af8d9f5019e578930e1
+T LASTTX=50
+T END=52
+   _____            _
+  / ____|          | |
+ | |     __ _ _ __ | |_ ___  _ __
+ | |    / _` | '_ \| __/ _ \| '_ \
+ | |___| (_| | | | | || (_) | | | |
+  \_____\__,_|_| |_|\__\___/|_| |_|
+
+  Welcome to Canton!
+  Type `help` to get started. `exit` to leave.
+
+
+@ [34mBye![39m
