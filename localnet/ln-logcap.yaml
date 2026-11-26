@@ -1,0 +1,9 @@
+# Compose override for the timing runs: cap each container's docker log (json-file, 3 x 200 MB).
+# Log level and app config are unchanged (LocalNet default), only the host-side log file is rotated.
+x-logcap: &logcap
+  logging: { driver: json-file, options: { max-size: "200m", max-file: "3" } }
+services:
+  canton: *logcap
+  splice: *logcap
+  postgres: *logcap
+  nginx: *logcap

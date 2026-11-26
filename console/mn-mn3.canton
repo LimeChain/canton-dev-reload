@@ -1,0 +1,31 @@
+// MN3 (Q4): does repair.purge work while the participant is connected, or only disconnected?
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+val ownP = newOwn(P, provider, V1, TXT, A)
+val ownP2 = newOwn(P, provider, V1, TXT, A)
+check("ownActive", activeOn(P, provider, V1).toSet == Set(ownP, ownP2), activeOn(P, provider, V1).size.toString, "2")
+val aliasA = com.digitalasset.canton.SynchronizerAlias.tryCreate("syncA")
+
+// 1) connected
+val connected = attempt(P.repair.purge(aliasA, Seq(LfContractId.assertFromString(ownP))))
+check("mn3PurgeConnectedRefused", connected.isLeft, ok(connected), "fail")
+expectCode("mn3connected", "CONTRACT_PURGE_ERROR")
+val goneConnected = !activeOn(P, provider, V1).contains(ownP)
+note(s"after connected purge, ownP active=${!goneConnected}")
+println(s"RESULT mn3PurgeConnected=${ok(connected)} removed=$goneConnected")
+
+// 2) disconnected from syncA only: still refused ("disconnect all synchronizers")
+P.synchronizers.disconnect("syncA")
+val partial = attempt(P.repair.purge(aliasA, Seq(LfContractId.assertFromString(ownP2))))
+check("mn3PurgeOneDisconnectRefused", partial.isLeft, ok(partial), "fail")
+// 3) disconnected from every synchronizer: the documented repair path
+P.synchronizers.disconnect("syncB")
+check("mn3FullyDisconnected", P.synchronizers.list_connected().isEmpty, P.synchronizers.list_connected().size.toString, "0")
+val disc = attempt(P.repair.purge(aliasA, Seq(LfContractId.assertFromString(ownP2))))
+P.synchronizers.reconnect_all()
+utils.retry_until_true(timeout = 30.seconds)(P.synchronizers.list_connected().size == 2)
+check("mn3PurgeDisconnected", disc.isRight, ok(disc), "succeed")
+check("mn3Ownp2Gone", !activeOn(P, provider, V1).contains(ownP2), activeOn(P, provider, V1).contains(ownP2).toString, "false")
+// a purged contract is gone for good: exercising it fails
+val exGone = attempt(P.ledger_api.commands.submit(Seq(provider), Seq(exCmd(V1, "Own", ownP2, "Archive"))))
+check("mn3PurgedNotExercisable", exGone.isLeft, ok(exGone), "fail")
+verdict()

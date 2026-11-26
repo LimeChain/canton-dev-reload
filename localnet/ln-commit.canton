@@ -1,0 +1,13 @@
+// Inspect ACS commitments on the app nodes (latest period per synchronizer): sent and received, by state.
+import com.digitalasset.canton.admin.api.client.commands.ParticipantAdminCommands.Inspection.{SynchronizerTimeRange, TimeRange}
+import com.digitalasset.canton.data.CantonTimestamp
+val from = CantonTimestamp.assertFromInstant(now().minusSeconds(sys.env.getOrElse("LN_SINCE_S", "3600").toLong))
+val rng = Seq(SynchronizerTimeRange(G, Some(TimeRange(from, CantonTimestamp.assertFromInstant(now())))))
+note(s"recon=${dyn().reconciliationInterval} from=$from")
+def states(s: String) = Seq("MATCH", "MISMATCH", "BUFFERED", "OUTSTANDING", "NOT_COMPARED").map(k => k -> ("\\b" + k + "\\b").r.findAllIn(s).size).filter(_._2 > 0)
+for (p <- Seq(P, U)) {
+  val sent = attempt(p.commitments.lookup_sent_acs_commitments(rng, Seq.empty, Seq.empty, false).toString)
+  val rec = attempt(p.commitments.lookup_received_acs_commitments(rng, Seq.empty, Seq.empty, false).toString)
+  note(s"${p.name} sent ${sent.map(states)} | ${sent.fold(identity, _.take(400))}")
+  note(s"${p.name} received ${rec.map(states)} | ${rec.fold(identity, _.take(400))}")
+}

@@ -1,0 +1,47 @@
+// MN1 + MN1b (Q1): is there a single submission point with authority for both signatories?
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+
+// Hosting topology is asserted, not assumed.
+Seq(stA, stB).foreach { st =>
+  val tag = if (st == stA) "A" else "B"
+  check(s"hostProvider$tag", hosts(provider, st) == Set("provider"), hosts(provider, st).mkString(","), "provider")
+  check(s"hostUser$tag", hosts(user, st) == Set("user"), hosts(user, st).mkString(","), "user")
+}
+check("connected", Seq(P, U).forall(_.synchronizers.list_connected().size == 2),
+  Seq(P, U).map(_.synchronizers.list_connected().size).mkString(","), "2,2")
+
+val s1 = newShared(V1, TXT, A)
+val s2 = newShared(V1, TXT, B)
+check("sharedVisibleBoth", Seq(s1, s2).forall(c => activeOn(P, provider, V1).contains(c) && activeOn(U, user, V1).contains(c)),
+  "", "both nodes see both Shared")
+
+// MN1: archive from provider, acting as both parties.
+val mn1 = attempt(P.ledger_api.commands.submit(Seq(provider, user), Seq(exCmd(V1, "Shared", s1, "Archive"))))
+check("mn1ArchiveBothFromP", mn1.isLeft, ok(mn1), "fail")
+expectCode("mn1", "NO_SYNCHRONIZER_ON_WHICH_ALL_SUBMITTERS_CAN_SUBMIT")
+// From provider acting as Provider only: Archive needs both signatories.
+val mn1p = attempt(P.ledger_api.commands.submit(Seq(provider), Seq(exCmd(V1, "Shared", s1, "Archive"))))
+check("mn1ArchiveProviderOnly", mn1p.isLeft, ok(mn1p), "fail")
+expectCode("mn1p", "DAML_AUTHORIZATION_ERROR")
+check("mn1StillActive", activeOn(P, provider, V1).contains(s1), "", "s1 active")
+
+// MN1b: host User on provider too, with submission permission, on both synchronizers.
+import com.digitalasset.canton.topology.transaction.ParticipantPermission
+val mn1bHost = attempt {
+  Seq(A, B).foreach { id =>
+    // the party's namespace owner (user participant) and the new host (provider) both authorize
+    U.topology.party_to_participant_mappings.propose_delta(user,
+      adds = Seq(P.id -> ParticipantPermission.Submission), store = TopologyStoreId.Synchronizer(if (id == A) psA else psB))
+    P.topology.party_to_participant_mappings.propose_delta(user,
+      adds = Seq(P.id -> ParticipantPermission.Submission), store = TopologyStoreId.Synchronizer(if (id == A) psA else psB))
+  }
+  utils.retry_until_true(timeout = 30.seconds)(Seq(stA, stB).forall(st => hosts(user, st) == Set("provider", "user")))
+}
+check("mn1bMultiHosted", mn1bHost.isRight, mn1bHost.fold(identity, _ => "ok"), "ok")
+note(s"mn1b hosts A=${hosts(user, stA)} B=${hosts(user, stB)}")
+// Onboarding a party onto a participant that already shares its contracts: the provider already
+// sees s1 as Provider's stakeholder, so it can submit for User now.
+val mn1b = attempt(P.ledger_api.commands.submit(Seq(provider, user), Seq(exCmd(V1, "Shared", s1, "Archive"))))
+check("mn1bArchiveSucceeds", mn1b.isRight, ok(mn1b), "succeed")
+note(s"mn1b error: ${mn1b.left.getOrElse("")}")
+verdict()

@@ -1,0 +1,29 @@
+// MN6 step 3, a fresh "Fred": resume from the checkpoint. The crash came before anything destructive
+// (phase=quiesced), so resume rolls the quiesce back (rates restored FROM THE CHECKPOINT, since the live
+// value is 0), proves the ledger is usable, then runs the whole reload again to completion.
+val c = ckptRead()
+check("resumeSeesQuiesced", c.get("phase").contains("quiesced"), c.getOrElse("phase", "-"), "quiesced")
+check("restoreFromCkpt", restore(), Seq(A, B).map(rate).mkString(","), s"${c("rateA")},${c("rateB")}")
+val usable = attempt(newOwn(P, provider, V1, TXT, A))
+check("ledgerUsableAfterRestore", usable.isRight, ok(usable), "succeed")
+usable.foreach(cid => P.ledger_api.commands.submit(Seq(provider), Seq(exCmd(V1, "Own", cid, "Archive")))) // keep the fixture at 3 v1 contracts
+
+// The full reload, from the top.
+val tRate0 = quiesce()
+check("drainAcsStable", drain(tRate0), "", "stable")
+check("purgeAll", purgeAll(), "", "succeed")
+check("noV1Left", activeOn(P, provider, V1).isEmpty && activeOn(U, user, V1).isEmpty,
+  s"${activeOn(P, provider, V1).size}/${activeOn(U, user, V1).size}", "0/0")
+check("swapAll", swapAll(), "", "4 unforced swaps, serial +1 each")
+check("vettedV2Only", Seq(P, U).forall(p => Seq(stA, stB).forall(st => vetted(p, st).contains(V2) && !vetted(p, st).contains(V1))), "", "v2 only")
+check("restoreAfterReload", restore(), Seq(A, B).map(rate).mkString(","), s"${c("rateA")},${c("rateB")}")
+val n1 = attempt(newShared(V2, INT, A))
+check("setupV2", n1.isRight, ok(n1), "succeed")
+val stamp = attempt(P.ledger_api.commands.submit(Seq(provider), Seq(exCmd(V2, "Shared", n1.toOption.get, "Stamp"))))
+check("v2ChoiceAcrossNodes", stamp.isRight, ok(stamp), "succeed")
+ckptPhase("done")
+// commitments over a few intervals, with activity
+val until = now().plusSeconds(dyn(A).reconciliationInterval.duration.toSeconds * 5)
+while (now().isBefore(until)) { newOwn(U, user, V2, INT, A); newOwn(P, provider, V2, INT, B); Thread.sleep(2000) }
+expectNoCode("mn6mismatch", "ACS_COMMITMENT_MISMATCH")
+verdict()

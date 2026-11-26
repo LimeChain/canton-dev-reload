@@ -1,0 +1,83 @@
+10:19:24,140 |-INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version 3.5.7
+10:19:24,140 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - No custom configurators were discovered as a service.
+10:19:24,140 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - Trying to configure with ch.qos.logback.classic.joran.SerializedModelConfigurator
+10:19:24,141 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - Constructed configurator of type class ch.qos.logback.classic.joran.SerializedModelConfigurator
+10:19:24,143 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.scmo]
+10:19:24,143 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.scmo]
+10:19:24,147 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - ch.qos.logback.classic.joran.SerializedModelConfigurator.configure() call lasted 2 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+10:19:24,147 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - Trying to configure with ch.qos.logback.classic.util.DefaultJoranConfigurator
+10:19:24,147 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - Constructed configurator of type class ch.qos.logback.classic.util.DefaultJoranConfigurator
+10:19:24,148 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+10:19:24,149 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [jar:file:/app/lib/canton-open-source-3.5.7.jar!/logback.xml]
+10:19:24,149 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@48d61b48 - Resource [logback.xml] occurs multiple times on the classpath.
+10:19:24,150 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@48d61b48 - Resource [logback.xml] occurs at [file:/app/logback.xml]
+10:19:24,150 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@48d61b48 - Resource [logback.xml] occurs at [jar:file:/app/lib/canton-open-source-3.5.7.jar!/logback.xml]
+10:19:24,152 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@68d279ec - URL [jar:file:/app/lib/canton-open-source-3.5.7.jar!/logback.xml] is not of type file
+10:19:24,184 |-INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil@258d79be - Adding [jar:file:/app/lib/canton-open-source-3.5.7.jar!/rewrite-appender.xml] to configuration watch list.
+10:19:24,184 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@68d279ec - URL [jar:file:/app/lib/canton-open-source-3.5.7.jar!/rewrite-appender.xml] is not of type file
+10:19:24,191 |-INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil@258d79be - Adding [jar:file:/app/lib/canton-open-source-3.5.7.jar!/rewrite-async-appender.xml] to configuration watch list.
+10:19:24,191 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@68d279ec - URL [jar:file:/app/lib/canton-open-source-3.5.7.jar!/rewrite-async-appender.xml] is not of type file
+10:19:24,212 |-INFO in ch.qos.logback.classic.model.processor.LoggerContextListenerModelHandler - Adding LoggerContextListener of type [ch.qos.logback.classic.jul.LevelChangePropagator] to the object stack
+10:19:24,218 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@14f9390f - Propagating DEBUG level on Logger[ROOT] onto the JUL framework
+10:19:24,218 |-INFO in ch.qos.logback.classic.model.processor.LoggerContextListenerModelHandler - Starting LoggerContextListener
+10:19:24,259 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_FORMAT_JSON")] evaluated to false on line 14
+10:19:24,261 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("INTERACTIVE_STDOUT")] evaluated to false on line 29
+10:19:24,263 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_FILE_FLAT")] evaluated to false on line 54
+10:19:24,264 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_FILE_ROLLING")] evaluated to true on line 86
+10:19:24,265 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_FORMAT_JSON")] evaluated to false on line 88
+10:19:24,266 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("KMS_LOG_FILE_NAME")] evaluated to false on line 137
+10:19:24,269 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition ["false".equals(p("LOG_IMMEDIATE_FLUSH"))] evaluated to false on line 231
+10:19:24,270 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_ACCESS")] evaluated to false on line 240
+10:19:24,271 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition [isDefined("LOG_ACCESS_ERRORS")] evaluated to false on line 258
+10:19:24,272 |-INFO in ch.qos.logback.core.model.processor.conditional.IfModelHandler - Condition ["false".equals(p("LOG_IMMEDIATE_FLUSH"))] evaluated to false on line 291
+10:19:24,273 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [STDOUT]
+10:19:24,273 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+10:19:24,275 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [ch.qos.logback.classic.encoder.PatternLayoutEncoder] for [encoder] property
+10:19:24,287 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [FILE]
+10:19:24,287 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+10:19:24,290 |-INFO in c.q.l.core.rolling.TimeBasedRollingPolicy@1812823171 - Will use gz compression
+10:19:24,290 |-INFO in c.q.l.core.rolling.TimeBasedRollingPolicy@1812823171 - Will use the pattern log/canton.log.%d{yyyy-MM-dd} for the active file
+10:19:24,301 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - The date pattern is 'yyyy-MM-dd' from file name pattern 'log/canton.log.%d{yyyy-MM-dd}.gz'.
+10:19:24,301 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - Roll-over at midnight.
+10:19:24,304 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - Setting initial period to 2026-11-26T10:19:24.304Z
+10:19:24,304 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [ch.qos.logback.classic.encoder.PatternLayoutEncoder] for [encoder] property
+10:19:24,306 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Active log file name: log/canton.log
+10:19:24,306 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - File property is set to [log/canton.log]
+10:19:24,307 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [REWRITE_LOG_LEVEL_SYNC]
+10:19:24,307 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [com.digitalasset.canton.logging.RewritingAppender]
+10:19:24,309 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [STDOUT] to com.digitalasset.canton.logging.RewritingAppender[REWRITE_LOG_LEVEL_SYNC]
+10:19:24,309 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to com.digitalasset.canton.logging.RewritingAppender[REWRITE_LOG_LEVEL_SYNC]
+10:19:24,320 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [com.digitalasset] to INFO
+10:19:24,320 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@14f9390f - Propagating INFO level on Logger[com.digitalasset] onto the JUL framework
+10:19:24,320 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [com.daml] to INFO
+10:19:24,320 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@14f9390f - Propagating INFO level on Logger[com.daml] onto the JUL framework
+10:19:24,320 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to INFO
+10:19:24,320 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@14f9390f - Propagating INFO level on Logger[ROOT] onto the JUL framework
+10:19:24,320 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [REWRITE_LOG_LEVEL_SYNC] to Logger[ROOT]
+10:19:24,320 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@176b75f7 - End of configuration.
+10:19:24,321 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@5965be2d - Registering current configuration as safe fallback point
+10:19:24,321 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d898981 - ch.qos.logback.classic.util.DefaultJoranConfigurator.configure() call lasted 174 milliseconds. ExecutionStatus=DO_NOT_INVOKE_NEXT_IF_ANY
+
+T0 rate=1000000 serial=1
+PROPOSE sv ok=true 
+PROPOSE sequencer ok=true 
+W 10s rate=0 serial=2
+W 20s rate=0 serial=2
+W 30s rate=0 serial=2
+W 40s rate=0 serial=2
+W 50s rate=0 serial=2
+W 60s rate=0 serial=2
+W 70s rate=0 serial=2
+W 80s rate=0 serial=2
+W 90s rate=0 serial=2
+W 100s rate=0 serial=2
+W 110s rate=0 serial=2
+W 120s rate=0 serial=2
+W 130s rate=0 serial=2
+W 140s rate=0 serial=2
+W 150s rate=0 serial=2
+W 160s rate=0 serial=2
+W 170s rate=0 serial=2
+W 180s rate=0 serial=2
+W 190s rate=0 serial=2
+RESTORED rate=1000000 serial=3

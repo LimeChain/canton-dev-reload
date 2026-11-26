@@ -1,0 +1,22 @@
+// MN4 (Q5 control): a ONE-SIDED purge of a shared contract must surface as an ACS commitment
+// mismatch between provider and user. If it does not, MN5's "no mismatch" proves nothing.
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+val s1 = newShared(V1, TXT, A)
+val aliasA = com.digitalasset.canton.SynchronizerAlias.tryCreate("syncA")
+
+P.synchronizers.disconnect_all()
+val pur = attempt(P.repair.purge(aliasA, Seq(LfContractId.assertFromString(s1))))
+P.synchronizers.reconnect_all()
+utils.retry_until_true(timeout = 30.seconds)(P.synchronizers.list_connected().size == 2)
+check("mn4PurgedOnProviderOnly", pur.isRight, ok(pur), "succeed")
+check("mn4GoneOnProvider", !activeOn(P, provider, V1).contains(s1), "", "absent on provider")
+check("mn4StillOnUser", activeOn(U, user, V1).contains(s1), "", "present on user")
+
+// Commitments are exchanged per reconciliation interval as synchronizer time advances, so keep a
+// trickle of unrelated activity on syncA for a few intervals.
+val recon = dyn(sA, A).reconciliationInterval.duration.toSeconds
+val until = java.time.Instant.now().plusSeconds(recon * 5)
+while (java.time.Instant.now().isBefore(until)) { newOwn(U, user, V1, TXT, A); Thread.sleep(2000) }
+note(s"activity for ${recon * 5}s (5 reconciliation intervals of ${recon}s)")
+expectCode("mn4mismatch", "ACS_COMMITMENT_MISMATCH")
+verdict()

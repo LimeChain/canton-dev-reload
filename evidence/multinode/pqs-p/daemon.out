@@ -1,0 +1,6 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+PKG V1=5036e364c022374e14c3b633a13278138ed1b9734db3d608eb6c723a32d16b5c
+PKG V2=bb1c219f0e98545cec45bb487277809b86c863e966504c77338c9df079878eff
+MN READY

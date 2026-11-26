@@ -1,0 +1,14 @@
+// MN6 step 2, after the kill: what did the crash leave? The network must still be quiesced (this is
+// the hazard the checkpoint exists for), nothing destructive has happened, and the checkpoint says so.
+val c = ckptRead()
+note(s"checkpoint after crash: $c")
+check("ckptPhaseQuiesced", c.get("phase").contains("quiesced"), c.getOrElse("phase", "-"), "quiesced")
+check("ckptHasRates", c.contains("rateA") && c.contains("rateB"), s"${c.get("rateA")},${c.get("rateB")}", "both recorded")
+check("stillRate0", Seq(A, B).forall(id => rate(id).unwrap == 0), Seq(A, B).map(rate).mkString(","), "0,0")
+val blocked = attempt(newOwn(P, provider, V1, TXT, A))
+check("ledgerBlockedAfterCrash", blocked.isLeft, ok(blocked), "fail")
+expectCode("crashBlocked", "SEQUENCER_OVERLOADED")
+check("v1Untouched", activeOn(P, provider, V1).size == 3 && activeOn(U, user, V1).size == 3,
+  s"${activeOn(P, provider, V1).size}/${activeOn(U, user, V1).size}", "3/3")
+check("v1StillVetted", Seq(P, U).forall(p => Seq(stA, stB).forall(st => vetted(p, st).contains(V1))), "", "v1 vetted everywhere")
+verdict()

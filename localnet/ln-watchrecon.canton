@@ -1,0 +1,8 @@
+// Set reconciliationInterval to 10s from the SV participant, then report every change of the dynamic params
+// for up to LN_WATCH_S seconds (who wins: the SV app or the proposal).
+import com.digitalasset.canton.config.PositiveDurationSeconds
+def snap() = { val d = dyn(); s"recon=${d.reconciliationInterval} rate=${d.confirmationRequestsMaxRate} confirm=${d.confirmationResponseTimeout} react=${d.mediatorReactionTimeout}" }
+note(s"before ${snap()}")
+SV.topology.synchronizer_parameters.propose_update(G, _.update(reconciliationInterval = PositiveDurationSeconds.ofSeconds(10)))
+val t0 = now(); var last = ""; val until = t0.plusSeconds(sys.env.getOrElse("LN_WATCH_S", "300").toLong)
+while (now().isBefore(until)) { val s = snap(); if (s != last) { println(f"WATCH +${(now().toEpochMilli - t0.toEpochMilli) / 1000.0}%.1fs ${now()} $s"); last = s }; Thread.sleep(2000) }

@@ -1,0 +1,49 @@
+daemon ready pid=99659 V1=5036e364c022 V2=bb1c219f0e98
+
+[1m=== MN6.1 arm: quiesce, then hang ===[0m
+ASSERT ratesNonZeroBefore         PASS got=1000000,1000000 want=> 0
+CKPT phase=quiesced
+ASSERT rate0Both                  PASS got=0,0 want=0,0
+ARMED
+KILLED arm console pid=99700 with SIGKILL
+daemon still running
+
+[1m=== MN6.2 observe what the crash left ===[0m
+SETUP remote console attached: A=syncA::1220d937c86cd B=syncB::1220c72bbd62e V1=5036e364c022 V2=bb1c219f0e98
+NOTE checkpoint after crash: Map(phase -> quiesced, rateA -> 1000000, rateB -> 1000000)
+ASSERT ckptPhaseQuiesced          PASS got=quiesced want=quiesced
+ASSERT ckptHasRates               PASS got=Some(1000000),Some(1000000) want=both recorded
+ASSERT stillRate0                 PASS got=0,0 want=0,0
+ASSERT ledgerBlockedAfterCrash    PASS got=fail want=fail
+EXPECT_CODE crashBlocked SEQUENCER_OVERLOADED
+ASSERT v1Untouched                PASS got=3/3 want=3/3
+ASSERT v1StillVetted              PASS got= want=v1 vetted everywhere
+VERDICT PASS
+ASSERT code-crashBlocked   PASS  SEQUENCER_OVERLOADED present
+
+[1m=== MN6.3 resume from the checkpoint, then complete the reload ===[0m
+SETUP remote console attached: A=syncA::1220d937c86cd B=syncB::1220c72bbd62e V1=5036e364c022 V2=bb1c219f0e98
+ASSERT resumeSeesQuiesced         PASS got=quiesced want=quiesced
+CKPT phase=restored
+ASSERT restoreFromCkpt            PASS got=1000000,1000000 want=1000000,1000000
+ASSERT ledgerUsableAfterRestore   PASS got=succeed want=succeed
+CKPT phase=quiesced
+CKPT phase=drained
+ASSERT drainAcsStable             PASS got= want=stable
+NOTE provider: purged syncA=2 syncB=1
+NOTE user: purged syncA=1 syncB=2
+CKPT phase=purged
+ASSERT purgeAll                   PASS got= want=succeed
+ASSERT noV1Left                   PASS got=0/0 want=0/0
+CKPT phase=swapped
+ASSERT swapAll                    PASS got= want=4 unforced swaps, serial +1 each
+ASSERT vettedV2Only               PASS got= want=v2 only
+CKPT phase=restored
+ASSERT restoreAfterReload         PASS got=1000000,1000000 want=1000000,1000000
+ASSERT setupV2                    PASS got=succeed want=succeed
+ASSERT v2ChoiceAcrossNodes        PASS got=succeed want=succeed
+CKPT phase=done
+EXPECT_NO_CODE mn6mismatch ACS_COMMITMENT_MISMATCH
+VERDICT PASS
+ASSERT nocode-mn6mismatch  PASS  ACS_COMMITMENT_MISMATCH absent
+MN6 rc=0

@@ -1,0 +1,5 @@
+// PQS-P: one further v2 transaction on the provider, so each branch must show PQS still ingesting.
+val tx = newOwnTx(P, provider, V2, INT, A)
+tval("CID", firstCreated(tx, "Own"))
+tval("OFFSET", tx.offset)
+verdict()

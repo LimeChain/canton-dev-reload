@@ -1,0 +1,72 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+ASSERT mn4PurgedOnProviderOnly    PASS got=succeed want=succeed
+ASSERT mn4GoneOnProvider          PASS got= want=absent on provider
+ASSERT mn4StillOnUser             PASS got= want=present on user
+2026-11-26 13:05:04,615 [canton-env-ec-50] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=provider/psid=syncA::12202f79b8e7::35-0 tid:11d1ea02c75819f753226d7b7ef0250a - ACS_MISMATCH_NO_SHARED_CONTRACTS(5,11d1ea02): Received a commitment where we have no shared contract with the sender err-context:{location=AcsCommitmentProcessor.scala:1820, remote=AcsCommitment(
+  psid = syncA::12202f79b8e7...::35-0,
+  sender = PAR::user::1220a2879906...,
+  counterParticipant = PAR::provider::1220bb263ede...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:04:00Z, toInclusive = 2026-11-26T06:05:00Z),
+  commitment = SHA-256:d8ff286cd440...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:07,343 [canton-env-ec-41] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=user/psid=syncA::12202f79b8e7::35-0 tid:11d1ea02c75819f753226d7b7ef0250a - ACS_COMMITMENT_MISMATCH(5,11d1ea02): The local commitment does not match the remote commitment err-context:{local=Vector((CommitmentPeriod(fromExclusive = 2026-11-26T06:04:00Z, toInclusive = 2026-11-26T06:05:00Z),SHA-256:d8ff286cd440...)), location=AcsCommitmentProcessor.scala:1850, remote=AcsCommitment(
+  psid = syncA::12202f79b8e7...::35-0,
+  sender = PAR::provider::1220bb263ede...,
+  counterParticipant = PAR::user::1220a2879906...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:04:00Z, toInclusive = 2026-11-26T06:05:00Z),
+  commitment = SHA-256:e2c0cf0361cb...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:09,752 [canton-env-ec-49] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=provider/psid=syncA::12202f79b8e7::35-0 tid:0f13da20d0f5a4856e1dc0e7d7d2572a - ACS_MISMATCH_NO_SHARED_CONTRACTS(5,0f13da20): Received a commitment where we have no shared contract with the sender err-context:{location=AcsCommitmentProcessor.scala:1820, remote=BufferedAcsCommitment(
+  synchronizerId = syncA::12202f79b8e7...,
+  sender = PAR::user::1220a2879906...,
+  counterParticipant = PAR::provider::1220bb263ede...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:00Z, toInclusive = 2026-11-26T06:05:05Z),
+  commitment = SHA-256:d8ff286cd440...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:13,465 [canton-env-ec-39] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=user/psid=syncA::12202f79b8e7::35-0 tid:0f13da20d0f5a4856e1dc0e7d7d2572a - ACS_COMMITMENT_MISMATCH(5,0f13da20): The local commitment does not match the remote commitment err-context:{local=Vector((CommitmentPeriod(fromExclusive = 2026-11-26T06:05:00Z, toInclusive = 2026-11-26T06:05:05Z),SHA-256:d8ff286cd440...)), location=AcsCommitmentProcessor.scala:1850, remote=AcsCommitment(
+  psid = syncA::12202f79b8e7...::35-0,
+  sender = PAR::provider::1220bb263ede...,
+  counterParticipant = PAR::user::1220a2879906...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:00Z, toInclusive = 2026-11-26T06:05:05Z),
+  commitment = SHA-256:e2c0cf0361cb...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:15,036 [canton-env-ec-42] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=provider/psid=syncA::12202f79b8e7::35-0 tid:b9e7da5a6a4b2f030f6134e6d25ee5d5 - ACS_MISMATCH_NO_SHARED_CONTRACTS(5,b9e7da5a): Received a commitment where we have no shared contract with the sender err-context:{location=AcsCommitmentProcessor.scala:1820, remote=BufferedAcsCommitment(
+  synchronizerId = syncA::12202f79b8e7...,
+  sender = PAR::user::1220a2879906...,
+  counterParticipant = PAR::provider::1220bb263ede...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:05Z, toInclusive = 2026-11-26T06:05:10Z),
+  commitment = SHA-256:d8ff286cd440...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:17,066 [canton-env-ec-49] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=user/psid=syncA::12202f79b8e7::35-0 tid:b9e7da5a6a4b2f030f6134e6d25ee5d5 - ACS_COMMITMENT_MISMATCH(5,b9e7da5a): The local commitment does not match the remote commitment err-context:{local=Vector((CommitmentPeriod(fromExclusive = 2026-11-26T06:05:05Z, toInclusive = 2026-11-26T06:05:10Z),SHA-256:d8ff286cd440...)), location=AcsCommitmentProcessor.scala:1850, remote=AcsCommitment(
+  psid = syncA::12202f79b8e7...::35-0,
+  sender = PAR::provider::1220bb263ede...,
+  counterParticipant = PAR::user::1220a2879906...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:05Z, toInclusive = 2026-11-26T06:05:10Z),
+  commitment = SHA-256:e2c0cf0361cb...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:19,703 [canton-env-ec-37] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=provider/psid=syncA::12202f79b8e7::35-0 tid:625bea1b95ef9684265b783fe8e987df - ACS_MISMATCH_NO_SHARED_CONTRACTS(5,625bea1b): Received a commitment where we have no shared contract with the sender err-context:{location=AcsCommitmentProcessor.scala:1820, remote=BufferedAcsCommitment(
+  synchronizerId = syncA::12202f79b8e7...,
+  sender = PAR::user::1220a2879906...,
+  counterParticipant = PAR::provider::1220bb263ede...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:10Z, toInclusive = 2026-11-26T06:05:15Z),
+  commitment = SHA-256:d8ff286cd440...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:22,703 [canton-env-ec-191] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=user/psid=syncA::12202f79b8e7::35-0 tid:625bea1b95ef9684265b783fe8e987df - ACS_COMMITMENT_MISMATCH(5,625bea1b): The local commitment does not match the remote commitment err-context:{local=Vector((CommitmentPeriod(fromExclusive = 2026-11-26T06:05:10Z, toInclusive = 2026-11-26T06:05:15Z),SHA-256:d8ff286cd440...)), location=AcsCommitmentProcessor.scala:1850, remote=AcsCommitment(
+  psid = syncA::12202f79b8e7...::35-0,
+  sender = PAR::provider::1220bb263ede...,
+  counterParticipant = PAR::user::1220a2879906...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:10Z, toInclusive = 2026-11-26T06:05:15Z),
+  commitment = SHA-256:e2c0cf0361cb...
+), synchronizerId=syncA::12202f79b8e7...} 
+2026-11-26 13:05:24,877 [canton-env-ec-37] WARN  c.d.c.p.p.AcsCommitmentProcessor:participant=provider/psid=syncA::12202f79b8e7::35-0 tid:2fd523aeb07b23ab11f3ca838a4533bb - ACS_MISMATCH_NO_SHARED_CONTRACTS(5,2fd523ae): Received a commitment where we have no shared contract with the sender err-context:{location=AcsCommitmentProcessor.scala:1820, remote=BufferedAcsCommitment(
+  synchronizerId = syncA::12202f79b8e7...,
+  sender = PAR::user::1220a2879906...,
+  counterParticipant = PAR::provider::1220bb263ede...,
+  period = CommitmentPeriod(fromExclusive = 2026-11-26T06:05:15Z, toInclusive = 2026-11-26T06:05:20Z),
+  commitment = SHA-256:d8ff286cd440...
+), synchronizerId=syncA::12202f79b8e7...} 
+NOTE activity for 25s (5 reconciliation intervals of 5s)
+EXPECT_CODE mn4mismatch ACS_COMMITMENT_MISMATCH
+VERDICT PASS

@@ -1,0 +1,91 @@
+// MN2 / MN2t (Q2, Q2d, Q3): does confirmationRequestsMaxRate = 0 reject new confirmation requests
+// while a request that was ALREADY ACCEPTED and pending still reaches a verdict, and does the
+// drain predicate bound it?
+//   mn2   the pending request's missing confirmer reconnects in time -> the request COMMITS
+//   mn2t  the confirmer stays away past the bound                     -> the request TIMES OUT
+// mn-mn2t.canton is a symlink to this file; MN_ROW selects the variant.
+val variantT = sys.env.getOrElse("MN_ROW", "mn2") == "mn2t"
+println(s"SETUP variant=${if (variantT) "mn2t (timeout)" else "mn2 (commit)"}")
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+val s1 = newShared(V1, TXT, A)
+def now() = java.time.Instant.now()
+def secs(a: java.time.Instant, b: java.time.Instant) = f"${(b.toEpochMilli - a.toEpochMilli) / 1000.0}%.1fs"
+
+// ---- hold a request pending: its second confirmer (user, signatory of Shared) is offline ----
+U.synchronizers.disconnect("syncA")
+check("userOffA", !U.synchronizers.list_connected().exists(_.synchronizerAlias.unwrap == "syncA"), "", "user disconnected from syncA")
+// The pending request is Stamp (nonconsuming, creates an Own for Provider): its effect is visible
+// in the ACS, so completion is observed without the completion stream (which hung in early runs).
+def owns() = activeOn(P, provider, V1).toSet -- Set(s1)
+val ownsBefore = owns()
+val cmdId = s"stamp-${java.util.UUID.randomUUID()}"
+P.ledger_api.commands.submit_async(Seq(provider), Seq(exCmd(V1, "Shared", s1, "Stamp")), synchronizerId = Some(A), commandId = cmdId)
+val tSubmit = now()
+Thread.sleep(3000)
+def stamped() = (owns() -- ownsBefore).nonEmpty
+check("stampPending", !stamped(), stamped().toString, "false (request in flight)")
+
+// ---- rate -> 0 on both synchronizers --------------------------------------------------------
+val origRate = Seq(A, B).map(id => id -> dyn(owner(id), id).confirmationRequestsMaxRate).toMap
+Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = NonNegativeInt.zero)))
+val tRate0 = now()
+note(s"rate0 set ${secs(tSubmit, tRate0)} after the pending submission; syncA ${dynSummary(A)}")
+check("rate0A", dyn(sA, A).confirmationRequestsMaxRate == NonNegativeInt.zero, dyn(sA, A).confirmationRequestsMaxRate.toString, "0")
+check("rate0B", dyn(sB, B).confirmationRequestsMaxRate == NonNegativeInt.zero, dyn(sB, B).confirmationRequestsMaxRate.toString, "0")
+check("stampStillPendingAtRate0", !stamped(), stamped().toString, "false")
+
+// ---- new confirmation requests are rejected -------------------------------------------------
+val newOnB = attempt(newOwn(P, provider, V1, TXT, B))
+check("newCreateRejectedB", newOnB.isLeft, ok(newOnB), "fail")
+expectCode("rate0Reject", "SEQUENCER_OVERLOADED")
+val newOnA = attempt(newOwn(P, provider, V1, TXT, A))
+check("newCreateRejectedA", newOnA.isLeft, ok(newOnA), "fail")
+
+// ---- topology still goes through at rate 0 (Q3) ---------------------------------------------
+val V2 = P.dars.upload(req("MN_V2_DAR"), vetAllPackages = false)
+val preSerial = serial(P, stB)
+// A real vetting swap (v1 -> v2) on syncB, where no v1 contract lives. Adding v2 beside v1 would be
+// refused with KNOWN_PACKAGE_VERSION whatever the rate, so the swap is the meaningful topology change.
+val q3 = attempt(swap(P, stB, V2, V1))
+check("q3VetAtRate0", q3.isRight, ok(q3), "succeed")
+check("q3SerialAdvanced", serial(P, stB) == preSerial + 1, (serial(P, stB) - preSerial).toString, "1")
+
+// ---- let the pending request finish (or not) ------------------------------------------------
+val confirmS = dyn(sA, A).confirmationResponseTimeout.duration.toSeconds
+val reactS = dyn(sA, A).mediatorReactionTimeout.duration.toSeconds
+val marginS = 5L
+val bound = tRate0.plusSeconds(confirmS + reactS + marginS)
+note(s"drain bound = rate0 + confirmationResponseTimeout ${confirmS}s + mediatorReactionTimeout ${reactS}s + margin ${marginS}s")
+if (!variantT) U.synchronizers.reconnect("syncA")
+// The verdict is due by the bound. Poll the ACS until then (and a little past, to catch a late one).
+while (!stamped() && now().isBefore(bound.plusSeconds(10))) Thread.sleep(500)
+val tDone = now()
+if (!variantT) {
+  check("stampCommitted", stamped(), stamped().toString, "true")
+  check("committedBeforeBound", stamped() && !tDone.isAfter(bound), secs(tRate0, tDone), s"<= ${secs(tRate0, bound)}")
+  note(s"stamp committed ${secs(tRate0, tDone)} after rate0")
+} else {
+  check("stampNotCommitted", !stamped(), stamped().toString, "false (timed out)")
+  note(s"no stamp by ${secs(tRate0, tDone)} after rate0; the mediator verdict is asserted from the log")
+  expectCode("mn2t", "MEDIATOR_SAYS_TX_TIMED_OUT")
+}
+if (variantT) U.synchronizers.reconnect("syncA")
+
+// ---- drain predicate: bound passed, completion seen, ledger end stable ----------------------
+while (now().isBefore(bound)) Thread.sleep(500)
+// Ledger end is NOT the stability signal: rejections and topology also take offsets (MN2t showed
+// the end moving at rate 0 with no transaction indexed). What purge needs is a frozen ACS, so the
+// cross-check is ACS stability on both nodes across a reconciliation interval; the ledger-end series
+// is logged for reference only.
+def acsSig() = Seq(P -> provider, U -> user).map { case (p, party) => p.ledger_api.state.acs.of_party(party).map(_.contractId).toSet }
+val series = (0 until 6).map { _ => val r = (Seq(P, U).map(_.ledger_api.state.end()), acsSig()); Thread.sleep(2000); r }
+note(s"ledger ends over 12s: ${series.map(_._1.mkString("/")).mkString(" ")}")
+note(s"acs sizes over 12s: ${series.map(_._2.map(_.size).mkString("/")).mkString(" ")}")
+check("drainAcsStable", series.map(_._2).distinct.size == 1, s"${series.map(_._2).distinct.size} distinct", "1")
+// ---- restore and resume ---------------------------------------------------------------------
+Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = origRate(id))))
+check("rateRestored", Seq(A, B).forall(id => dyn(owner(id), id).confirmationRequestsMaxRate == origRate(id)),
+  Seq(A, B).map(id => dyn(owner(id), id).confirmationRequestsMaxRate).mkString(","), origRate.values.mkString(","))
+val after = attempt(newOwn(P, provider, V1, TXT, A))
+check("createAfterRestore", after.isRight, ok(after), "succeed")
+verdict()

@@ -1,0 +1,31 @@
+// LN5 + LN6 on a fresh v1 fixture (run ln-fixture.canton first). Prints WINDOW lines (epoch ms) so the host
+// can cut the Splice / Canton logs. Reconciliation interval set to LN_RECON_S (from the SV participant) so
+// ACS commitments are exchanged within the run instead of every 30 min.
+//   LN5a long rate-0 window: rate 0 held for LN_HOLD_S seconds, then restored (Splice side effects).
+//   LN5b coordinated reload v1 -> v2 at default timeouts, then activity for 6 intervals: NO mismatch expected.
+//   LN6  control: purge the v2 contracts on aprov ONLY, then activity for 6 intervals: mismatch EXPECTED.
+import com.digitalasset.canton.config.PositiveDurationSeconds
+def win(n: String, s: Long, e: Long) = println(s"WINDOW $n $s $e")
+def ms() = now().toEpochMilli
+val V1 = req("LN_V1"); val recon = req("LN_RECON_S").toLong; val hold = req("LN_HOLD_S").toLong
+SV.topology.synchronizer_parameters.propose_update(G, _.update(reconciliationInterval = PositiveDurationSeconds.ofSeconds(recon)))
+utils.retry_until_true(timeout = 30.seconds)(dyn().reconciliationInterval.duration.toSeconds == recon)
+note(s"recon=${dyn().reconciliationInterval} confirm=${dyn().confirmationResponseTimeout} react=${dyn().mediatorReactionTimeout}")
+def activity(pkg: String): Unit = { val until = now().plusSeconds(recon * 6)
+  while (now().isBefore(until)) { newOwn(U, user, pkg, INT); newOwn(P, provider, pkg, INT); Thread.sleep(2000) } }
+
+// LN5a
+val a0 = ms(); quiesce(); val a1 = ms(); Thread.sleep(hold * 1000)
+val held = rate().unwrap == 0; val re = restore(); val a2 = ms()
+win("rate0-long", a1, a2); check("ln5a-rate0-held", held, held.toString, "true"); check("ln5a-restored", re, re.toString, "true")
+// LN5b
+val V2 = upload("/artifacts/shared-v2.dar")
+val b0 = ms(); val ok = reload(V1, V2, INT); val b1 = ms(); win("reload", b0, b1)
+check("ln5b-reload", ok, ok.toString, "true")
+val c0 = ms(); activity(V2); val c1 = ms(); win("after-reload", c0, c1)
+println(s"EXPECT_NO_CODE after-reload ACS_COMMITMENT_MISMATCH")
+// LN6
+val d0 = ms(); val pu = purgeNode(P, provider, V2); activity(V2); val d1 = ms(); win("one-sided", d0, d1)
+check("ln6-purged-provider-only", pu && activeOn(U, user, V2).nonEmpty, s"$pu user=${activeOn(U, user, V2).size}", "true user>0")
+println(s"EXPECT_CODE one-sided ACS_COMMITMENT_MISMATCH")
+verdict()

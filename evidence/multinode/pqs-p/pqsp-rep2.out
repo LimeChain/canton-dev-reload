@@ -1,0 +1,176 @@
+daemon ready pid=99807 V1=5036e364c022 V2=bb1c219f0e98
+
+[1m=== capture: PQS on pqs_live across the reload ===[0m
+pqs started db=pqs_live start=Oldest pid=99847
+WAIT live-ingests-v1 ok
+ASSERT capture.v1ActiveBefore PASS got=3 want=3
+capture	v1ActiveBefore	3
+SETUP remote console attached: A=syncA::12204eab7f979 B=syncB::1220d80352913 V1=5036e364c022 V2=bb1c219f0e98
+CKPT phase=quiesced
+CKPT phase=drained
+ASSERT drainAcsStable             PASS got= want=stable
+NOTE provider: purged syncA=2 syncB=1
+NOTE user: purged syncA=1 syncB=2
+CKPT phase=purged
+ASSERT purgeAll                   PASS got= want=succeed
+ASSERT noV1Left                   PASS got= want=0/0
+CKPT phase=swapped
+ASSERT swapAll                    PASS got= want=succeed
+CKPT phase=restored
+ASSERT restore                    PASS got= want=original rates
+ASSERT providerV2Active           PASS got=3 want=3 (2 Shared + 1 Own)
+T V2_ACTIVE=3
+VERDICT PASS
+WAIT live-ingests-v2 ok
+ASSERT capture.pqsAliveAfterReload PASS got=yes want=yes
+capture	pqsAliveAfterReload	yes
+capture	v1ActiveAfterPurge	0
+capture	v2Active	3
+capture	checkpoint	129
+
+[1m=== snapshot: pqs_live -> pqs_a ===[0m
+ASSERT snapshot.identicalC PASS got=yes want=yes
+snapshot	identicalC	yes
+ASSERT snapshot.identical PASS got=yes want=yes
+snapshot	identical	yes
+
+[1m=== (a) row delete on the snapshot, then restart PQS ===[0m
+a	deleteRc	0
+a	deleteOutput	DELETE 0 
+pqs started db=pqs_a start=Oldest pid=99990
+WAIT a-resumes ok
+ASSERT a.v1Active PASS got=0 want=0
+a	v1Active	0
+ASSERT a.v2Active PASS got=3 want=3
+a	v2Active	3
+a	v1History	5
+a	v2History	5
+WAIT a-ingests-new-tx ok
+ASSERT a.checkpointPastNewTx PASS got=yes want=yes
+a	checkpointPastNewTx	yes
+ASSERT a.v2ActiveAfterTx PASS got=4 want=4
+a	v2ActiveAfterTx	4
+ASSERT a.pqsAlive PASS got=yes want=yes
+a	pqsAlive	yes
+ASSERT a.noPackageErrors PASS got=yes want=yes
+a	noPackageErrors	yes
+
+[1m=== (c) prune archived history (the existing M3 approach) on the snapshot ===[0m
+pqs started db=pqs_c start=Oldest pid=151
+WAIT c-resumes ok
+ASSERT c.v1Active PASS got=0 want=0
+c	v1Active	0
+ASSERT c.v2Active PASS got=4 want=4
+c	v2Active	4
+c	v1History	5
+c	v2History	6
+WAIT c-ingests-new-tx ok
+ASSERT c.checkpointPastNewTx PASS got=yes want=yes
+c	checkpointPastNewTx	yes
+ASSERT c.v2ActiveAfterTx PASS got=5 want=5
+c	v2ActiveAfterTx	5
+ASSERT c.pqsAlive PASS got=yes want=yes
+c	pqsAlive	yes
+ASSERT c.noPackageErrors PASS got=yes want=yes
+c	noPackageErrors	yes
+c	v1HistoryBeforePrune	5
+c	dryRunRc	0
+c	pruneRc	0
+ASSERT c.v1HistoryAfterPrune PASS got=0 want=0
+c	v1HistoryAfterPrune	0
+ASSERT c.v2ActiveAfterPrune PASS got=5 want=5
+c	v2ActiveAfterPrune	5
+ASSERT c.pqsAliveAfterPrune PASS got=yes want=yes
+c	pqsAliveAfterPrune	yes
+WAIT c-ingests-after-prune ok
+ASSERT c.ingestsAfterPrune PASS got=yes want=yes
+c	ingestsAfterPrune	yes
+
+[1m=== (b1) fresh re-ingest from Oldest ===[0m
+pqs started db=pqs_b1 start=Oldest pid=267
+WAIT b1-catches-up ok
+ASSERT b1.v1Active PASS got=0 want=0
+b1	v1Active	0
+ASSERT b1.v2Active PASS got=6 want=6
+b1	v2Active	6
+b1	v1History	5
+b1	v2History	8
+WAIT b1-ingests-new-tx ok
+ASSERT b1.checkpointPastNewTx PASS got=yes want=yes
+b1	checkpointPastNewTx	yes
+ASSERT b1.v2ActiveAfterTx PASS got=7 want=7
+b1	v2ActiveAfterTx	7
+ASSERT b1.pqsAlive PASS got=yes want=yes
+b1	pqsAlive	yes
+ASSERT b1.noPackageErrors PASS got=yes want=yes
+b1	noPackageErrors	yes
+
+[1m=== (b2) fresh start from Latest (ACS) ===[0m
+pqs started db=pqs_b2 start=Latest pid=332
+WAIT b2-seeds ok
+ASSERT b2.v1Active PASS got=0 want=0
+b2	v1Active	0
+ASSERT b2.v2Active PASS got=7 want=7
+b2	v2Active	7
+b2	v1History	0
+b2	v2History	7
+WAIT b2-ingests-new-tx ok
+ASSERT b2.checkpointPastNewTx PASS got=yes want=yes
+b2	checkpointPastNewTx	yes
+ASSERT b2.v2ActiveAfterTx PASS got=8 want=8
+b2	v2ActiveAfterTx	8
+ASSERT b2.pqsAlive PASS got=yes want=yes
+b2	pqsAlive	yes
+ASSERT b2.noPackageErrors PASS got=yes want=yes
+b2	noPackageErrors	yes
+
+#### PQS-P results
+capture   v1ActiveBefore        3
+capture   pqsAliveAfterReload   yes
+capture   v1ActiveAfterPurge    0
+capture   v2Active              3
+capture   checkpoint            129
+snapshot  identicalC            yes
+snapshot  identical             yes
+a         deleteRc              0
+a         deleteOutput          DELETE 0 
+a         v1Active              0
+a         v2Active              3
+a         v1History             5
+a         v2History             5
+a         checkpointPastNewTx   yes
+a         v2ActiveAfterTx       4
+a         pqsAlive              yes
+a         noPackageErrors       yes
+c         v1Active              0
+c         v2Active              4
+c         v1History             5
+c         v2History             6
+c         checkpointPastNewTx   yes
+c         v2ActiveAfterTx       5
+c         pqsAlive              yes
+c         noPackageErrors       yes
+c         v1HistoryBeforePrune  5
+c         dryRunRc              0
+c         pruneRc               0
+c         v1HistoryAfterPrune   0
+c         v2ActiveAfterPrune    5
+c         pqsAliveAfterPrune    yes
+c         ingestsAfterPrune     yes
+b1        v1Active              0
+b1        v2Active              6
+b1        v1History             5
+b1        v2History             8
+b1        checkpointPastNewTx   yes
+b1        v2ActiveAfterTx       7
+b1        pqsAlive              yes
+b1        noPackageErrors       yes
+b2        v1Active              0
+b2        v2Active              7
+b2        v1History             0
+b2        v2History             7
+b2        checkpointPastNewTx   yes
+b2        v2ActiveAfterTx       8
+b2        pqsAlive              yes
+b2        noPackageErrors       yes
+PQS-P rc=0

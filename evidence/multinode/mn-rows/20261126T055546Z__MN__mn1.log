@@ -1,0 +1,58 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+ASSERT hostProviderA              PASS got=provider want=provider
+ASSERT hostUserA                  PASS got=user want=user
+ASSERT hostProviderB              PASS got=provider want=provider
+ASSERT hostUserB                  PASS got=user want=user
+ASSERT connected                  PASS got=2,2 want=2,2
+ASSERT sharedVisibleBoth          PASS got= want=both nodes see both Shared
+2026-11-26 12:56:02,675 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: NOT_FOUND/NO_SYNCHRONIZER_ON_WHICH_ALL_SUBMITTERS_CAN_SUBMIT(11,58a0ecfa): Not connected to a synchronizer on which this participant can submit for all submitters
+  Request: SubmitAndWaitTransaction(
+  actAs = Seq(Provider::12201e3bb233..., User::1220c63c27dc...),
+  readAs = Seq(),
+  commandId = '',
+  workflowId = '',
+  submissionId = '',
+  deduplicationPeriod = None(),
+  commands = ...
+)
+  DecodedCantonError(
+  code = 'NO_SYNCHRONIZER_ON_WHICH_ALL_SUBMITTERS_CAN_SUBMIT',
+  category = InvalidGivenCurrentSystemStateResourceMissing,
+  cause = "Not connected to a synchronizer on which this participant can submit for all submitters",
+  traceId = '58a0ecfa069c258d257522a72a953391',
+  context = Seq(
+    'participant=>provider',
+    'unknownSubmitters=>List(Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516, User::1220c63c27dc3ae1c16660a8e68565f711d605cd38cb3f65f27147dfcf16f8b89f8f)',
+    'definite_answer=>false'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn1.run.canton:163
+ASSERT mn1ArchiveBothFromP        PASS got=fail want=fail
+EXPECT_CODE mn1 NO_SYNCHRONIZER_ON_WHICH_ALL_SUBMITTERS_CAN_SUBMIT
+2026-11-26 12:56:02,689 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcClientError: INVALID_ARGUMENT/DAML_AUTHORIZATION_ERROR(8,dbf4ec05): Interpretation error: Error: node NodeId(0) (5036e364c022374e14c3b633a13278138ed1b9734db3d608eb6c723a32d16b5c:Shared:Shared) requires authorizers Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516,User::1220c63c27dc3ae1c16660a8e68565f711d605cd38cb3f65f27147dfcf16f8b89f8f, but only Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516 were given
+  Request: SubmitAndWaitTransaction(actAs = Provider::12201e3bb233..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'DAML_AUTHORIZATION_ERROR',
+  category = InvalidIndependentOfSystemState,
+  cause = "Interpretation error: Error: node NodeId(0) (5036e364c022374e14c3b633a13278138ed1b9734db3d608eb6c723a32d16b5c:Shared:Shared) requires authorizers Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516,User::1220c63c27dc3ae1c16660a8e68565f711d605cd38cb3f65f27147dfcf16f8b89f8f, but only Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516 were given",
+  correlationId = 'dbf4ec05-7451-48ba-829b-39bb624ae8b4',
+  traceId = '4fa775e1e3e8c14d446b401884ad51fb',
+  context = Seq(
+    'participant=>'provider'',
+    'definite_answer=>false',
+    'commands=>{readAs: [], deduplicationPeriod: {duration: 'PT168H'}, submittedAt: '2026-11-26T05:56:02.677315Z', submissionId: 'dbf4ec05-7451-48ba-829b-39bb624ae8b4', actAs: ['Provider::12201e3bb2333f60dffe3ce5ec01747d29e31d984ba5f606b474ed837e094ac36516'], commandId: '91532f2a-a799-4967-ada4-85fc5fd62e9c', userId: 'CantonConsole', workflowId: }'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn1.run.canton:167
+ASSERT mn1ArchiveProviderOnly     PASS got=fail want=fail
+EXPECT_CODE mn1p DAML_AUTHORIZATION_ERROR
+ASSERT mn1StillActive             PASS got= want=s1 active
+ASSERT mn1bMultiHosted            PASS got=ok want=ok
+NOTE mn1b hosts A=Set(user, provider) B=Set(user, provider)
+ASSERT mn1bArchiveSucceeds        PASS got=succeed want=succeed
+NOTE mn1b error: 
+VERDICT PASS

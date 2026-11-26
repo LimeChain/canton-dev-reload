@@ -1,0 +1,39 @@
+module Shared where
+
+-- Two-signatory fixture for the multi-node rows (MN*). v1 -> v2 changes Val's type,
+-- which is never a valid smart-contract upgrade, exactly as Mirrors does.
+type Val = Text
+
+template Proposal
+  with
+    provider : Party
+    user : Party
+    value : Val
+  where
+    signatory provider
+    observer user
+    choice Accept : ContractId Shared
+      controller user
+      do create Shared with provider; user; value
+
+template Shared
+  with
+    provider : Party
+    user : Party
+    value : Val
+  where
+    signatory provider, user
+    nonconsuming choice Touch : ()
+      controller provider
+      do pure ()
+    -- MN2: an observable effect for a request held pending (its second confirmer offline).
+    nonconsuming choice Stamp : ContractId Own
+      controller provider
+      do create Own with owner = provider; value
+
+template Own
+  with
+    owner : Party
+    value : Val
+  where
+    signatory owner

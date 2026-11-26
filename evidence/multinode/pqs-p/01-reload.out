@@ -1,0 +1,16 @@
+SETUP remote console attached: A=syncA::12204eab7f979 B=syncB::1220d80352913 V1=5036e364c022 V2=bb1c219f0e98
+CKPT phase=quiesced
+CKPT phase=drained
+ASSERT drainAcsStable             PASS got= want=stable
+NOTE provider: purged syncA=2 syncB=1
+NOTE user: purged syncA=1 syncB=2
+CKPT phase=purged
+ASSERT purgeAll                   PASS got= want=succeed
+ASSERT noV1Left                   PASS got= want=0/0
+CKPT phase=swapped
+ASSERT swapAll                    PASS got= want=succeed
+CKPT phase=restored
+ASSERT restore                    PASS got= want=original rates
+ASSERT providerV2Active           PASS got=3 want=3 (2 Shared + 1 Own)
+T V2_ACTIVE=3
+VERDICT PASS

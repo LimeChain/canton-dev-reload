@@ -1,0 +1,53 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+ASSERT ownActive                  PASS got=2 want=2
+2026-11-26 13:04:44,902 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: FAILED_PRECONDITION/CONTRACT_PURGE_ERROR(9,20fb8209): There are still synchronizers connected. Please disconnect all synchronizers.
+  Request: PurgeContracts(Synchronizer 'syncA',List(ContractId(00a4672584d595050d260dd5e5cdfb34696031c6cc6652116441fa780d0059f054ca12122029a283029c433e15f92cf156049edae68bc9bf353b28b5b02747b660ef9e741e)),true)
+  DecodedCantonError(
+  code = 'CONTRACT_PURGE_ERROR',
+  category = InvalidGivenCurrentSystemStateOther,
+  cause = "There are still synchronizers connected. Please disconnect all synchronizers.",
+  traceId = '20fb8209ebac556086658c74756f59b5',
+  context = Seq('participant=>provider', 'synchronizerAlias=>Synchronizer 'syncA'')
+)
+  Command ParticipantRepairAdministration.purge invoked from mn-mn3.run.canton:153
+ASSERT mn3PurgeConnectedRefused   PASS got=fail want=fail
+EXPECT_CODE mn3connected CONTRACT_PURGE_ERROR
+NOTE after connected purge, ownP active=true
+RESULT mn3PurgeConnected=fail removed=false
+2026-11-26 13:04:44,924 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: FAILED_PRECONDITION/CONTRACT_PURGE_ERROR(9,d706ff22): There are still synchronizers connected. Please disconnect all synchronizers.
+  Request: PurgeContracts(Synchronizer 'syncA',List(ContractId(0066a6fc918e409bf634caaed0f2663d0c2e86ec19f94bcdec153ca28f29170e07ca121220e31acc3bf59e9e1146b952d7d70daa7198770348a1ee8f926f1115720804fd1a)),true)
+  DecodedCantonError(
+  code = 'CONTRACT_PURGE_ERROR',
+  category = InvalidGivenCurrentSystemStateOther,
+  cause = "There are still synchronizers connected. Please disconnect all synchronizers.",
+  traceId = 'd706ff2289d6b0fe3545b4bf96afd6f1',
+  context = Seq('participant=>provider', 'synchronizerAlias=>Synchronizer 'syncA'')
+)
+  Command ParticipantRepairAdministration.purge invoked from mn-mn3.run.canton:162
+ASSERT mn3PurgeOneDisconnectRefused PASS got=fail want=fail
+ASSERT mn3FullyDisconnected       PASS got=0 want=0
+ASSERT mn3PurgeDisconnected       PASS got=succeed want=succeed
+ASSERT mn3Ownp2Gone               PASS got=false want=false
+2026-11-26 13:04:45,052 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: NOT_FOUND/CONTRACT_NOT_FOUND(11,f7409a5c): Contract could not be found with id 0066a6fc918e409bf634caaed0f2663d0c2e86ec19f94bcdec153ca28f29170e07ca121220e31acc3bf59e9e1146b952d7d70daa7198770348a1ee8f926f1115720804fd1a
+  Request: SubmitAndWaitTransaction(actAs = Provider::12200021f8b2..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'CONTRACT_NOT_FOUND',
+  category = InvalidGivenCurrentSystemStateResourceMissing,
+  cause = "Contract could not be found with id 0066a6fc918e409bf634caaed0f2663d0c2e86ec19f94bcdec153ca28f29170e07ca121220e31acc3bf59e9e1146b952d7d70daa7198770348a1ee8f926f1115720804fd1a",
+  correlationId = 'f7409a5c-adc3-41e2-92fc-a4046b09ad64',
+  traceId = 'b05489bc0295aa61cc54273c168ed006',
+  context = Seq(
+    'participant=>'provider'',
+    'definite_answer=>false',
+    'commands=>{readAs: [], deduplicationPeriod: {duration: 'PT168H'}, submittedAt: '2026-11-26T06:04:45.041108Z', submissionId: 'f7409a5c-adc3-41e2-92fc-a4046b09ad64', actAs: ['Provider::12200021f8b2148c07e7ad74b39fa035f9cd78aa5ecf6663cb5b6dd0cba0232a7564'], commandId: '8a1645c8-26be-4705-962c-010a6d5e9f0e', userId: 'CantonConsole', workflowId: }'
+  ),
+  resources = 'CONTRACT_ID=>0066a6fc918e409bf634caaed0f2663d0c2e86ec19f94bcdec153ca28f29170e07ca121220e31acc3bf59e9e1146b952d7d70daa7198770348a1ee8f926f1115720804fd1a'
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn3.run.canton:173
+ASSERT mn3PurgedNotExercisable    PASS got=fail want=fail
+VERDICT PASS

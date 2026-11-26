@@ -1,0 +1,48 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+ASSERT fixtureV1                  PASS got=3/3 want=3/3
+ASSERT v2SameIdBoth               PASS got=bb1c219f0e98,bb1c219f0e98 want=one id
+ASSERT v2NotVetted                PASS got= want=unvetted everywhere
+TIME upload         0.2s
+TIME rate0          0.1s
+ASSERT drainAcsStable             PASS got=List(3, 3) -> List(3, 3) want=unchanged
+TIME drain          51.4s
+NOTE provider: purged syncA=2 syncB=1
+ASSERT purgeProvider              PASS got= want=succeed
+NOTE user: purged syncA=1 syncB=2
+ASSERT purgeUser                  PASS got= want=succeed
+ASSERT noV1Left                   PASS got=0/0 want=0/0
+TIME purge          0.2s
+ASSERT swap_providerA             PASS got=succeed want=succeed
+ASSERT serial_providerA           PASS got=1 want=1
+ASSERT swap_providerB             PASS got=succeed want=succeed
+ASSERT serial_providerB           PASS got=1 want=1
+ASSERT swap_userA                 PASS got=succeed want=succeed
+ASSERT serial_userA               PASS got=1 want=1
+ASSERT swap_userB                 PASS got=succeed want=succeed
+ASSERT serial_userB               PASS got=1 want=1
+ASSERT vettedV2Only               PASS got= want=v2 only everywhere
+TIME swap           0.3s
+ASSERT rateRestored               PASS got= want=original
+TIME restore        0.1s
+ASSERT setupSharedV2              PASS got=succeed/succeed want=succeed/succeed
+ASSERT v2ChoiceAcrossNodes        PASS got=succeed want=succeed
+2026-11-26 11:35:56,503 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: FAILED_PRECONDITION/INVALID_PRESCRIBED_SYNCHRONIZER_ID(9,0): Cannot submit transaction to prescribed synchronizer `syncA::122005d04f3d...` because: Some packages are not known to all informees on synchronizer syncA::122005d04f3d...::35-0
+Participant PAR::provider::1220ee83eea8... has not vetted 5036e364c022...
+  Request: SubmitAndWaitTransaction(actAs = Provider::1220ee83eea8..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'INVALID_PRESCRIBED_SYNCHRONIZER_ID',
+  category = InvalidGivenCurrentSystemStateOther,
+  cause = "INVALID_PRESCRIBED_SYNCHRONIZER_ID(9,0): Cannot submit transaction to prescribed synchronizer `syncA::122005d04f3d...` because: Some packages are not known to all informees on synchronizer syncA::122005d04f3d...::35-0
+Participant PAR::provider::1220ee83eea8... has not vetted 5036e364c022...",
+  context = 'definite_answer=>false'
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn5.run.canton:138
+ASSERT v1CreateRejected           PASS got=fail want=fail
+TIME setup          2.0s
+NOTE activity for 25s on both synchronizers
+EXPECT_NO_CODE mn5mismatch ACS_COMMITMENT_MISMATCH
+EXPECT_NO_CODE mn5noshared ACS_MISMATCH_NO_SHARED_CONTRACTS
+VERDICT PASS

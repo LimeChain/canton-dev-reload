@@ -1,0 +1,127 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+SETUP variant=mn2 (commit)
+ASSERT userOffA                   PASS got= want=user disconnected from syncA
+ASSERT stampPending               PASS got=false want=false (request in flight)
+NOTE rate0 set 3.3s after the pending submission; syncA maxRate=0 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+ASSERT rate0A                     PASS got=0 want=0
+ASSERT rate0B                     PASS got=0 want=0
+ASSERT stampStillPendingAtRate0   PASS got=false want=false
+2026-11-26 11:31:28,557 [canton-env-ec-44] WARN  c.d.c.s.c.p.GrpcConnection:participant=provider/synchronizerAlias=Synchronizer 'syncB'/pool=main/connection=sequencerB-0 tid:64f1bd514b2880a1cb995a5e8ad24300 - Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,64f1bd51): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/f45f0de1-d21c-468a-aaf3-afd459d6d694
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '64f1bd514b2880a1cb995a5e8ad24300',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+2026-11-26 11:31:28,560 [canton-env-ec-44] WARN  c.d.c.p.p.TransactionProcessor:participant=provider/psid=syncB::1220ae918a25::35-0 tid:64f1bd514b2880a1cb995a5e8ad24300 - Failed to submit transaction due to Error(RequestRefused(
+  SendAsyncErrorGrpc(
+    Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,64f1bd51): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/f45f0de1-d21c-468a-aaf3-afd459d6d694
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '64f1bd514b2880a1cb995a5e8ad24300',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+  )
+))
+2026-11-26 11:31:28,577 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_BACKPRESSURE(2,64f1bd51): The sequencer is overloaded.
+  Request: SubmitAndWaitTransaction(actAs = Provider::1220b99d1130..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'SEQUENCER_BACKPRESSURE',
+  category = ContentionOnSharedResources,
+  cause = "The sequencer is overloaded.",
+  traceId = '64f1bd514b2880a1cb995a5e8ad24300',
+  context = Seq(
+    'participant=>provider',
+    'reason=>SendAsyncErrorGrpc(
+  Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,64f1bd51): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/f45f0de1-d21c-468a-aaf3-afd459d6d694
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '64f1bd514b2880a1cb995a5e8ad24300',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+)',
+    'psid=>syncB::1220ae918a25...::35-0',
+    'definite_answer=>true'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn2.run.canton:138
+ASSERT newCreateRejectedB         PASS got=fail want=fail
+EXPECT_CODE rate0Reject SEQUENCER_OVERLOADED
+2026-11-26 11:31:28,592 [canton-env-ec-38] WARN  c.d.c.s.c.p.GrpcConnection:participant=provider/synchronizerAlias=Synchronizer 'syncA'/pool=main/connection=sequencerA-0 tid:9b9cac8fea295fe9f1982cb0a544f16e - Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,9b9cac8f): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/563040cf-3f3c-44d9-a52d-c0f0b0122604
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '9b9cac8fea295fe9f1982cb0a544f16e',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+2026-11-26 11:31:28,593 [canton-env-ec-45] WARN  c.d.c.p.p.TransactionProcessor:participant=provider/psid=syncA::1220f0961ce1::35-0 tid:9b9cac8fea295fe9f1982cb0a544f16e - Failed to submit transaction due to Error(RequestRefused(
+  SendAsyncErrorGrpc(
+    Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,9b9cac8f): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/563040cf-3f3c-44d9-a52d-c0f0b0122604
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '9b9cac8fea295fe9f1982cb0a544f16e',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+  )
+))
+2026-11-26 11:31:28,597 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_BACKPRESSURE(2,9b9cac8f): The sequencer is overloaded.
+  Request: SubmitAndWaitTransaction(actAs = Provider::1220b99d1130..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'SEQUENCER_BACKPRESSURE',
+  category = ContentionOnSharedResources,
+  cause = "The sequencer is overloaded.",
+  traceId = '9b9cac8fea295fe9f1982cb0a544f16e',
+  context = Seq(
+    'participant=>provider',
+    'reason=>SendAsyncErrorGrpc(
+  Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,9b9cac8f): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/563040cf-3f3c-44d9-a52d-c0f0b0122604
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '9b9cac8fea295fe9f1982cb0a544f16e',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+)',
+    'psid=>syncA::1220f0961ce1...::35-0',
+    'definite_answer=>true'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn2.run.canton:138
+ASSERT newCreateRejectedA         PASS got=fail want=fail
+ASSERT q3VetAtRate0               PASS got=succeed want=succeed
+ASSERT q3SerialAdvanced           PASS got=1 want=1
+NOTE drain bound = rate0 + confirmationResponseTimeout 30s + mediatorReactionTimeout 10s + margin 5s
+ASSERT stampCommitted             PASS got=true want=true
+ASSERT committedBeforeBound       PASS got=0.8s want=<= 45.0s
+NOTE stamp committed 0.8s after rate0
+NOTE ledger ends over 12s: 91/76 91/76 91/77 93/77 94/79 96/80
+NOTE acs sizes over 12s: 2/1 2/1 2/1 2/1 2/1 2/1
+ASSERT drainAcsStable             PASS got=1 distinct want=1
+ASSERT rateRestored               PASS got=1000000,1000000 want=1000000,1000000
+ASSERT createAfterRestore         PASS got=succeed want=succeed
+VERDICT PASS

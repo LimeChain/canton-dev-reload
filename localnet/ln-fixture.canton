@@ -1,0 +1,14 @@
+// Timing fixture (outside the timed interval): v1 uploaded + vetted on both app nodes and seeded; v2 NOT
+// uploaded. Optional LN_CONFIRM_S / LN_REACT_S set the synchronizer timeouts from the SV participant.
+import com.digitalasset.canton.config.NonNegativeFiniteDuration
+(sys.env.get("LN_CONFIRM_S"), sys.env.get("LN_REACT_S")) match {
+  case (Some(c), Some(m)) =>
+    SV.topology.synchronizer_parameters.propose_update(G, _.update(
+      confirmationResponseTimeout = NonNegativeFiniteDuration.ofSeconds(c.toLong), mediatorReactionTimeout = NonNegativeFiniteDuration.ofSeconds(m.toLong)))
+    utils.retry_until_true(timeout = 30.seconds)(dyn().confirmationResponseTimeout.duration.toSeconds == c.toLong && dyn().mediatorReactionTimeout.duration.toSeconds == m.toLong)
+  case _ =>
+}
+val V1 = uploadAndVet("/artifacts/shared-v1.dar"); seed(V1, TXT)
+println(s"PKG V1=$V1"); note(s"timeouts confirm=${dyn().confirmationResponseTimeout} react=${dyn().mediatorReactionTimeout} rate=${rate()}")
+check("fixture-v1", seededOn(V1), seededOn(V1).toString, "true")
+verdict()

@@ -1,0 +1,12 @@
+// LN1: the coordinated reload v1 -> v2 on LocalNet, then back v2 -> v1. Each must end seeded on the
+// target, nothing on the source, source unvetted, rate restored to its original value.
+val V1 = req("LN_V1"); val V2 = req("LN_V2")
+val r0 = rate(); note(s"rate before=$r0 confirm=${dyn().confirmationResponseTimeout} react=${dyn().mediatorReactionTimeout}")
+val ok1 = reload(V1, V2, INT)
+check("reload-v1-to-v2", ok1, ok1.toString, "true")
+check("rate-restored-1", rate() == r0, rate().toString, r0.toString)
+val ok2 = reload(V2, V1, TXT)
+check("reload-v2-to-v1", ok2, ok2.toString, "true")
+check("rate-restored-2", rate() == r0, rate().toString, r0.toString)
+check("parties-unchanged", findOrCreate(P, "FredProvider") == provider && findOrCreate(U, "FredUser") == user, "same", "same")
+verdict()

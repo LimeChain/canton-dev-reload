@@ -1,0 +1,12 @@
+// PQS-P: the coordinated reload (as MN5) while PQS is attached to the provider, then v2 setup.
+val tRate0 = quiesce()
+check("drainAcsStable", drain(tRate0), "", "stable")
+check("purgeAll", purgeAll(), "", "succeed")
+check("noV1Left", activeOn(P, provider, V1).isEmpty && activeOn(U, user, V1).isEmpty, "", "0/0")
+check("swapAll", swapAll(), "", "succeed")
+check("restore", restore(), "", "original rates")
+newShared(V2, INT, A); newShared(V2, INT, B); newOwn(P, provider, V2, INT, A)
+val v2 = activeOn(P, provider, V2).size
+check("providerV2Active", v2 == 3, v2.toString, "3 (2 Shared + 1 Own)")
+tval("V2_ACTIVE", v2)
+verdict()

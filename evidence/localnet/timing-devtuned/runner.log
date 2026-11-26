@@ -1,0 +1,13 @@
+LN timing [devtuned] confirm=5 react=5 trials=11 paths=reload  2026-11-26T13:20:47Z
+devtuned	1	reload	37.9	ok	22G	build=2.1 quiesce=1.79 drain=21.17 purge=0.69 swap=1.45 restore=0.47 setup=2.64 jvm_exit=0.6
+devtuned	2	reload	37.2	ok	22G	build=2.0 quiesce=1.49 drain=21.14 purge=0.71 swap=0.97 restore=0.46 setup=2.77 jvm_exit=0.6
+devtuned	3	reload	37.3	ok	22G	build=2.0 quiesce=1.47 drain=21.12 purge=0.69 swap=0.90 restore=0.61 setup=2.95 jvm_exit=0.6
+devtuned	4	reload	37.3	ok	22G	build=2.1 quiesce=1.62 drain=21.17 purge=0.63 swap=0.96 restore=0.61 setup=2.78 jvm_exit=0.6
+devtuned	5	reload	37.7	ok	22G	build=2.1 quiesce=1.89 drain=21.18 purge=0.70 swap=0.95 restore=0.59 setup=2.78 jvm_exit=0.6
+devtuned	6	reload	37.4	ok	22G	build=2.1 quiesce=1.39 drain=21.17 purge=0.71 swap=1.38 restore=0.61 setup=2.91 jvm_exit=0.6
+devtuned	7	reload	38.5	ok	22G	build=2.1 quiesce=1.76 drain=21.18 purge=0.77 swap=1.36 restore=0.48 setup=2.68 jvm_exit=0.8
+devtuned	8	reload	37.2	ok	22G	build=2.2 quiesce=1.60 drain=21.14 purge=0.69 swap=0.97 restore=0.47 setup=2.94 jvm_exit=0.6
+devtuned	9	reload	37.6	ok	22G	build=2.0 quiesce=1.65 drain=21.16 purge=0.72 swap=1.40 restore=0.48 setup=2.79 jvm_exit=0.6
+devtuned	10	reload	37.0	ok	22G	build=2.1 quiesce=1.42 drain=21.12 purge=0.63 swap=1.06 restore=0.35 setup=2.66 jvm_exit=0.6
+devtuned	11	reload	37.4	ok	22G	build=2.0 quiesce=1.43 drain=21.16 purge=0.75 swap=1.00 restore=0.46 setup=2.90 jvm_exit=0.6
+SUMMARY reload: n=10 median=37.3s min=37.0 max=38.5 failed=[]

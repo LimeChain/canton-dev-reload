@@ -1,0 +1,28 @@
+
+[1m=== timing [fixture] confirm=30s react=10s, 11 trials per path, alternating ===[0m
+fixture	1	reload	60.7	ok	attach=0.00 upload=0.23 quiesce=0.43 drain=51.44 purge=0.29 swap=0.44 restore=0.24 setup=2.45 
+fixture	1	restart	18.2	ok	build+stop=2.5 start+seed=15.7
+fixture	2	reload	60.2	ok	attach=0.00 upload=0.26 quiesce=0.36 drain=51.44 purge=0.29 swap=0.46 restore=0.24 setup=2.19 
+fixture	2	restart	17.5	ok	build+stop=2.4 start+seed=15.1
+fixture	3	reload	60.1	ok	attach=0.00 upload=0.22 quiesce=0.33 drain=51.41 purge=0.29 swap=0.46 restore=0.24 setup=2.20 
+fixture	3	restart	17.4	ok	build+stop=2.4 start+seed=15.0
+fixture	4	reload	60.3	ok	attach=0.00 upload=0.26 quiesce=0.42 drain=51.22 purge=0.33 swap=0.65 restore=0.12 setup=2.58 
+fixture	4	restart	17.8	ok	build+stop=2.5 start+seed=15.3
+fixture	5	reload	60.5	ok	attach=0.00 upload=0.23 quiesce=0.36 drain=51.52 purge=0.29 swap=0.60 restore=0.24 setup=2.57 
+fixture	5	restart	18.1	ok	build+stop=2.6 start+seed=15.5
+fixture	6	reload	60.1	ok	attach=0.00 upload=0.22 quiesce=0.40 drain=51.40 purge=0.30 swap=0.35 restore=0.12 setup=2.32 
+fixture	6	restart	17.9	ok	build+stop=2.5 start+seed=15.4
+fixture	7	reload	60.8	ok	attach=0.00 upload=0.26 quiesce=0.31 drain=51.46 purge=0.42 swap=0.73 restore=0.11 setup=2.57 
+fixture	7	restart	18.0	ok	build+stop=2.5 start+seed=15.5
+fixture	8	reload	61.1	ok	attach=0.00 upload=0.26 quiesce=0.31 drain=51.42 purge=0.52 swap=0.48 restore=0.24 setup=2.56 
+fixture	8	restart	18.0	ok	build+stop=2.4 start+seed=15.7
+fixture	9	reload	60.7	ok	attach=0.00 upload=0.27 quiesce=0.28 drain=51.53 purge=0.37 swap=0.55 restore=0.12 setup=2.58 
+fixture	9	restart	18.3	ok	build+stop=2.5 start+seed=15.7
+fixture	10	reload	61.0	ok	attach=0.00 upload=0.23 quiesce=0.41 drain=51.45 purge=0.36 swap=0.62 restore=0.24 setup=2.56 
+fixture	10	restart	17.1	ok	build+stop=2.4 start+seed=14.7
+fixture	11	reload	60.2	ok	attach=0.00 upload=0.23 quiesce=0.37 drain=51.40 purge=0.28 swap=0.63 restore=0.11 setup=2.45 
+fixture	11	restart	17.3	ok	build+stop=2.4 start+seed=14.9
+
+RESULT reload   n=10 failed=0 median=60.4s min=60.1s max=61.1s
+RESULT restart  n=10 failed=0 median=17.9s min=17.1s max=18.3s
+RESULT reload vs restart: -238.4% time saved (positive = reload faster)

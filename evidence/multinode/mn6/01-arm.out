@@ -1,0 +1,5 @@
+SETUP remote console attached: A=syncA::1220d937c86cd B=syncB::1220c72bbd62e V1=5036e364c022 V2=bb1c219f0e98
+ASSERT ratesNonZeroBefore         PASS got=1000000,1000000 want=> 0
+CKPT phase=quiesced
+ASSERT rate0Both                  PASS got=0,0 want=0,0
+ARMED

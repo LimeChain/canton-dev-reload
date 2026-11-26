@@ -1,0 +1,28 @@
+
+[1m=== timing [devtuned] confirm=5s react=5s, 11 trials per path, alternating ===[0m
+devtuned	1	reload	30.6	ok	attach=0.00 upload=0.23 quiesce=0.39 drain=21.22 purge=0.27 swap=0.48 restore=0.24 setup=2.32 
+devtuned	1	restart	17.1	ok	build+stop=2.4 start+seed=14.7
+devtuned	2	reload	30.1	ok	attach=0.00 upload=0.25 quiesce=0.35 drain=21.28 purge=0.43 swap=0.48 restore=0.25 setup=2.44 
+devtuned	2	restart	17.8	ok	build+stop=2.5 start+seed=15.3
+devtuned	3	reload	30.1	ok	attach=0.00 upload=0.26 quiesce=0.37 drain=21.23 purge=0.30 swap=0.54 restore=0.24 setup=2.45 
+devtuned	3	restart	17.6	ok	build+stop=2.4 start+seed=15.2
+devtuned	4	reload	30.2	ok	attach=0.00 upload=0.25 quiesce=0.36 drain=21.22 purge=0.33 swap=0.52 restore=0.12 setup=2.57 
+devtuned	4	restart	25.4	ok	build+stop=8.6 start+seed=16.8
+devtuned	5	reload	29.9	ok	attach=0.00 upload=0.21 quiesce=0.37 drain=21.24 purge=0.37 swap=0.46 restore=0.12 setup=2.46 
+devtuned	5	restart	17.2	ok	build+stop=2.3 start+seed=14.9
+devtuned	6	reload	29.6	ok	attach=0.00 upload=0.22 quiesce=0.30 drain=21.23 purge=0.28 swap=0.69 restore=0.12 setup=2.46 
+devtuned	6	restart	21.1	ok	build+stop=2.9 start+seed=18.2
+devtuned	7	reload	30.5	ok	attach=0.00 upload=0.29 quiesce=0.38 drain=21.22 purge=0.31 swap=0.55 restore=0.24 setup=2.56 
+devtuned	7	restart	19.8	ok	build+stop=3.2 start+seed=16.6
+devtuned	8	reload	30.0	ok	attach=0.00 upload=0.22 quiesce=0.30 drain=21.22 purge=0.30 swap=0.45 restore=0.24 setup=2.33 
+devtuned	8	restart	18.8	ok	build+stop=3.2 start+seed=15.6
+devtuned	9	reload	31.0	ok	attach=0.00 upload=0.34 quiesce=0.41 drain=21.31 purge=0.40 swap=0.60 restore=0.24 setup=2.44 
+devtuned	9	restart	22.9	ok	build+stop=7.1 start+seed=15.8
+devtuned	10	reload	31.5	ok	attach=0.00 upload=0.24 quiesce=0.40 drain=21.43 purge=0.56 swap=0.81 restore=0.24 setup=2.92 
+devtuned	10	restart	23.5	ok	build+stop=7.7 start+seed=15.8
+devtuned	11	reload	30.3	ok	attach=0.00 upload=0.27 quiesce=0.28 drain=21.33 purge=0.33 swap=0.51 restore=0.25 setup=2.31 
+devtuned	11	restart	18.4	ok	build+stop=2.6 start+seed=15.8
+
+RESULT reload   n=10 failed=0 median=30.1s min=29.6s max=31.5s
+RESULT restart  n=10 failed=0 median=19.3s min=17.2s max=25.4s
+RESULT reload vs restart: -56.2% time saved (positive = reload faster)

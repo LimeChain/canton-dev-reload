@@ -1,0 +1,14 @@
+// Daemon-side fixture for MN6, PQS-P and timing, appended to mn-lib.canton by scripts/mn-daemon-lib.sh.
+// v1 vetted everywhere and the MN5 contract set (2 Shared, 1 Own per party). Unless MN_SKIP_V2 is set,
+// v2 is also uploaded UNVETTED on both nodes (timing leaves that to the timed reload path).
+// The daemon keeps running after this; rows attach with remote consoles (mn-rlib.canton).
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+val shA = newShared(V1, TXT, A); val shB = newShared(V1, TXT, B)
+newOwn(P, provider, V1, TXT, A); newOwn(U, user, V1, TXT, B)
+println(s"PKG V1=$V1")
+if (sys.env.get("MN_SKIP_V2").isEmpty) {
+  val V2s = Seq(P, U).map(_.dars.upload(req("MN_V2_DAR"), vetAllPackages = false))
+  require(V2s.distinct.size == 1)
+  println(s"PKG V2=${V2s.head}")
+}
+println("MN READY")

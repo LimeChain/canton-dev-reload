@@ -1,0 +1,144 @@
+// Shared bootstrap + helpers for the MN rows. Concatenated in front of each row script by
+// scripts/74-multinode.sh, so every row starts from a fresh in-memory 2-participant/2-sync fixture.
+import com.digitalasset.canton.config.RequireTypes.{PositiveInt, NonNegativeInt}
+import com.digitalasset.canton.version.ProtocolVersion
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.ForceFlags
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.canton.protocol.LfContractId
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+
+def req(k: String): String = sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+val failures = scala.collection.mutable.ListBuffer[String]()
+def check(name: String, ok: Boolean, got: String, want: String): Unit = {
+  println(f"ASSERT $name%-26s ${if (ok) "PASS" else "FAIL"}%-4s got=$got want=$want")
+  if (!ok) failures += s"$name got=$got want=$want"
+}
+def attempt[T](f: => T): Either[String, T] = scala.util.Try(f) match {
+  case scala.util.Success(v) => Right(v)
+  case scala.util.Failure(e) => Left(Option(e.getMessage).getOrElse(e.toString).take(300))
+}
+def ok(e: Either[String, _]) = if (e.isRight) "succeed" else "fail"
+def expectCode(step: String, code: String): Unit = println(s"EXPECT_CODE $step $code")
+def expectNoCode(step: String, code: String): Unit = println(s"EXPECT_NO_CODE $step $code")
+def note(s: String): Unit = println(s"NOTE $s")
+def verdict(): Unit =
+  if (failures.nonEmpty) { println(s"VERDICT FAIL (${failures.size}): ${failures.mkString("; ")}"); sys.exit(1) }
+  else { println("VERDICT PASS"); sys.exit(0) }
+
+// ---- fixture: two synchronizers, both participants on both ----------------------------------
+val protocol = ProtocolVersion.forSynchronizer
+val featureFlag = Seq(SynchronizerTrustCertificate.ParticipantTopologyFeatureFlag.EnableMultiSynchronizer)
+val P = participants.local.find(_.name == "provider").get
+val U = participants.local.find(_.name == "user").get
+val sA = sequencers.local.find(_.name == "sequencerA").get
+val sB = sequencers.local.find(_.name == "sequencerB").get
+val mA = mediators.local.find(_.name == "mediatorA").get
+val mB = mediators.local.find(_.name == "mediatorB").get
+
+def boot(name: String, s: com.digitalasset.canton.console.LocalSequencerReference,
+         m: com.digitalasset.canton.console.LocalMediatorReference) = {
+  val sp = StaticSynchronizerParameters.defaults(s.config.crypto, protocol, topologyChangeDelay = NonNegativeFiniteDuration.Zero)
+  val id = bootstrap.synchronizer(name, Seq(s), Seq(m), Seq(s, m), PositiveInt.one, sp)
+  Seq(P, U).foreach { p =>
+    p.synchronizers.connect_local(s, name)
+    p.topology.synchronizer_trust_certificates.propose(p, id.logical, featureFlags = featureFlag)
+  }
+  id
+}
+val psA = boot("syncA", sA, mA)
+val psB = boot("syncB", sB, mB)
+val A = psA.logical; val B = psB.logical
+val (stA, stB) = (TopologyStoreId.Synchronizer(psA), TopologyStoreId.Synchronizer(psB))
+val owner = Map(A -> sA, B -> sB)
+
+// Short protocol timeouts and reconciliation interval so drain bounds and commitment checks
+// resolve in seconds (test plan, MN0). Values are re-read and printed, never assumed.
+def dyn(s: com.digitalasset.canton.console.LocalSequencerReference, id: com.digitalasset.canton.topology.SynchronizerId) =
+  s.topology.synchronizer_parameters.get_dynamic_synchronizer_parameters(id)
+def setDyn(id: com.digitalasset.canton.topology.SynchronizerId,
+           f: com.digitalasset.canton.admin.api.client.data.DynamicSynchronizerParameters =>
+              com.digitalasset.canton.admin.api.client.data.DynamicSynchronizerParameters) =
+  owner(id).topology.synchronizer_parameters.propose_update(id, f)
+Seq(A, B).foreach { id =>
+  setDyn(id, _.update(
+    confirmationResponseTimeout = com.digitalasset.canton.config.NonNegativeFiniteDuration.ofSeconds(sys.env.getOrElse("MN_CONFIRM_S", "30").toLong),
+    mediatorReactionTimeout = com.digitalasset.canton.config.NonNegativeFiniteDuration.ofSeconds(sys.env.getOrElse("MN_REACT_S", "10").toLong),
+    reconciliationInterval = com.digitalasset.canton.config.PositiveDurationSeconds.ofSeconds(5)))
+}
+def dynSummary(id: com.digitalasset.canton.topology.SynchronizerId) = {
+  val d = dyn(owner(id), id)
+  s"maxRate=${d.confirmationRequestsMaxRate} confirmTimeout=${d.confirmationResponseTimeout} " +
+  s"mediatorReaction=${d.mediatorReactionTimeout} reconciliation=${d.reconciliationInterval}"
+}
+println(s"SETUP syncA ${dynSummary(A)}")
+println(s"SETUP syncB ${dynSummary(B)}")
+
+// ---- packages -----------------------------------------------------------------------------
+def store(id: com.digitalasset.canton.topology.SynchronizerId) = if (id == A) stA else stB
+def mineVet(p: com.digitalasset.canton.console.LocalParticipantReference, st: TopologyStoreId) =
+  p.topology.vetted_packages.list(store = Some(st)).filter(_.item.participantId == p.id)
+def vetted(p: com.digitalasset.canton.console.LocalParticipantReference, st: TopologyStoreId): Set[String] =
+  mineVet(p, st).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(p: com.digitalasset.canton.console.LocalParticipantReference, st: TopologyStoreId): Long =
+  mineVet(p, st).map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+def vet(p: com.digitalasset.canton.console.LocalParticipantReference, st: TopologyStoreId, pkg: String) =
+  p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(pkg, None, None)), store = st)
+def swap(p: com.digitalasset.canton.console.LocalParticipantReference, st: TopologyStoreId, add: String, remove: String) =
+  p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(add, None, None)),
+    removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(remove)), store = st,
+    force = ForceFlags.none)
+
+def uploadAndVet(dar: String): String = {
+  val ids = Seq(P, U).map(_.dars.upload(dar, vetAllPackages = false))
+  require(ids.distinct.size == 1, s"package id differs per participant: $ids")
+  for (p <- Seq(P, U); st <- Seq(stA, stB)) vet(p, st, ids.head)
+  ids.head
+}
+
+// ---- parties: each hosted on exactly its own participant, on both synchronizers -----------
+val provider = P.parties.enable("Provider", synchronizer = Some("syncA"))
+P.parties.enable("Provider", synchronizer = Some("syncB"))
+val user = U.parties.enable("User", synchronizer = Some("syncA"))
+U.parties.enable("User", synchronizer = Some("syncB"))
+def hosts(party: com.digitalasset.canton.topology.PartyId, st: TopologyStoreId): Set[String] =
+  P.topology.party_to_participant_mappings.list(st.asInstanceOf[TopologyStoreId.Synchronizer], filterParty = party.filterString)
+    .flatMap(_.item.participants.map(_.participantId.uid.identifier.str)).toSet
+// Party allocation propagates asynchronously; wait until both participants see both parties.
+utils.retry_until_true(timeout = 30.seconds)(Seq(P, U).forall(p =>
+  p.parties.list(filterParty = "Provider").nonEmpty && p.parties.list(filterParty = "User").nonEmpty))
+
+// ---- ledger helpers -------------------------------------------------------------------------
+def pv(p: com.digitalasset.canton.topology.PartyId) = Value(Value.Sum.Party(p.toProtoPrimitive))
+def tid(pkg: String, t: String) = Identifier(pkg, "Shared", t)
+def rec(fs: (String, Value)*) = Some(Record(fields = fs.map { case (k, v) => RecordField(k, Some(v)) }))
+def createCmd(pkg: String, t: String, args: (String, Value)*) =
+  Command(Command.Command.Create(CreateCommand(templateId = Some(tid(pkg, t)), createArguments = rec(args: _*))))
+def exCmd(pkg: String, t: String, cid: String, choice: String) =
+  Command(Command.Command.Exercise(ExerciseCommand(templateId = Some(tid(pkg, t)), contractId = cid,
+    choice = choice, choiceArgument = Some(Value(Value.Sum.Record(Record()))))))
+def firstCreated(tx: com.daml.ledger.api.v2.transaction.Transaction, t: String) =
+  tx.events.map(_.getCreated).find(_.templateId.exists(_.entityName == t)).get.contractId
+def syncOf(tx: com.daml.ledger.api.v2.transaction.Transaction) =
+  if (tx.synchronizerId == A.toProtoPrimitive) "A" else if (tx.synchronizerId == B.toProtoPrimitive) "B" else "?"
+
+def newShared(pkg: String, v: Value, sync: com.digitalasset.canton.topology.SynchronizerId): String = {
+  val prop = P.ledger_api.commands.submit(Seq(provider),
+    Seq(createCmd(pkg, "Proposal", "provider" -> pv(provider), "user" -> pv(user), "value" -> v)), synchronizerId = Some(sync))
+  val pc = firstCreated(prop, "Proposal")
+  utils.retry_until_true(timeout = 30.seconds)(U.ledger_api.state.acs.of_party(user).exists(_.contractId == pc))
+  val acc = U.ledger_api.commands.submit(Seq(user), Seq(exCmd(pkg, "Proposal", pc, "Accept")), synchronizerId = Some(sync))
+  val sc = firstCreated(acc, "Shared")
+  utils.retry_until_true(timeout = 30.seconds)(P.ledger_api.state.acs.of_party(provider).exists(_.contractId == sc))
+  sc
+}
+def newOwn(p: com.digitalasset.canton.console.LocalParticipantReference, party: com.digitalasset.canton.topology.PartyId,
+           pkg: String, v: Value, sync: com.digitalasset.canton.topology.SynchronizerId): String =
+  firstCreated(p.ledger_api.commands.submit(Seq(party), Seq(createCmd(pkg, "Own", "owner" -> pv(party), "value" -> v)),
+    synchronizerId = Some(sync)), "Own")
+def activeOn(p: com.digitalasset.canton.console.LocalParticipantReference, party: com.digitalasset.canton.topology.PartyId,
+             pkg: String): Seq[String] =
+  p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == pkg).map(_.contractId)
+val TXT = Value(Value.Sum.Text("old")); val INT = Value(Value.Sum.Int64(42))
+println("SETUP fixture ready")

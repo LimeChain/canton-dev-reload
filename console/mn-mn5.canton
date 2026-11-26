@@ -1,0 +1,88 @@
+// MN5 (Q5, Q6): the full coordinated sequence on 2 participants x 2 synchronizers.
+//   upload v2 unvetted -> rate 0 -> drain -> per node: disconnect all, purge v1, reconnect
+//   -> swap v1->v2 per node per synchronizer (unforced, serial +1) -> restore rate -> setup v2
+//   -> v2 choice across both nodes -> no commitment mismatch over several intervals.
+def now() = java.time.Instant.now()
+var tMark = now()
+def time(step: String): Unit = { val t = now(); println(f"TIME $step%-14s ${(t.toEpochMilli - tMark.toEpochMilli) / 1000.0}%.1fs"); tMark = t }
+
+val V1 = uploadAndVet(req("MN_V1_DAR"))
+val shA = newShared(V1, TXT, A); val shB = newShared(V1, TXT, B)
+val ownP = newOwn(P, provider, V1, TXT, A); val ownU = newOwn(U, user, V1, TXT, B)
+val v1P = activeOn(P, provider, V1).toSet; val v1U = activeOn(U, user, V1).toSet
+check("fixtureV1", v1P == Set(shA, shB, ownP) && v1U == Set(shA, shB, ownU), s"${v1P.size}/${v1U.size}", "3/3")
+tMark = now()
+
+// ---- 1. upload v2 unvetted on both nodes (preflight, nothing destructive) -------------------
+val V2s = Seq(P, U).map(_.dars.upload(req("MN_V2_DAR"), vetAllPackages = false))
+val V2 = V2s.head
+check("v2SameIdBoth", V2s.distinct.size == 1, V2s.map(_.take(12)).mkString(","), "one id")
+check("v2NotVetted", Seq(P, U).forall(p => Seq(stA, stB).forall(st => !vetted(p, st).contains(V2))), "", "unvetted everywhere")
+time("upload")
+
+// ---- 2. quiesce: rate 0 on both synchronizers, then the drain predicate ----------------------
+val origRate = Seq(A, B).map(id => id -> dyn(owner(id), id).confirmationRequestsMaxRate).toMap
+Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = NonNegativeInt.zero)))
+val tRate0 = now()
+val bound = Seq(A, B).map { id => val d = dyn(owner(id), id)
+  tRate0.plusSeconds(d.confirmationResponseTimeout.duration.toSeconds + d.mediatorReactionTimeout.duration.toSeconds + 5) }.max
+time("rate0")
+def acsSig() = Seq(P -> provider, U -> user).map { case (p, party) => p.ledger_api.state.acs.of_party(party).map(_.contractId).toSet }
+while (now().isBefore(bound)) Thread.sleep(500)
+val sig1 = acsSig(); Thread.sleep(6000); val sig2 = acsSig()
+check("drainAcsStable", sig1 == sig2, s"${sig1.map(_.size)} -> ${sig2.map(_.size)}", "unchanged")
+time("drain")
+
+// ---- 3. purge v1 on every hosting node, per synchronizer -----------------------------------
+val aliasOf = Map(A.toProtoPrimitive -> "syncA", B.toProtoPrimitive -> "syncB")
+def purgeNode(p: com.digitalasset.canton.console.LocalParticipantReference, party: com.digitalasset.canton.topology.PartyId) = {
+  val bySync = p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == V1)
+    .groupBy(c => c.synchronizerId.map(_.toString).getOrElse("?").takeWhile(_ != ':'))
+  p.synchronizers.disconnect_all()
+  val r = bySync.toSeq.map { case (alias, cs) =>
+    attempt(p.repair.purge(com.digitalasset.canton.SynchronizerAlias.tryCreate(alias), cs.map(c => LfContractId.assertFromString(c.contractId))))
+  }
+  p.synchronizers.reconnect_all()
+  utils.retry_until_true(timeout = 60.seconds)(p.synchronizers.list_connected().size == 2)
+  note(s"${p.name}: purged ${bySync.map { case (a, cs) => s"$a=${cs.size}" }.mkString(" ")}")
+  r.forall(_.isRight)
+}
+check("purgeProvider", purgeNode(P, provider), "", "succeed")
+check("purgeUser", purgeNode(U, user), "", "succeed")
+check("noV1Left", activeOn(P, provider, V1).isEmpty && activeOn(U, user, V1).isEmpty,
+  s"${activeOn(P, provider, V1).size}/${activeOn(U, user, V1).size}", "0/0")
+time("purge")
+
+// ---- 4. swap per node per synchronizer, unforced, still at rate 0 ---------------------------
+for (p <- Seq(P, U); st <- Seq(stA, stB)) {
+  val tag = s"${p.name}${if (st == stA) "A" else "B"}"
+  val pre = serial(p, st)
+  val r = attempt(swap(p, st, V2, V1))
+  check(s"swap_$tag", r.isRight, ok(r), "succeed")
+  check(s"serial_$tag", serial(p, st) == pre + 1, (serial(p, st) - pre).toString, "1")
+}
+check("vettedV2Only", Seq(P, U).forall(p => Seq(stA, stB).forall(st => vetted(p, st).contains(V2) && !vetted(p, st).contains(V1))), "", "v2 only everywhere")
+time("swap")
+
+// ---- 5. restore the rate -------------------------------------------------------------------
+Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = origRate(id))))
+check("rateRestored", Seq(A, B).forall(id => dyn(owner(id), id).confirmationRequestsMaxRate == origRate(id)), "", "original")
+time("restore")
+
+// ---- 6. setup on v2, and a v2 choice that needs both nodes ---------------------------------
+val n1 = attempt(newShared(V2, INT, A)); val n2 = attempt(newShared(V2, INT, B))
+check("setupSharedV2", n1.isRight && n2.isRight, s"${ok(n1)}/${ok(n2)}", "succeed/succeed")
+val stamp = attempt(P.ledger_api.commands.submit(Seq(provider), Seq(exCmd(V2, "Shared", n1.toOption.get, "Stamp"))))
+check("v2ChoiceAcrossNodes", stamp.isRight, ok(stamp), "succeed")
+val oldCreate = attempt(newOwn(P, provider, V1, TXT, A))
+check("v1CreateRejected", oldCreate.isLeft, ok(oldCreate), "fail")
+time("setup")
+
+// ---- 7. commitments over several intervals, with activity ----------------------------------
+val recon = dyn(sA, A).reconciliationInterval.duration.toSeconds
+val until = now().plusSeconds(recon * 5)
+while (now().isBefore(until)) { newOwn(U, user, V2, INT, A); newOwn(P, provider, V2, INT, B); Thread.sleep(2000) }
+note(s"activity for ${recon * 5}s on both synchronizers")
+expectNoCode("mn5mismatch", "ACS_COMMITMENT_MISMATCH")
+expectNoCode("mn5noshared", "ACS_MISMATCH_NO_SHARED_CONTRACTS")
+verdict()

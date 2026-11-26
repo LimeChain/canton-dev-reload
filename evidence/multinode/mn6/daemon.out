@@ -1,0 +1,30 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+PKG V1=5036e364c022374e14c3b633a13278138ed1b9734db3d608eb6c723a32d16b5c
+PKG V2=bb1c219f0e98545cec45bb487277809b86c863e966504c77338c9df079878eff
+MN READY
+2026-11-26 13:07:30,726 [canton-env-ec-40] WARN  c.d.c.s.c.p.GrpcConnection:participant=provider/synchronizerAlias=Synchronizer 'syncA'/pool=main/connection=sequencerA-0 tid:1faaf5c3d2dc32c2971e20cdc649686f - Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,1faaf5c3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/7ca3dfd6-4c72-477a-a886-82605d026bf6
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '1faaf5c3d2dc32c2971e20cdc649686f',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+2026-11-26 13:07:30,729 [canton-env-ec-50] WARN  c.d.c.p.p.TransactionProcessor:participant=provider/psid=syncA::1220d937c86c::35-0 tid:1faaf5c3d2dc32c2971e20cdc649686f - Failed to submit transaction due to Error(RequestRefused(
+  SendAsyncErrorGrpc(
+    Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,1faaf5c3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/7ca3dfd6-4c72-477a-a886-82605d026bf6
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '1faaf5c3d2dc32c2971e20cdc649686f',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+  )
+))

@@ -1,0 +1,8 @@
+// MN6 step 1, "Fred" before the crash: quiesce (write-ahead checkpoint, rate 0 on both synchronizers),
+// then announce ARMED and hang. The driver kill -9s this process before any purge runs.
+val orig = Seq(A, B).map(rate)
+check("ratesNonZeroBefore", orig.forall(_.unwrap > 0), orig.mkString(","), "> 0")
+quiesce()
+check("rate0Both", Seq(A, B).forall(id => rate(id).unwrap == 0), Seq(A, B).map(rate).mkString(","), "0,0")
+println("ARMED")
+Thread.sleep(600000)

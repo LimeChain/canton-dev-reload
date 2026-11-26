@@ -169,20 +169,55 @@ hash and image digests. `pqs/README.md` states what every row shows and cites it
 | `PQS-L` | The reviewer's notes on Option A | The prune target rules hold; a repeat prune is a no-op; the filter restart changes nothing |
 | `PQS-Q` | The prune works on CN QuickStart | Yes, per PQS database with its own offset. **Run on 2026-10-26, before `harness-v26`** (`pqs/20261026-quickstart/Q/`), because it needs a full LocalNet |
 
+## Multi-node coordinated purge (`harness-v28`)
+
+Added in response to review on canton-foundation/canton-dev-fund#937: on several nodes, Daml-level
+archival fails when signatories sit on different participants, so the reload becomes a coordinated
+purge. Test plan and full result tables: [`docs/test-plan-multinode-purge.md`](../docs/test-plan-multinode-purge.md).
+These runs are **exploratory**: produced on 2026-11-25/26 from the working tree that `harness-v28`
+commits, not from a clean checkout of that tag, so they carry no provenance header. They are
+reproducible with the scripts named below.
+
+**Bare Canton 3.5.12**, two DB-backed (H2) participants, two synchronizers (`scripts/74-multinode.sh`,
+`75-mn6.sh`, `76-pqs-p.sh`, `77-mn-timing.sh`). Logs in `multinode/`.
+
+| Row | Claim | Result | Logs |
+|---|---|---|---|
+| `MN1` | Archive via Daml when signatories are on different nodes | **Fails**: `NO_SYNCHRONIZER_ON_WHICH_ALL_SUBMITTERS_CAN_SUBMIT`, or `DAML_AUTHORIZATION_ERROR` acting as one signatory | `mn-rows/*mn1.log` (3/3) |
+| `MN2` | `confirmationRequestsMaxRate = 0` quiesces; an accepted request still commits; the vetting swap works at rate 0 | Yes (`SEQUENCER_OVERLOADED` for new submissions) | `mn-rows/*mn2.log` (3/3) |
+| `MN2t` | Drain bound: a pending request resolves within confirm + mediator timeouts | Yes, as `MEDIATOR_SAYS_TX_TIMED_OUT`; ledger end is not a valid quiet signal | `mn-rows/*mn2t.log` (4/4) |
+| `MN3` | `repair.purge` preconditions | Needs every synchronizer disconnected and DB persistence (refuses in-memory) | `mn-rows/*mn3.log` (3/3) |
+| `MN4` | Control: purge on one node only | `ACS_COMMITMENT_MISMATCH` | `mn-rows/*mn4.log` (3/3) |
+| `MN5` | Full sequence: rate 0, drain, disconnect/purge/reconnect per node, 4 unforced swaps, restore, setup, v2 choice across nodes | Pass, no commitment mismatch over 5 intervals | `mn-rows/*mn5.log` (3/3) |
+| `MN6` | `kill -9` after quiesce, then resume | Rate stays 0 until a fresh run restores it from the checkpoint; reload completes | `mn6/` (2/2) |
+| `PQS-P` | PQS after a purge | Purge reaches PQS as an archive; the existing prune removes v1 history, PQS keeps running | `pqs-p/` (2/2) |
+| `TIMING` | Reload vs restart, 10 alternating trials | Reload **slower** here: 60.4s vs 17.9s (30s/10s), 30.1s vs 19.3s (5s/5s) | `timing/` |
+
+**CN QuickStart LocalNet** (`8b898ed`, Splice 0.6.11): app-provider and app-user participants on
+Postgres, one synchronizer whose owner is the SV participant (`localnet/`). Logs in `localnet/`.
+
+| Row | Claim | Result | Logs |
+|---|---|---|---|
+| `LN0` | Who can quiesce; does Splice revert it | Only the SV participant; rate 0 and 5s/5s timeouts hold, `reconciliationInterval` is reset to 30m | `ln0/` |
+| `LN1/LN2` | Coordinated reload v1→v2→v1 at default and 5s/5s timeouts | Pass in both directions | `timing-*/*-reload.out` |
+| `LN4` | Splice automation during rate 0 | Rejected with `SEQUENCER_BACKPRESSURE` and retried; treasury breaker trips and closes ~50s after; nothing rejected at 5s/5s | `ln-ln5/` |
+| `LN5` | Commitments after a coordinated reload | **Match** on every link | `ln-ln7/commit3.out` |
+| `LN6` | Control: one-sided purge | **Mismatch** aprov↔auser | `ln6/commit.out` |
+| `LN3` | Reload vs restart, 10 alternating trials, AC power | Reload 88.1s vs restart 110.1s at defaults (30s/30s); 37.3s at 5s/5s | `timing-default/`, `timing-devtuned/` |
+
 ## What these runs do NOT establish
 
 - **Participant pruning.** No run here touches it (pruning the PQS database is a separate operation, covered by the PQS rows). There is still no pruning script in the repo and
   `UNSAFE_TO_PRUNE` appears nowhere in the participant logs. The honest position remains
   "we did not test pruning", not "pruning did not work".
-- **`repair.purge`.** Not re-run here and it has **no committed log**; the claim rests on a
-  by-hand run against a Postgres sandbox that nothing in this repo can start. The script now sits
-  in `console/historical/`.
+- **`repair.purge`** is now covered by the multi-node rows above (bare Canton on H2, LocalNet on
+  Postgres). Not covered: a crash *during* purge while a node is disconnected.
 - **Approach 1** (compatible version bump). `console/historical/upgrade-test.canton`, `forcebump.canton` and
   `upg2.canton` still load DARs from `/private/tmp` that do not exist, so that section of
   RESULTS.md is not reproducible and must be labelled historical until those fixtures are restored.
-- **Multi-participant behaviour and in-flight submissions during the swap:** untested.
-  Multi-synchronizer behaviour is covered for one participant by `MS1`, and PQS on that participant
-  by `PQS-M`; several participants across several synchronizers are not. PQS is covered by the PQS
+- **Multi-participant behaviour** is covered by the multi-node rows: two participants on two
+  synchronizers (bare Canton) and two app participants plus the SV on one synchronizer (LocalNet).
+  More than two app participants, and LocalNet with two synchronizers, are not. PQS is covered by the PQS
   rows, apart from the gaps listed in `pqs/README.md`.
 - **Contract identities.** The loop archives and recreates contracts; only the participant process
   and the party IDs survive.

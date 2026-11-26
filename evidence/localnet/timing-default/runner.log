@@ -1,0 +1,25 @@
+LN timing [default] confirm=default react=default trials=11 paths=reload restart  2026-11-26T12:00:38Z
+default	1	reload	91.5	ok	21G	build=3.5 quiesce=1.86 drain=71.43 purge=1.50 swap=1.23 restore=0.60 setup=3.38 jvm_exit=0.7
+default	1	restart	107.7	ok	21G	build=2.0 stop=4.3 start=88.8 setup=12.7
+default	2	reload	88.2	ok	21G	build=2.1 quiesce=1.69 drain=71.29 purge=0.93 swap=0.95 restore=0.60 setup=3.28 jvm_exit=0.8
+default	2	restart	112.1	ok	20G	build=3.6 stop=5.7 start=89.5 setup=13.2
+default	3	reload	88.0	ok	20G	build=2.0 quiesce=1.77 drain=71.21 purge=0.84 swap=1.12 restore=0.60 setup=2.81 jvm_exit=0.8
+default	3	restart	129.7	ok	21G	build=2.2 stop=4.5 start=108.7 setup=14.3
+default	4	reload	87.8	ok	21G	build=2.0 quiesce=1.41 drain=71.20 purge=0.86 swap=1.31 restore=0.60 setup=2.91 jvm_exit=0.6
+default	4	restart	130.8	ok	22G	build=3.4 stop=4.3 start=109.4 setup=13.7
+default	5	reload	89.0	ok	21G	build=3.0 quiesce=1.51 drain=71.16 purge=0.66 swap=1.38 restore=0.48 setup=2.80 jvm_exit=0.7
+default	5	restart	110.0	ok	22G	build=2.9 stop=4.5 start=88.7 setup=13.9
+default	6	reload	88.6	ok	21G	build=3.0 quiesce=1.80 drain=71.22 purge=0.79 swap=1.13 restore=0.48 setup=2.79 jvm_exit=0.7
+default	6	restart	110.2	ok	22G	build=3.1 stop=4.1 start=88.8 setup=14.1
+default	7	reload	87.5	ok	21G	build=2.1 quiesce=1.44 drain=71.22 purge=0.70 swap=1.19 restore=0.60 setup=2.78 jvm_exit=0.6
+default	7	restart	110.3	ok	22G	build=2.1 stop=4.4 start=88.8 setup=14.9
+default	8	reload	88.1	ok	21G	build=2.3 quiesce=1.75 drain=71.21 purge=0.70 swap=1.32 restore=0.59 setup=2.79 jvm_exit=0.7
+default	8	restart	109.4	ok	22G	build=2.1 stop=4.5 start=88.7 setup=14.1
+default	9	reload	88.1	ok	21G	build=2.1 quiesce=1.85 drain=71.26 purge=0.79 swap=1.21 restore=0.48 setup=2.76 jvm_exit=0.7
+default	9	restart	109.4	ok	22G	build=2.1 stop=4.5 start=88.7 setup=14.1
+default	10	reload	88.1	ok	21G	build=2.0 quiesce=1.93 drain=71.19 purge=0.74 swap=1.30 restore=0.48 setup=2.92 jvm_exit=0.8
+default	10	restart	109.5	ok	22G	build=2.1 stop=4.5 start=88.7 setup=14.3
+default	11	reload	87.6	ok	21G	build=2.1 quiesce=1.63 drain=71.22 purge=0.78 swap=1.20 restore=0.48 setup=2.79 jvm_exit=0.7
+default	11	restart	109.4	ok	22G	build=2.0 stop=4.4 start=88.8 setup=14.2
+SUMMARY reload: n=10 median=88.1s min=87.5 max=89.0 failed=[]
+SUMMARY restart: n=10 median=110.1s min=109.4 max=130.8 failed=[]

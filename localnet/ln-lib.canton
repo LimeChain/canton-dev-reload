@@ -1,0 +1,173 @@
+// Fred on CN QuickStart LocalNet (Splice 0.6.11): library for a remote console started by ln-run.sh.
+// Topology is LocalNet's own: one synchronizer (global), owned by a decentralized namespace whose only
+// owner is the SV participant; app-provider (aprov) and app-user (auser) are the two app participants.
+// Same coordinated reload as console/mn-rlib.canton, for one synchronizer: quiesce (rate 0, from the SV
+// participant), drain, purge on both app nodes (disconnected), swap vetting, restore rate, setup.
+import com.digitalasset.canton.config.RequireTypes.NonNegativeInt
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.ForceFlags
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.canton.protocol.LfContractId
+import com.digitalasset.canton.console.ParticipantReference
+import com.digitalasset.canton.topology.{PartyId, SynchronizerId}
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+
+def req(k: String): String = sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+val failures = scala.collection.mutable.ListBuffer[String]()
+def check(name: String, ok: Boolean, got: String, want: String): Unit = {
+  println(f"ASSERT $name%-26s ${if (ok) "PASS" else "FAIL"}%-4s got=$got want=$want")
+  if (!ok) failures += s"$name got=$got want=$want"
+}
+def attempt[T](f: => T): Either[String, T] = scala.util.Try(f) match {
+  case scala.util.Success(v) => Right(v)
+  case scala.util.Failure(e) => Left(Option(e.getMessage).getOrElse(e.toString).take(300))
+}
+def note(s: String): Unit = println(s"NOTE $s")
+def verdict(): Unit =
+  if (failures.nonEmpty) { println(s"VERDICT FAIL (${failures.size}): ${failures.mkString("; ")}"); sys.exit(1) }
+  else { println("VERDICT PASS"); sys.exit(0) }
+def now() = java.time.Instant.now()
+var tMark = now()
+def time(step: String): Unit = { val t = now(); println(f"TIME $step%-10s ${(t.toEpochMilli - tMark.toEpochMilli) / 1000.0}%.2f"); tMark = t }
+
+val P: ParticipantReference = participants.all.find(_.name == "aprov").get
+val U: ParticipantReference = participants.all.find(_.name == "auser").get
+val SV: ParticipantReference = participants.all.find(_.name == "sv").get
+val LU = "ledger-api-user"   // the user the LocalNet dev token is valid for
+// LocalNet's participants may still be starting (restart path): wait for both app nodes to be connected.
+utils.retry_until_true(timeout = 600.seconds)(attempt(P.synchronizers.list_connected().nonEmpty && U.synchronizers.list_connected().nonEmpty).getOrElse(false))
+val psG = P.synchronizers.list_connected().head.physicalSynchronizerId
+val G: SynchronizerId = psG.logical
+val stG = TopologyStoreId.Synchronizer(psG)
+
+def dyn() = sequencer.topology.synchronizer_parameters.get_dynamic_synchronizer_parameters(G)
+def setRate(r: NonNegativeInt) = SV.topology.synchronizer_parameters.propose_update(G, _.update(confirmationRequestsMaxRate = r))
+def rate() = dyn().confirmationRequestsMaxRate
+
+def mineVet(p: ParticipantReference) =
+  p.topology.vetted_packages.list(store = Some(stG)).filter(_.item.participantId == p.id)
+def vetted(p: ParticipantReference): Set[String] = mineVet(p).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(p: ParticipantReference): Long = mineVet(p).map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+def vet(p: ParticipantReference, pkg: String) =
+  p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(pkg, None, None)), store = stG)
+def swap(p: ParticipantReference, add: String, remove: String) =
+  p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(add, None, None)),
+    removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(remove)), store = stG, force = ForceFlags.none)
+def upload(dar: String): String = { val ids = Seq(P, U).map(_.dars.upload(dar, vetAllPackages = false))
+  require(ids.distinct.size == 1, s"package id differs per participant: $ids"); ids.head }
+def uploadAndVet(dar: String): String = { val id = upload(dar)
+  Seq(P, U).foreach(p => if (!vetted(p).contains(id)) vet(p, id))
+  utils.retry_until_true(timeout = 60.seconds)(Seq(P, U).forall(p => vetted(p).contains(id))); id }
+
+// Parties: find-or-create by hint (the setup pattern the proposal now requires).
+// LocalNet's console user (ledger-api-user) is participant admin but has no read/act rights on new
+// parties, so setup also grants them (idempotent).
+def findOrCreate(p: ParticipantReference, hint: String): PartyId = {
+  val party = p.ledger_api.parties.list().map(_.party).find(_.uid.identifier.str == hint)
+    .getOrElse(p.ledger_api.parties.allocate(hint, synchronizerId = Some(G), userId = LU).party)
+  p.ledger_api.users.rights.grant("ledger-api-user", actAs = Set(party), readAs = Set(party))
+  party
+}
+val provider = findOrCreate(P, "FredProvider")
+val user = findOrCreate(U, "FredUser")
+// The console reads each submitted transaction for every party its node hosts (incl. DSO): dev-only read-any.
+Seq(P, U).foreach(_.ledger_api.users.rights.grant(LU, readAsAnyParty = true))
+utils.retry_until_true(timeout = 60.seconds)(Seq(P, U).forall(p =>
+  p.parties.list(filterParty = "FredProvider").nonEmpty && p.parties.list(filterParty = "FredUser").nonEmpty))
+
+def pv(p: PartyId) = Value(Value.Sum.Party(p.toProtoPrimitive))
+def tid(pkg: String, t: String) = Identifier(pkg, "Shared", t)
+def rec(fs: (String, Value)*) = Some(Record(fields = fs.map { case (k, v) => RecordField(k, Some(v)) }))
+def createCmd(pkg: String, t: String, args: (String, Value)*) =
+  Command(Command.Command.Create(CreateCommand(templateId = Some(tid(pkg, t)), createArguments = rec(args: _*))))
+def exCmd(pkg: String, t: String, cid: String, choice: String) =
+  Command(Command.Command.Exercise(ExerciseCommand(templateId = Some(tid(pkg, t)), contractId = cid,
+    choice = choice, choiceArgument = Some(Value(Value.Sum.Record(Record()))))))
+def firstCreated(tx: com.daml.ledger.api.v2.transaction.Transaction, t: String) =
+  tx.events.map(_.getCreated).find(_.templateId.exists(_.entityName == t)).get.contractId
+def newShared(pkg: String, v: Value): String = {
+  val pc = firstCreated(P.ledger_api.commands.submit(Seq(provider),
+    Seq(createCmd(pkg, "Proposal", "provider" -> pv(provider), "user" -> pv(user), "value" -> v)), synchronizerId = Some(G), userId = LU), "Proposal")
+  utils.retry_until_true(timeout = 60.seconds)(U.ledger_api.state.acs.of_party(user).exists(_.contractId == pc))
+  val sc = firstCreated(U.ledger_api.commands.submit(Seq(user), Seq(exCmd(pkg, "Proposal", pc, "Accept")), synchronizerId = Some(G), userId = LU), "Shared")
+  utils.retry_until_true(timeout = 60.seconds)(P.ledger_api.state.acs.of_party(provider).exists(_.contractId == sc))
+  sc
+}
+def newOwn(p: ParticipantReference, party: PartyId, pkg: String, v: Value): String =
+  firstCreated(p.ledger_api.commands.submit(Seq(party), Seq(createCmd(pkg, "Own", "owner" -> pv(party), "value" -> v)), synchronizerId = Some(G), userId = LU), "Own")
+def activeOn(p: ParticipantReference, party: PartyId, pkg: String): Seq[String] =
+  p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == pkg).map(_.contractId)
+def acsSig() = Seq(P -> provider, U -> user).map { case (p, party) => p.ledger_api.state.acs.of_party(party).map(_.contractId).toSet }
+val TXT = Value(Value.Sum.Text("old")); val INT = Value(Value.Sum.Int64(42))
+// The seeded state: 2 Shared + 1 Own per party, all on `pkg`.
+def seed(pkg: String, v: Value): Unit = if (!seededOn(pkg)) { newShared(pkg, v); newShared(pkg, v); newOwn(P, provider, pkg, v); newOwn(U, user, pkg, v) }
+def countOn(p: ParticipantReference, party: PartyId, pkg: String, t: String) =
+  p.ledger_api.state.acs.of_party(party).count(c => c.templateId.packageId == pkg && c.templateId.entityName == t)
+def seededOn(pkg: String) = Seq(P -> provider, U -> user).forall { case (p, party) =>
+  countOn(p, party, pkg, "Shared") == 2 && countOn(p, party, pkg, "Own") == 1 }
+
+// ---- checkpoint + coordinated reload --------------------------------------------------------------
+val ckptPath = java.nio.file.Paths.get(sys.env.getOrElse("LN_CKPT", "/fred/state/fred.checkpoint"))
+def ckptRead(): Map[String, String] =
+  if (!java.nio.file.Files.exists(ckptPath)) Map.empty
+  else scala.io.Source.fromFile(ckptPath.toFile).getLines().filter(_.contains("=")).map { l =>
+    val i = l.indexOf('='); l.take(i) -> l.drop(i + 1) }.toMap
+def ckptWrite(m: Map[String, String]): Unit = {
+  java.nio.file.Files.createDirectories(ckptPath.getParent)
+  val tmp = java.nio.file.Paths.get(ckptPath.toString + ".tmp")
+  java.nio.file.Files.write(tmp, m.toSeq.sortBy(_._1).map { case (k, v) => s"$k=$v" }.mkString("\n").getBytes)
+  java.nio.file.Files.move(tmp, ckptPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+}
+def ckptPhase(p: String): Unit = { ckptWrite(ckptRead() + ("phase" -> p)); println(s"CKPT phase=$p") }
+
+def quiesce(): java.time.Instant = {
+  ckptWrite(Map("phase" -> "quiescing", "rate" -> rate().unwrap.toString))
+  setRate(NonNegativeInt.zero)
+  utils.retry_until_true(timeout = 30.seconds)(rate().unwrap == 0)
+  ckptPhase("quiesced"); now()
+}
+def drain(tRate0: java.time.Instant): Boolean = {
+  val d = dyn()
+  val bound = tRate0.plusSeconds(d.confirmationResponseTimeout.duration.toSeconds + d.mediatorReactionTimeout.duration.toSeconds + 5)
+  while (now().isBefore(bound)) Thread.sleep(500)
+  val s1 = acsSig(); Thread.sleep(6000); val s2 = acsSig()
+  ckptPhase("drained"); s1 == s2
+}
+def purgeNode(p: ParticipantReference, party: PartyId, from: String): Boolean = {
+  val cs = p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == from)
+  val alias = p.synchronizers.list_connected().head.synchronizerAlias
+  p.synchronizers.disconnect_all()
+  val r = attempt(p.repair.purge(alias, cs.map(c => LfContractId.assertFromString(c.contractId))))
+  p.synchronizers.reconnect_all()
+  utils.retry_until_true(timeout = 120.seconds)(p.synchronizers.list_connected().nonEmpty)
+  note(s"${p.name}: purged ${cs.size} ${r.left.toOption.getOrElse("")}")
+  r.isRight
+}
+def purgeAll(from: String): Boolean = { val r = purgeNode(P, provider, from) && purgeNode(U, user, from); ckptPhase("purged"); r }
+def swapAll(to: String, from: String): Boolean = {
+  val r = Seq(P, U).map { p =>
+    if (vetted(p).contains(to) && !vetted(p).contains(from)) true
+    else { val pre = serial(p); attempt(swap(p, to, from)).isRight && serial(p) == pre + 1 }
+  }
+  ckptPhase("swapped"); r.forall(identity)
+}
+def restore(): Boolean = {
+  val want = NonNegativeInt.tryCreate(ckptRead()("rate").toInt)
+  setRate(want); utils.retry_until_true(timeout = 30.seconds)(rate() == want)
+  ckptPhase("restored"); rate() == want
+}
+// One coordinated reload from package `from` to `to`, re-seeded on `to` with value `v`.
+def reload(from: String, to: String, v: Value): Boolean = {
+  val t0 = quiesce(); time("quiesce")
+  val dr = drain(t0); time("drain")
+  val pu = purgeAll(from); time("purge")
+  val sw = swapAll(to, from); time("swap")
+  val re = restore(); time("restore")
+  seed(to, v); time("setup")
+  val ok = dr && pu && sw && re && seededOn(to) && activeOn(P, provider, from).isEmpty && activeOn(U, user, from).isEmpty &&
+    Seq(P, U).forall(p => vetted(p).contains(to) && !vetted(p).contains(from))
+  note(s"reload drained=$dr purged=$pu swapped=$sw restored=$re seeded=${seededOn(to)}")
+  ok
+}
+println(s"SETUP localnet console attached: G=${G.toProtoPrimitive.take(24)} provider=${provider.toProtoPrimitive.take(24)} user=${user.toProtoPrimitive.take(24)}")

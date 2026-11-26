@@ -1,0 +1,23 @@
+SETUP remote console attached: A=syncA::1220d937c86cd B=syncB::1220c72bbd62e V1=5036e364c022 V2=bb1c219f0e98
+ASSERT resumeSeesQuiesced         PASS got=quiesced want=quiesced
+CKPT phase=restored
+ASSERT restoreFromCkpt            PASS got=1000000,1000000 want=1000000,1000000
+ASSERT ledgerUsableAfterRestore   PASS got=succeed want=succeed
+CKPT phase=quiesced
+CKPT phase=drained
+ASSERT drainAcsStable             PASS got= want=stable
+NOTE provider: purged syncA=2 syncB=1
+NOTE user: purged syncA=1 syncB=2
+CKPT phase=purged
+ASSERT purgeAll                   PASS got= want=succeed
+ASSERT noV1Left                   PASS got=0/0 want=0/0
+CKPT phase=swapped
+ASSERT swapAll                    PASS got= want=4 unforced swaps, serial +1 each
+ASSERT vettedV2Only               PASS got= want=v2 only
+CKPT phase=restored
+ASSERT restoreAfterReload         PASS got=1000000,1000000 want=1000000,1000000
+ASSERT setupV2                    PASS got=succeed want=succeed
+ASSERT v2ChoiceAcrossNodes        PASS got=succeed want=succeed
+CKPT phase=done
+EXPECT_NO_CODE mn6mismatch ACS_COMMITMENT_MISMATCH
+VERDICT PASS

@@ -1,0 +1,13 @@
+// Can the developer set confirmationRequestsMaxRate=0 on LocalNet, and does it stick?
+import com.digitalasset.canton.config.NonNegativeFiniteDuration
+val sid = sequencer.synchronizer_id
+def rate() = sequencer.topology.synchronizer_parameters.get_dynamic_synchronizer_parameters(sid).confirmationRequestsMaxRate
+def serial() = sequencer.topology.synchronizer_parameters.list(store = sid).map(_.context.serial).max
+val r0 = rate(); println(s"T0 rate=$r0 serial=${serial()}")
+val t = scala.util.Try(sv.topology.synchronizer_parameters.propose_update(sid, _.update(confirmationRequestsMaxRate = 0)))
+println(s"PROPOSE sv ok=${t.isSuccess} ${t.failed.toOption.map(_.getMessage.take(300)).getOrElse("")}")
+val t2 = scala.util.Try(sequencer.topology.synchronizer_parameters.propose_update(sid, _.update(confirmationRequestsMaxRate = 0)))
+println(s"PROPOSE sequencer ok=${t2.isSuccess} ${t2.failed.toOption.map(_.getMessage.take(200)).getOrElse("")}")
+for (i <- 1 to 19) { Thread.sleep(10000); println(s"W ${i*10}s rate=${rate()} serial=${serial()}") }
+sv.topology.synchronizer_parameters.propose_update(sid, _.update(confirmationRequestsMaxRate = r0))
+Thread.sleep(3000); println(s"RESTORED rate=${rate()} serial=${serial()}")

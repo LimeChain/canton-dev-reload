@@ -1,0 +1,3 @@
+// Timed RESTART setup (fresh LocalNet already started): parties + rights (library), upload + vet v2, seed v2.
+val V2 = uploadAndVet("/artifacts/shared-v2.dar"); seed(V2, INT)
+println(s"SEEDED ${now().toEpochMilli} ok=${seededOn(V2)}")

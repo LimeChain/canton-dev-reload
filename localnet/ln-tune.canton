@@ -1,0 +1,13 @@
+// LN tune: set confirmation-response and mediator-reaction timeouts from the SV participant (LN_CONFIRM_S,
+// LN_REACT_S), then check after LN_WATCH_S seconds that the SV app has not reverted them.
+import com.digitalasset.canton.config.NonNegativeFiniteDuration
+val c = req("LN_CONFIRM_S").toLong; val m = req("LN_REACT_S").toLong; val w = sys.env.getOrElse("LN_WATCH_S", "60").toLong
+note(s"before confirm=${dyn().confirmationResponseTimeout} react=${dyn().mediatorReactionTimeout}")
+val r = attempt(SV.topology.synchronizer_parameters.propose_update(G, _.update(
+  confirmationResponseTimeout = NonNegativeFiniteDuration.ofSeconds(c), mediatorReactionTimeout = NonNegativeFiniteDuration.ofSeconds(m))))
+note(s"propose ${r.left.toOption.getOrElse("ok")}")
+utils.retry_until_true(timeout = 30.seconds)(dyn().confirmationResponseTimeout.duration.toSeconds == c && dyn().mediatorReactionTimeout.duration.toSeconds == m)
+Thread.sleep(w * 1000)
+val d = dyn(); note(s"after ${w}s confirm=${d.confirmationResponseTimeout} react=${d.mediatorReactionTimeout}")
+check("tuned-held", d.confirmationResponseTimeout.duration.toSeconds == c && d.mediatorReactionTimeout.duration.toSeconds == m, s"${d.confirmationResponseTimeout}/${d.mediatorReactionTimeout}", s"${c}s/${m}s")
+verdict()

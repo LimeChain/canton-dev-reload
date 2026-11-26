@@ -19,3 +19,8 @@ logs/
 
 # the PQS fixtures are tracked: their package ids are pinned in pqs/fixtures/fixtures.tsv
 !pqs/fixtures/*.dar
+
+# LocalNet console state and the vendored cn-quickstart checkout used for LocalNet runs
+localnet/state/
+localnet/*.out
+.qs/

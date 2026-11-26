@@ -1,0 +1,37 @@
+SETUP remote console attached: A=syncA::1220d937c86cd B=syncB::1220c72bbd62e V1=5036e364c022 V2=bb1c219f0e98
+NOTE checkpoint after crash: Map(phase -> quiesced, rateA -> 1000000, rateB -> 1000000)
+ASSERT ckptPhaseQuiesced          PASS got=quiesced want=quiesced
+ASSERT ckptHasRates               PASS got=Some(1000000),Some(1000000) want=both recorded
+ASSERT stillRate0                 PASS got=0,0 want=0,0
+2026-11-26 13:07:30,764 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_BACKPRESSURE(2,1faaf5c3): The sequencer is overloaded.
+  Request: SubmitAndWaitTransaction(actAs = Provider::1220cdebc707..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'SEQUENCER_BACKPRESSURE',
+  category = ContentionOnSharedResources,
+  cause = "The sequencer is overloaded.",
+  traceId = '1faaf5c3d2dc32c2971e20cdc649686f',
+  context = Seq(
+    'participant=>provider',
+    'reason=>SendAsyncErrorGrpc(
+  Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,1faaf5c3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/7ca3dfd6-4c72-477a-a886-82605d026bf6
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '1faaf5c3d2dc32c2971e20cdc649686f',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+)',
+    'psid=>syncA::1220d937c86c...::35-0',
+    'definite_answer=>true'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from 02-observe.canton:84
+ASSERT ledgerBlockedAfterCrash    PASS got=fail want=fail
+EXPECT_CODE crashBlocked SEQUENCER_OVERLOADED
+ASSERT v1Untouched                PASS got=3/3 want=3/3
+ASSERT v1StillVetted              PASS got= want=v1 vetted everywhere
+VERDICT PASS

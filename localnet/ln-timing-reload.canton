@@ -1,0 +1,5 @@
+// Timed RELOAD (fresh console JVM): upload v2 unvetted, quiesce, drain, purge both app nodes, swap, restore,
+// setup v2. Ends with SEEDED <epoch ms> ok=<bool> once v2 is seeded and v1 is gone and unvetted.
+val V1 = req("LN_V1"); val V2 = upload("/artifacts/shared-v2.dar")
+val ok = reload(V1, V2, INT)
+println(s"SEEDED ${now().toEpochMilli} ok=$ok")

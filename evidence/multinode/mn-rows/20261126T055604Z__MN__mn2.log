@@ -1,0 +1,201 @@
+SETUP syncA maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP syncB maxRate=1000000 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+SETUP fixture ready
+SETUP variant=mn2 (commit)
+ASSERT userOffA                   PASS got= want=user disconnected from syncA
+ASSERT stampPending               PASS got=false want=false (request in flight)
+NOTE rate0 set 3.2s after the pending submission; syncA maxRate=0 confirmTimeout=30s mediatorReaction=10s reconciliation=5s
+ASSERT rate0A                     PASS got=0 want=0
+ASSERT rate0B                     PASS got=0 want=0
+ASSERT stampStillPendingAtRate0   PASS got=false want=false
+2026-11-26 12:56:21,198 [canton-env-ec-44] WARN  c.d.c.s.c.p.GrpcConnection:participant=provider/synchronizerAlias=Synchronizer 'syncB'/pool=main/connection=sequencerB-0 tid:60864ae3aee4726be182ff8cd6664301 - Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,60864ae3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/bc15776e-a82e-4809-a263-e64f293b9886
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '60864ae3aee4726be182ff8cd6664301',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+2026-11-26 12:56:21,203 [canton-env-ec-45] WARN  c.d.c.p.p.TransactionProcessor:participant=provider/psid=syncB::12203e7d85dd::35-0 tid:60864ae3aee4726be182ff8cd6664301 - Failed to submit transaction due to Error(RequestRefused(
+  SendAsyncErrorGrpc(
+    Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,60864ae3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/bc15776e-a82e-4809-a263-e64f293b9886
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '60864ae3aee4726be182ff8cd6664301',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+  )
+))
+2026-11-26 12:56:21,219 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_BACKPRESSURE(2,60864ae3): The sequencer is overloaded.
+  Request: SubmitAndWaitTransaction(actAs = Provider::122085cb3310..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'SEQUENCER_BACKPRESSURE',
+  category = ContentionOnSharedResources,
+  cause = "The sequencer is overloaded.",
+  traceId = '60864ae3aee4726be182ff8cd6664301',
+  context = Seq(
+    'participant=>provider',
+    'reason=>SendAsyncErrorGrpc(
+  Request failed for server-sequencerB-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,60864ae3): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/bc15776e-a82e-4809-a263-e64f293b9886
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '60864ae3aee4726be182ff8cd6664301',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerB', 'definite_answer=>true')
+)
+)',
+    'psid=>syncB::12203e7d85dd...::35-0',
+    'definite_answer=>true'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn2.run.canton:138
+ASSERT newCreateRejectedB         PASS got=fail want=fail
+EXPECT_CODE rate0Reject SEQUENCER_OVERLOADED
+2026-11-26 12:56:21,240 [canton-env-ec-44] WARN  c.d.c.s.c.p.GrpcConnection:participant=provider/synchronizerAlias=Synchronizer 'syncA'/pool=main/connection=sequencerA-0 tid:4db8edead59cfa7d249f350dcd947695 - Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,4db8edea): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/a1d7ee1f-7b6a-4e8a-9f6f-93e030c01fe1
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '4db8edead59cfa7d249f350dcd947695',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+2026-11-26 12:56:21,241 [canton-env-ec-44] WARN  c.d.c.p.p.TransactionProcessor:participant=provider/psid=syncA::1220dcf76402::35-0 tid:4db8edead59cfa7d249f350dcd947695 - Failed to submit transaction due to Error(RequestRefused(
+  SendAsyncErrorGrpc(
+    Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,4db8edea): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/a1d7ee1f-7b6a-4e8a-9f6f-93e030c01fe1
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '4db8edead59cfa7d249f350dcd947695',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+  )
+))
+2026-11-26 12:56:21,246 [main] ERROR c.d.c.c.CantonConsoleEnvironment - Request failed for provider.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_BACKPRESSURE(2,4db8edea): The sequencer is overloaded.
+  Request: SubmitAndWaitTransaction(actAs = Provider::122085cb3310..., readAs = Seq(), commandId = '', workflowId = '', submissionId = '', deduplicationPeriod = None(), commands = ...)
+  DecodedCantonError(
+  code = 'SEQUENCER_BACKPRESSURE',
+  category = ContentionOnSharedResources,
+  cause = "The sequencer is overloaded.",
+  traceId = '4db8edead59cfa7d249f350dcd947695',
+  context = Seq(
+    'participant=>provider',
+    'reason=>SendAsyncErrorGrpc(
+  Request failed for server-sequencerA-0.
+  GrpcRequestRefusedByServer: ABORTED/SEQUENCER_OVERLOADED(2,4db8edea): Submission rate exceeds rate limit of 0/s.
+  Request: send-async-versioned/a1d7ee1f-7b6a-4e8a-9f6f-93e030c01fe1
+  DecodedCantonError(
+  code = 'SEQUENCER_OVERLOADED',
+  category = ContentionOnSharedResources,
+  cause = "Submission rate exceeds rate limit of 0/s.",
+  traceId = '4db8edead59cfa7d249f350dcd947695',
+  context = Seq('outer=>Overloaded', 'message1=>Submission rate exceeds rate limit of 0/s.', 'sequencer=>sequencerA', 'definite_answer=>true')
+)
+)',
+    'psid=>syncA::1220dcf76402...::35-0',
+    'definite_answer=>true'
+  )
+)
+  Command BaseLedgerApiAdministration$ledger_api$commands$.submit invoked from mn-mn2.run.canton:138
+ASSERT newCreateRejectedA         PASS got=fail want=fail
+ASSERT q3VetAtRate0               PASS got=succeed want=succeed
+ASSERT q3SerialAdvanced           PASS got=1 want=1
+NOTE drain bound = rate0 + confirmationResponseTimeout 30s + mediatorReactionTimeout 10s + margin 5s
+ASSERT stampCommitted             PASS got=true want=true
+ASSERT committedBeforeBound       PASS got=1.0s want=<= 45.0s
+NOTE stamp committed 1.0s after rate0
+NOTE ledger ends over 12s: 67/52 67/52 67/52 67/52 67/52 67/52
+NOTE acs sizes over 12s: 2/1 2/1 2/1 2/1 2/1 2/1
+ASSERT drainAcsStable             PASS got=1 distinct want=1
+ASSERT rateRestored               PASS got=1000000,1000000 want=1000000,1000000
+ASSERT createAfterRestore         PASS got=succeed want=succeed
+VERDICT PASS
+2026-11-26 12:57:19,459 [canton-env-ec-41] ERROR c.d.c.p.s.d.DbDispatcherOfStorage:participant=provider tid:00b793233bca5b2ade50e638c564d210 - INDEX_DB_SQL_NON_TRANSIENT_ERROR(4,00b79323): Processing the request failed due to a non-transient database error: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224] err-context:{location=DatabaseSelfServiceError.scala:64} 
+org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.checkClosed(JdbcConnection.java:1425)
+	at org.h2.jdbc.JdbcStatement.checkClosed(JdbcStatement.java:1289)
+	at org.h2.jdbc.JdbcResultSet.checkClosed(JdbcResultSet.java:3539)
+	at org.h2.jdbc.JdbcResultSetMetaData.checkClosed(JdbcResultSetMetaData.java:401)
+	at org.h2.jdbc.JdbcResultSetMetaData.getColumn(JdbcResultSetMetaData.java:420)
+	at org.h2.jdbc.JdbcResultSetMetaData.getTableName(JdbcResultSetMetaData.java:148)
+	at anorm.MetaData$.tableName$1(MetaData.scala:148)
+	at anorm.MetaData$.$anonfun$parse$1(MetaData.scala:153)
+	at anorm.MetaData$.$anonfun$parse$1$adapted(MetaData.scala:139)
+	at scala.collection.immutable.List.map(List.scala:247)
+	at anorm.MetaData$.parse(MetaData.scala:139)
+	at anorm.Cursor$.apply(Cursor.scala:27)
+	at anorm.Sql$.unsafeCursor(Anorm.scala:250)
+	at anorm.Sql$.$anonfun$withResult$1(Anorm.scala:256)
+	at scala.Function1.$anonfun$andThen$1(Function1.scala:87)
+	at resource.AbstractManagedResource.$anonfun$acquireFor$1(AbstractManagedResource.scala:85)
+	at scala.util.control.Exception$Catch.$anonfun$either$1(Exception.scala:251)
+	at scala.util.control.Exception$Catch.apply(Exception.scala:227)
+	at scala.util.control.Exception$Catch.either(Exception.scala:251)
+	at resource.AbstractManagedResource.acquireFor(AbstractManagedResource.scala:85)
+	at resource.ManagedResourceOperations$$anon$1.$anonfun$acquireFor$1(ManagedResourceOperations.scala:47)
+	at resource.AbstractManagedResource.$anonfun$acquireFor$1(AbstractManagedResource.scala:85)
+	at scala.util.control.Exception$Catch.$anonfun$either$1(Exception.scala:251)
+	at scala.util.control.Exception$Catch.apply(Exception.scala:227)
+	at scala.util.control.Exception$Catch.either(Exception.scala:251)
+	at resource.AbstractManagedResource.acquireFor(AbstractManagedResource.scala:85)
+	at resource.ManagedResourceOperations$$anon$1.acquireFor(ManagedResourceOperations.scala:47)
+	at resource.DeferredExtractableManagedResource.acquireFor(AbstractManagedResource.scala:25)
+	at resource.ManagedResourceOperations.apply(ManagedResourceOperations.scala:31)
+	at resource.ManagedResourceOperations.apply$(ManagedResourceOperations.scala:31)
+	at resource.DeferredExtractableManagedResource.apply(AbstractManagedResource.scala:22)
+	at resource.ManagedResourceOperations.acquireAndGet(ManagedResourceOperations.scala:29)
+	at resource.ManagedResourceOperations.acquireAndGet$(ManagedResourceOperations.scala:29)
+	at resource.DeferredExtractableManagedResource.acquireAndGet(AbstractManagedResource.scala:22)
+	at anorm.Sql$.$anonfun$asTry$1(Anorm.scala:263)
+	at scala.util.Try$.apply(Try.scala:217)
+	at anorm.Sql$.asTry(Anorm.scala:263)
+	at anorm.WithResult.asTry(SqlResult.scala:215)
+	at anorm.WithResult.asTry$(SqlResult.scala:213)
+	at anorm.SimpleSql.asTry(SimpleSql.scala:6)
+	at anorm.WithResult.as(SqlResult.scala:205)
+	at anorm.WithResult.as$(SqlResult.scala:204)
+	at anorm.SimpleSql.as(SimpleSql.scala:6)
+	at com.digitalasset.canton.platform.store.backend.common.SimpleSqlExtensions$SimpleSql$u0020ops$.asSingleOpt$extension(SimpleSqlExtensions.scala:63)
+	at com.digitalasset.canton.platform.store.backend.common.ParameterStorageBackendImpl.$anonfun$cleanSynchronizerIndex$2(ParameterStorageBackendImpl.scala:317)
+	at com.digitalasset.canton.platform.store.backend.common.ParameterStorageBackendImpl.$anonfun$cleanSynchronizerIndex$2$adapted(ParameterStorageBackendImpl.scala:264)
+	at scala.Option.flatMap(Option.scala:283)
+	at com.digitalasset.canton.platform.store.backend.common.ParameterStorageBackendImpl.cleanSynchronizerIndex(ParameterStorageBackendImpl.scala:264)
+	at com.digitalasset.canton.participant.ledger.api.LedgerApiStore.$anonfun$cleanSynchronizerIndex$1(LedgerApiStore.scala:111)
+	at com.digitalasset.canton.platform.store.dao.DbDispatcher$.$anonfun$executeSql$10(DbDispatcher.scala:254)
+	at com.daml.metrics.api.noop.NoOpTimer.time(Metrics.scala:23)
+	at com.daml.metrics.Timed$.value(Timed.scala:15)
+	at com.digitalasset.canton.platform.store.dao.DbDispatcher$.$anonfun$executeSql$9(DbDispatcher.scala:254)
+	at scala.util.Try$.apply(Try.scala:217)
+	at com.digitalasset.canton.platform.store.dao.DbDispatcher$.$anonfun$executeSql$8(DbDispatcher.scala:251)
+	at com.digitalasset.canton.resource.DbStorageSingle.$anonfun$runJdbcWrite$2(DbStorageSingle.scala:141)
+	at slick.jdbc.SimpleJdbcAction.run(StreamingInvokerAction.scala:78)
+	at slick.jdbc.SimpleJdbcAction.run(StreamingInvokerAction.scala:76)
+	at slick.basic.BasicBackend$BasicDatabaseDef.liftedTree1$1(BasicBackend.scala:323)
+	at slick.basic.BasicBackend$BasicDatabaseDef.$anonfun$runSynchronousDatabaseAction$2(BasicBackend.scala:323)
+	at slick.basic.BasicBackend$BasicDatabaseDef.$anonfun$runSynchronousDatabaseAction$2$adapted(BasicBackend.scala:318)
+	at slick.util.AsyncExecutor$PrioritizedRunnable$$anon$6.run(AsyncExecutor.scala:330)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-11-26 12:57:19,461 [canton-env-ec-41] ERROR c.d.c.p.p.JournalGarbageCollector:participant=provider/psid=syncA::1220dcf76402::35-0 tid:00b793233bca5b2ade50e638c564d210 - Periodic background journal pruning failed
+com.digitalasset.canton.ledger.error.IndexErrors$IndexDbException: INTERNAL: An error occurred. Please contact the operator and inquire about the request 00b793233bca5b2ade50e638c564d210 with tid 00b793233bca5b2ade50e638c564d210

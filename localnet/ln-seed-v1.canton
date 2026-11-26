@@ -1,0 +1,6 @@
+// LN fixture: v1 uploaded and vetted on both app nodes, seeded (2 Shared + 1 Own per party). Idempotent.
+val V1 = uploadAndVet("/artifacts/shared-v1.dar")
+note(s"before: v1 provider=${activeOn(P, provider, V1).size} user=${activeOn(U, user, V1).size}"); seed(V1, TXT)
+println(s"PKG V1=$V1"); println(s"PKG V2=${upload("/artifacts/shared-v2.dar")}")
+check("seeded-v1", seededOn(V1), seededOn(V1).toString, "true")
+verdict()

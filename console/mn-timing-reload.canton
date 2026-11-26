@@ -1,0 +1,21 @@
+// Timing, RELOAD path: from a running v1 topology to the same seeded v2 state as the restart path,
+// without restarting anything. Upload is inside the timed interval. TIME lines give the step split.
+var tMark = now()
+def time(step: String): Unit = { val t = now(); println(f"TIME $step%-10s ${(t.toEpochMilli - tMark.toEpochMilli) / 1000.0}%.2f"); tMark = t }
+time("attach")
+val ids = Seq(P, U).map(_.dars.upload(req("MN_V2_DAR"), vetAllPackages = false))
+V2 = ids.head
+time("upload")
+val tRate0 = quiesce(); time("quiesce")
+val drained = drain(tRate0); time("drain")
+val purged = purgeAll(); time("purge")
+val swapped = swapAll(); time("swap")
+val restored = restore(); time("restore")
+newShared(V2, INT, A); newShared(V2, INT, B)
+newOwn(P, provider, V2, INT, A); newOwn(U, user, V2, INT, B)
+val ok2 = drained && purged && swapped && restored && activeOn(P, provider, V2).size == 3 && activeOn(U, user, V2).size == 3 &&
+  activeOn(P, provider, V1).isEmpty && activeOn(U, user, V1).isEmpty
+time("setup")
+println(s"SEEDED ${System.currentTimeMillis()} ok=$ok2")
+check("seeded", ok2, ok2.toString, "true")
+verdict()

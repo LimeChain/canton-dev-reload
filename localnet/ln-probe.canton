@@ -1,0 +1,10 @@
+val sid = sequencer.synchronizer_id
+println(s"SYNC $sid")
+val p0 = sequencer.topology.synchronizer_parameters.get_dynamic_synchronizer_parameters(sid)
+println(s"PARAMS rate=${p0.confirmationRequestsMaxRate} confirm=${p0.confirmationResponseTimeout} react=${p0.mediatorReactionTimeout} recon=${p0.reconciliationInterval}")
+println(s"SEQ_ID ${sequencer.id}")
+println(s"SV_ID ${sv.id}  PROV_ID ${aprov.id}  USER_ID ${auser.id}")
+sequencer.topology.decentralized_namespaces.list(store = sid).foreach(d => println(s"DNS ${d.item}"))
+sequencer.topology.synchronizer_parameters.list(store = sid).foreach(r => println(s"SPC serial=${r.context.serial} signedBy=${r.context.signedBy}"))
+println(s"CONNECTED prov=${aprov.synchronizers.list_connected().map(_.synchronizerAlias)} user=${auser.synchronizers.list_connected().map(_.synchronizerAlias)}")
+println(s"DB prov=${aprov.health.status}")

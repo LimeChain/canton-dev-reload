@@ -1,0 +1,9 @@
+// Timing, RESTART path: the topology comes up from nothing (fresh H2, new synchronizers, new party ids)
+// and is seeded directly on v2 with the same contract set the reload path ends with:
+// 2 Shared (one per synchronizer) and 1 Own per party.
+val V2 = uploadAndVet(req("MN_V2_DAR"))
+newShared(V2, INT, A); newShared(V2, INT, B)
+newOwn(P, provider, V2, INT, A); newOwn(U, user, V2, INT, B)
+val ok2 = activeOn(P, provider, V2).size == 3 && activeOn(U, user, V2).size == 3
+println(s"SEEDED ${System.currentTimeMillis()} ok=$ok2")
+println("MN READY")

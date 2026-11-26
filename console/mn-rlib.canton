@@ -1,0 +1,150 @@
+// Remote-console library for rows that need the nodes to outlive a console (MN6 crash, PQS-P).
+// The nodes run in a daemon started by scripts/75-mn-daemon.sh (bootstrap: mn-lib + mn-daemon.canton);
+// this file reconnects to them over the admin/ledger APIs and offers the same helpers as mn-lib,
+// typed for remote references, plus the coordinated reload as checkpointed steps.
+import com.digitalasset.canton.config.RequireTypes.{PositiveInt, NonNegativeInt}
+import com.digitalasset.canton.topology.transaction.VettedPackage
+import com.digitalasset.canton.topology.ForceFlags
+import com.digitalasset.canton.topology.admin.grpc.TopologyStoreId
+import com.digitalasset.canton.protocol.LfContractId
+import com.digitalasset.canton.console.{ParticipantReference, SequencerReference}
+import com.digitalasset.canton.topology.{PartyId, SynchronizerId}
+import com.daml.ledger.api.v2.commands.{Command, CreateCommand, ExerciseCommand}
+import com.daml.ledger.api.v2.value.{Identifier, Record, RecordField, Value}
+
+def req(k: String): String = sys.env.getOrElse(k, throw new IllegalArgumentException(s"$k is required"))
+val failures = scala.collection.mutable.ListBuffer[String]()
+def check(name: String, ok: Boolean, got: String, want: String): Unit = {
+  println(f"ASSERT $name%-26s ${if (ok) "PASS" else "FAIL"}%-4s got=$got want=$want")
+  if (!ok) failures += s"$name got=$got want=$want"
+}
+def attempt[T](f: => T): Either[String, T] = scala.util.Try(f) match {
+  case scala.util.Success(v) => Right(v)
+  case scala.util.Failure(e) => Left(Option(e.getMessage).getOrElse(e.toString).take(300))
+}
+def ok(e: Either[String, _]) = if (e.isRight) "succeed" else "fail"
+def expectCode(step: String, code: String): Unit = println(s"EXPECT_CODE $step $code")
+def expectNoCode(step: String, code: String): Unit = println(s"EXPECT_NO_CODE $step $code")
+def note(s: String): Unit = println(s"NOTE $s")
+def tval(k: String, v: Any): Unit = println(s"T $k=$v")
+def verdict(): Unit =
+  if (failures.nonEmpty) { println(s"VERDICT FAIL (${failures.size}): ${failures.mkString("; ")}"); sys.exit(1) }
+  else { println("VERDICT PASS"); sys.exit(0) }
+def now() = java.time.Instant.now()
+
+val P: ParticipantReference = participants.all.find(_.name == "provider").get
+val U: ParticipantReference = participants.all.find(_.name == "user").get
+val sA: SequencerReference = sequencers.all.find(_.name == "sequencerA").get
+val sB: SequencerReference = sequencers.all.find(_.name == "sequencerB").get
+def connectedId(alias: String) = P.synchronizers.list_connected().find(_.synchronizerAlias.unwrap == alias).get.physicalSynchronizerId
+val psA = connectedId("syncA"); val psB = connectedId("syncB")
+val A: SynchronizerId = psA.logical; val B: SynchronizerId = psB.logical
+val (stA, stB) = (TopologyStoreId.Synchronizer(psA), TopologyStoreId.Synchronizer(psB))
+val owner: Map[SynchronizerId, SequencerReference] = Map(A -> sA, B -> sB)
+val provider: PartyId = P.parties.list(filterParty = "Provider").head.party
+val user: PartyId = U.parties.list(filterParty = "User").head.party
+val V1 = req("MN_V1_PKG"); var V2 = sys.env.getOrElse("MN_V2_PKG", "")
+
+def dyn(id: SynchronizerId) = owner(id).topology.synchronizer_parameters.get_dynamic_synchronizer_parameters(id)
+def setDyn(id: SynchronizerId, f: com.digitalasset.canton.admin.api.client.data.DynamicSynchronizerParameters =>
+           com.digitalasset.canton.admin.api.client.data.DynamicSynchronizerParameters) =
+  owner(id).topology.synchronizer_parameters.propose_update(id, f)
+def rate(id: SynchronizerId) = dyn(id).confirmationRequestsMaxRate
+
+def mineVet(p: ParticipantReference, st: TopologyStoreId) =
+  p.topology.vetted_packages.list(store = Some(st)).filter(_.item.participantId == p.id)
+def vetted(p: ParticipantReference, st: TopologyStoreId): Set[String] =
+  mineVet(p, st).flatMap(_.item.packages.map(_.packageId.toString)).toSet
+def serial(p: ParticipantReference, st: TopologyStoreId): Long =
+  mineVet(p, st).map(_.context.serial.value.toLong).maxOption.getOrElse(0L)
+def swap(p: ParticipantReference, st: TopologyStoreId, add: String, remove: String) =
+  p.topology.vetted_packages.propose_delta(p.id, adds = Seq(VettedPackage(add, None, None)),
+    removes = Seq(com.digitalasset.daml.lf.data.Ref.PackageId.assertFromString(remove)), store = st,
+    force = ForceFlags.none)
+
+def pv(p: PartyId) = Value(Value.Sum.Party(p.toProtoPrimitive))
+def tid(pkg: String, t: String) = Identifier(pkg, "Shared", t)
+def rec(fs: (String, Value)*) = Some(Record(fields = fs.map { case (k, v) => RecordField(k, Some(v)) }))
+def createCmd(pkg: String, t: String, args: (String, Value)*) =
+  Command(Command.Command.Create(CreateCommand(templateId = Some(tid(pkg, t)), createArguments = rec(args: _*))))
+def exCmd(pkg: String, t: String, cid: String, choice: String) =
+  Command(Command.Command.Exercise(ExerciseCommand(templateId = Some(tid(pkg, t)), contractId = cid,
+    choice = choice, choiceArgument = Some(Value(Value.Sum.Record(Record()))))))
+def firstCreated(tx: com.daml.ledger.api.v2.transaction.Transaction, t: String) =
+  tx.events.map(_.getCreated).find(_.templateId.exists(_.entityName == t)).get.contractId
+def newShared(pkg: String, v: Value, sync: SynchronizerId): String = {
+  val pc = firstCreated(P.ledger_api.commands.submit(Seq(provider),
+    Seq(createCmd(pkg, "Proposal", "provider" -> pv(provider), "user" -> pv(user), "value" -> v)), synchronizerId = Some(sync)), "Proposal")
+  utils.retry_until_true(timeout = 30.seconds)(U.ledger_api.state.acs.of_party(user).exists(_.contractId == pc))
+  val sc = firstCreated(U.ledger_api.commands.submit(Seq(user), Seq(exCmd(pkg, "Proposal", pc, "Accept")), synchronizerId = Some(sync)), "Shared")
+  utils.retry_until_true(timeout = 30.seconds)(P.ledger_api.state.acs.of_party(provider).exists(_.contractId == sc))
+  sc
+}
+def newOwnTx(p: ParticipantReference, party: PartyId, pkg: String, v: Value, sync: SynchronizerId) =
+  p.ledger_api.commands.submit(Seq(party), Seq(createCmd(pkg, "Own", "owner" -> pv(party), "value" -> v)), synchronizerId = Some(sync))
+def newOwn(p: ParticipantReference, party: PartyId, pkg: String, v: Value, sync: SynchronizerId): String =
+  firstCreated(newOwnTx(p, party, pkg, v, sync), "Own")
+def activeOn(p: ParticipantReference, party: PartyId, pkg: String): Seq[String] =
+  p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == pkg).map(_.contractId)
+def acsSig() = Seq(P -> provider, U -> user).map { case (p, party) => p.ledger_api.state.acs.of_party(party).map(_.contractId).toSet }
+val TXT = Value(Value.Sum.Text("old")); val INT = Value(Value.Sum.Int64(42))
+
+// ---- checkpoint: a small key=value file, rewritten atomically after every step -----------------
+val ckptPath = java.nio.file.Paths.get(req("MN_CKPT"))
+def ckptRead(): Map[String, String] =
+  if (!java.nio.file.Files.exists(ckptPath)) Map.empty
+  else scala.io.Source.fromFile(ckptPath.toFile).getLines().filter(_.contains("=")).map { l =>
+    val i = l.indexOf('='); l.take(i) -> l.drop(i + 1) }.toMap
+def ckptWrite(m: Map[String, String]): Unit = {
+  val tmp = java.nio.file.Paths.get(ckptPath.toString + ".tmp")
+  java.nio.file.Files.write(tmp, m.toSeq.sortBy(_._1).map { case (k, v) => s"$k=$v" }.mkString("\n").getBytes)
+  java.nio.file.Files.move(tmp, ckptPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+}
+def ckptPhase(p: String): Unit = { ckptWrite(ckptRead() + ("phase" -> p)); println(s"CKPT phase=$p") }
+
+// ---- coordinated reload, one function per step --------------------------------------------------
+// quiesce: WRITE-AHEAD the original rates, then set 0. A crash anywhere after the first write leaves
+// enough on disk to restore the rates.
+def quiesce(): java.time.Instant = {
+  ckptWrite(Map("phase" -> "quiescing", "rateA" -> rate(A).unwrap.toString, "rateB" -> rate(B).unwrap.toString))
+  Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = NonNegativeInt.zero)))
+  ckptPhase("quiesced")
+  now()
+}
+def drain(tRate0: java.time.Instant): Boolean = {
+  val bound = Seq(A, B).map { id => val d = dyn(id)
+    tRate0.plusSeconds(d.confirmationResponseTimeout.duration.toSeconds + d.mediatorReactionTimeout.duration.toSeconds + 5) }.max
+  while (now().isBefore(bound)) Thread.sleep(500)
+  val s1 = acsSig(); Thread.sleep(6000); val s2 = acsSig()
+  ckptPhase("drained")
+  s1 == s2
+}
+def purgeNode(p: ParticipantReference, party: PartyId): Boolean = {
+  val bySync = p.ledger_api.state.acs.of_party(party).filter(_.templateId.packageId == V1)
+    .groupBy(c => c.synchronizerId.map(_.toString).getOrElse("?").takeWhile(_ != ':'))
+  p.synchronizers.disconnect_all()
+  val r = bySync.toSeq.map { case (alias, cs) =>
+    attempt(p.repair.purge(com.digitalasset.canton.SynchronizerAlias.tryCreate(alias), cs.map(c => LfContractId.assertFromString(c.contractId))))
+  }
+  p.synchronizers.reconnect_all()
+  utils.retry_until_true(timeout = 60.seconds)(p.synchronizers.list_connected().size == 2)
+  note(s"${p.name}: purged ${bySync.map { case (a, cs) => s"$a=${cs.size}" }.mkString(" ")}")
+  r.forall(_.isRight)
+}
+def purgeAll(): Boolean = { val r = purgeNode(P, provider) && purgeNode(U, user); ckptPhase("purged"); r }
+def swapAll(): Boolean = {
+  val r = for (p <- Seq(P, U); st <- Seq(stA, stB)) yield {
+    if (vetted(p, st).contains(V2) && !vetted(p, st).contains(V1)) true // resumed: already swapped
+    else { val pre = serial(p, st); attempt(swap(p, st, V2, V1)).isRight && serial(p, st) == pre + 1 }
+  }
+  ckptPhase("swapped"); r.forall(identity)
+}
+// restore: rates come from the checkpoint, never from the live (possibly zero) values.
+def restore(): Boolean = {
+  val c = ckptRead()
+  val want = Map(A -> NonNegativeInt.tryCreate(c("rateA").toInt), B -> NonNegativeInt.tryCreate(c("rateB").toInt))
+  Seq(A, B).foreach(id => setDyn(id, _.update(confirmationRequestsMaxRate = want(id))))
+  ckptPhase("restored")
+  Seq(A, B).forall(id => rate(id) == want(id))
+}
+println(s"SETUP remote console attached: A=${A.toProtoPrimitive.take(20)} B=${B.toProtoPrimitive.take(20)} V1=${V1.take(12)} V2=${V2.take(12)}")
